@@ -1,6 +1,7 @@
-package bls
+package bls12
 
-import "math/big"
+import (
+	"math/big"
+)
 
-// Fq is an element of Fq
-type Fq *big.Int
+type fq *big.Int
