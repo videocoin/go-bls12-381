@@ -27,9 +27,8 @@ func TestNewFq(t *testing.T) {
 			output: "c365b13802f37e3028339cc48d630919b974b3740485f0a23abf8f8762dc16666199fffeb153ffffb9feffffffffaaab",
 		},
 	}
-
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf(""), func(t *testing.T) {
+		t.Run(fmt.Sprintf("input: %s", testCase.input), func(t *testing.T) {
 			if fq := newFq(testCase.input); fq.String() != testCase.output {
 				t.Errorf("expected %s, got %s", testCase.output, fq)
 			}
