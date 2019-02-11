@@ -1,26 +1,35 @@
 package bls12
 
 import (
-	"crypto/rand"
 	"io"
+	"math/big"
 )
 
 // PrivateKey represents a BLS12-381 private key.
 type PrivateKey struct {
 	PublicKey
+	Scalar *big.Int
 }
 
 // PublicKey represents a BLS12-381 public key.
-type PublicKey struct{}
+type PublicKey struct {
+	*twistPoint
+}
+
+type blsSignature struct {
+	*curvePoint
+}
 
 // Public returns the public key corresponding to priv.
 func (priv *PrivateKey) Public() PublicKey {
-	return PublicKey{}
+	return priv.PublicKey
 }
 
 // Sign signs a hash with priv.
 func (priv *PrivateKey) Sign(rand io.Reader, hash []byte) []byte {
-	return []byte{}
+	//sig := &g1Element{}
+	//return marshalG1(blsSignature{sig})
+	return nil
 }
 
 // Sign signs a hash (which should be the result of hashing a larger message)
@@ -32,15 +41,18 @@ func Sign(rand io.Reader, priv *PrivateKey, hash []byte) []byte {
 }
 
 // GenerateKey generates a public and private key pair.
-func GenerateKey(seed []byte) (*PrivateKey, error) {
-	if seed == nil {
-		_, err := rand.Read(seed)
-		if err != nil {
-			return nil, err
-		}
+func GenerateKey(reader io.Reader) (*PrivateKey, error) {
+	scalar, twistPoint, err := randomG2(reader)
+	if err != nil {
+		return nil, err
 	}
 
-	return &PrivateKey{}, nil
+	return &PrivateKey{
+		Scalar: scalar,
+		PublicKey: PublicKey{
+			twistPoint: twistPoint,
+		},
+	}, nil
 }
 
 // Verify verifies the signature of hash using the public key(s), pub. Its

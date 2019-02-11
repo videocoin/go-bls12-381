@@ -1,9 +1,10 @@
 package bls12
 
+/*
 func fqCarry(a *fq, head uint64) {
 	var b fq
 	var carry uint64
-	for i, pi := range q {
+	for i, pi := range Q {
 		ai := a[i]
 		bi := pi + ai + carry
 		b[i] = bi
@@ -17,6 +18,7 @@ func fqCarry(a *fq, head uint64) {
 		a[i] = (a[i] & carry) | (b[i] & ncarry)
 	}
 }
+
 
 func fqAdd(c, a, b *fq) {
 	var carry uint64
@@ -32,3 +34,5 @@ func fqAdd(c, a, b *fq) {
 func fqMul(c, a, b *fq) {
 
 }
+
+*/

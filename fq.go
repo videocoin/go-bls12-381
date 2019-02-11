@@ -2,20 +2,10 @@ package bls12
 
 import (
 	"fmt"
-	"math/big"
 	"strconv"
 )
 
-const (
-	fqLen = 6
-
-	decimalBase = 10
-)
-
-func bigFromBase10(value string) *big.Int {
-	n, _ := new(big.Int).SetString(value, decimalBase)
-	return n
-}
+const fqLen = 6
 
 type fq [fqLen]uint64
 
