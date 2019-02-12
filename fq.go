@@ -2,6 +2,7 @@ package bls12
 
 import (
 	"fmt"
+	"math/big"
 	"strconv"
 )
 
@@ -9,14 +10,9 @@ const fqLen = 6
 
 type fq [fqLen]uint64
 
-// String satisfies the Stringer interface.
-func (e *fq) String() string {
-	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", e[5], e[4], e[3], e[2], e[1], e[0])
-}
-
-func newFq(str string) *fq {
-	fq := &fq{}
-	words := bigFromBase10(str).Bits()
+func newFq(n *big.Int) fq {
+	fq := fq{}
+	words := n.Bits()
 	numWords := len(words)
 	if strconv.IntSize == 64 {
 		for i := 0; i < numWords && i < fqLen; i++ {
@@ -29,3 +25,14 @@ func newFq(str string) *fq {
 	}
 	return fq
 }
+
+// String satisfies the Stringer interface.
+func (elm *fq) String() string {
+	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", elm[5], elm[4], elm[3], elm[2], elm[1], elm[0])
+}
+
+func fqAdd(c, a, b *fq) {}
+func fqMul(c, a, b *fq) {}
+func fqSub(c, a, b *fq) {}
+func fqSqr(c, a *fq)    {}
+func fqDbl(c, a *fq)    {}

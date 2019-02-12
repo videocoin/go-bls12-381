@@ -2,9 +2,8 @@ package bls12
 
 var (
 	g1Generator = &curvePoint{
-		x: *newFq(g1X),
-		y: *newFq(g1Y),
-		z: *newFq("1"),
+		x: g1X,
+		y: g1Y,
 	}
 )
 

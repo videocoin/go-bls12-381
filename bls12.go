@@ -13,9 +13,25 @@ type PrivateKey struct {
 
 // PublicKey represents a BLS12-381 public key.
 type PublicKey struct {
-	*twistPoint
+	twistPoint
 }
 
+// GenerateKey generates a public and private key pair.
+func GenerateKey(reader io.Reader) (*PrivateKey, error) {
+	scalar, fieldElement, err := randomG2(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PrivateKey{
+		Scalar: scalar,
+		PublicKey: PublicKey{
+			twistPoint: *fieldElement,
+		},
+	}, nil
+}
+
+/*
 type blsSignature struct {
 	*curvePoint
 }
@@ -39,22 +55,9 @@ func (priv *PrivateKey) Sign(rand io.Reader, hash []byte) []byte {
 func Sign(rand io.Reader, priv *PrivateKey, hash []byte) []byte {
 	return []byte{}
 }
+*/
 
-// GenerateKey generates a public and private key pair.
-func GenerateKey(reader io.Reader) (*PrivateKey, error) {
-	scalar, twistPoint, err := randomG2(reader)
-	if err != nil {
-		return nil, err
-	}
-
-	return &PrivateKey{
-		Scalar: scalar,
-		PublicKey: PublicKey{
-			twistPoint: twistPoint,
-		},
-	}, nil
-}
-
+/*
 // Verify verifies the signature of hash using the public key(s), pub. Its
 // return value records whether the signature is valid.
 func Verify(hash []byte, sig []byte, pub ...*PublicKey) bool {
@@ -65,3 +68,4 @@ func Verify(hash []byte, sig []byte, pub ...*PublicKey) bool {
 func Aggregate(sig ...[]byte) []byte {
 	return []byte{}
 }
+*/
