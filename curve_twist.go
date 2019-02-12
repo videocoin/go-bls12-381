@@ -21,11 +21,49 @@ func (tp *twistPoint) set(p *twistPoint) {
 
 // Add sets tp to the sum a+b and returns c.
 func (tp *twistPoint) add(a, b twistPoint) *twistPoint {
-	/*
-		if a == nil {
-			*a = *c
-		}
+	//if !a.isInfinity() {
+	//	if !b.isInfinity() {
+	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-mmadd-2007-bl
+	h, i, j, r, v, temp := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
 
+	// h
+	fq2Sub(h, &b.x, &a.x)
+
+	// i
+	fq2Sqr(temp, h)
+	fq2Dbl(i, temp)
+	fq2Dbl(i, i)
+
+	// j
+	fq2Mul(j, h, i)
+
+	// r
+	fq2Sub(r, &b.y, &a.y)
+	fq2Dbl(r, r)
+
+	// v
+	fq2Mul(v, &a.x, i)
+
+	// x3
+	fq2Dbl(temp, v)
+	fq2Sqr(&tp.x, r)
+	fq2Sub(&tp.x, &tp.x, j)
+	fq2Sub(&tp.x, &tp.x, temp)
+
+	// y3
+	fq2Dbl(temp, &a.y)
+	fq2Mul(temp, temp, j)
+	fq2Sub(&tp.y, v, &tp.x)
+	fq2Mul(&tp.y, r, &tp.y)
+	fq2Sub(&tp.y, &tp.y, temp)
+
+	// z3
+	fq2Dbl(&tp.z, h)
+
+	//	}
+	//}
+
+	/*
 		if a.IsInfinity() {
 			c.Set(b)
 			return c
