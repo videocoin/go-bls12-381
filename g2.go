@@ -6,7 +6,7 @@ import (
 	"math/big"
 )
 
-var g2Generator = &twistPoint{
+var g2Gen = &twistPoint{
 	x: fq2{
 		c0: g2X0,
 		c1: g2X1,
@@ -42,5 +42,5 @@ func randomG2(reader io.Reader) (*big.Int, *twistPoint, error) {
 // scalarBaseMult returns k*G, where G is the base point of the group
 // and k is an integer in big-endian form.
 func (g *g2) scalarBaseMult(scalar *big.Int) *twistPoint {
-	return new(twistPoint).mul(g2Generator, scalar)
+	return new(twistPoint).mul(g2Gen, scalar)
 }

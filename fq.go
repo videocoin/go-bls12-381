@@ -26,6 +26,16 @@ func newFq(n *big.Int) fq {
 	return fq
 }
 
+func (elm *fq) isZero() bool {
+	// TODO
+	return false
+}
+
+func (elm *fq) isOne() bool {
+	// TODO
+	return false
+}
+
 // String satisfies the Stringer interface.
 func (elm *fq) String() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", elm[5], elm[4], elm[3], elm[2], elm[1], elm[0])

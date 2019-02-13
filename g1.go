@@ -1,7 +1,7 @@
 package bls12
 
 var (
-	g1Generator = &curvePoint{
+	g1Gen = &curvePoint{
 		x: g1X,
 		y: g1Y,
 	}

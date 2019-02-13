@@ -6,6 +6,10 @@ type fq2 struct {
 	c0, c1 fq
 }
 
+func (elm fq2) isZero() bool {
+	return false
+}
+
 func fq2Add(c, a, b *fq2) {}
 func fq2Mul(c, a, b *fq2) {}
 func fq2Sub(c, a, b *fq2) {}
