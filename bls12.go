@@ -13,7 +13,7 @@ type PrivateKey struct {
 
 // PublicKey represents a BLS12-381 public key.
 type PublicKey struct {
-	twistPoint
+	*twistPoint
 }
 
 // GenerateKey generates a public and private key pair.
@@ -26,7 +26,7 @@ func GenerateKey(reader io.Reader) (*PrivateKey, error) {
 	return &PrivateKey{
 		Scalar: scalar,
 		PublicKey: PublicKey{
-			twistPoint: *fieldElement,
+			twistPoint: fieldElement,
 		},
 	}, nil
 }

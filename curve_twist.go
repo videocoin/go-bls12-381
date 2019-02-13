@@ -15,12 +15,6 @@ func (tp *twistPoint) isInfinity() bool {
 	return tp.z.isZero()
 }
 
-func (tp *twistPoint) set(p *twistPoint) {
-	tp.x = p.x
-	tp.y = p.y
-	tp.z = p.z
-}
-
 // Add sets tp to the sum a+b and returns c.
 func (tp *twistPoint) add(a, b *twistPoint) *twistPoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -107,14 +101,12 @@ func (tp *twistPoint) double(p *twistPoint) *twistPoint {
 
 func (tp *twistPoint) mul(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-	q := new(twistPoint)
 	for i := scalar.BitLen(); i > 0; i-- {
-		q.double(q)
+		tp.double(tp)
 		if scalar.Bit(i) != 0 {
-			q.add(q, p)
+			tp.add(tp, p)
 		}
 	}
-	tp.set(q)
 
 	return tp
 }
