@@ -1,8 +1,6 @@
 package bls12
 
 import (
-	"crypto/rand"
-	"io"
 	"math/big"
 )
 
@@ -17,30 +15,15 @@ var g2Gen = &twistPoint{
 	},
 }
 
-func randN(reader io.Reader) (n *big.Int, err error) {
-	for {
-		n, err = rand.Int(reader, q)
-		if n.Sign() > 0 || err != nil {
-			return
-		}
-	}
-}
-
 // g2 is an abstract cyclic group.
 type g2 struct{}
 
-// randomG2 returns n and g2^n where n is a random, non-zero number read from the reader.
-func randomG2(reader io.Reader) (*big.Int, *twistPoint, error) {
-	n, err := randN(reader)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return n, new(g2).scalarBaseMult(n), nil
+func (g2 *g2) elementAt(n *big.Int) *twistPoint {
+	return new(twistPoint).mul(g2Gen, n)
 }
 
-// scalarBaseMult returns k*G, where G is the base point of the group
-// and k is big integer.
-func (g *g2) scalarBaseMult(scalar *big.Int) *twistPoint {
-	return new(twistPoint).mul(g2Gen, scalar)
-}
+// TODO hash to G2 https://eprint.iacr.org/2017/419.pdf
+//func hashG2(data []byte) *curvePoint {
+//	point := swEncG1()
+//	return point
+//}

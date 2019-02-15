@@ -2,7 +2,8 @@ package bls12
 
 // fq2 is an element of Fq2 = Fq[X]/(X2 − β), where β
 // is a quadratic non-residue in Fq with a value of -1.
-// fq2 is represented as as α0 + α1X, where αi ∈ Fq.
+// fq2 is represented as as c0 + c1X, where ci ∈ Fq.
+// See http://eprint.iacr.org/2006/471.pdf - Quadratic extensions
 type fq2 struct {
 	c0, c1 fq
 }
@@ -22,7 +23,6 @@ func fq2Sub(c, a, b *fq2) {
 }
 
 func fq2Mul(c, a, b *fq2) {
-	// See http://eprint.iacr.org/2006/471.pdf - Quadratic extensions
 	t0, t1 := new(fq), new(fq)
 	fqMul(t0, &a.c0, &b.c0)
 	fqMul(t1, &a.c1, &b.c1)

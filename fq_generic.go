@@ -57,7 +57,7 @@ func fqSub(c, a, b *fq) {
 }
 
 func fqMul(c, a, b *fq) {
-	var large fqLarge
+	//var large fqLarge
 }
 
 func fqReduceLarge(out, in *fqLarge) {}
