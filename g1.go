@@ -38,8 +38,48 @@ func hashToG1(hash []byte) *curvePoint {
 	return &curvePoint{}
 }
 
-//  swEncG1 Shallue–van de Woestijne encoding to BN curves
-func swEncG1(t fq) *curvePoint {
-	// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf
-	return &curvePoint{}
+// swEncodeG1 Shallue–van de Woestijne encoding to BN.
+func swEncodeG1(t fq) *curvePoint {
+	// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf -  "Algorithm 1"
+	if t.isZero() {
+		// point at infinity
+	}
+
+	w := new(fq)
+	fqSqr(w, &t)
+	fqAdd(w, w, &curveB)
+	fqAdd(w, w, &fq1)
+	fqInv(w, w)
+	fqMul(w, &t, w)
+	fqMul(w, fqSqrtNeg3, w)
+
+	x, y := new(fq), new(fq)
+	for i := 0; i < 3; i++ {
+		switch i {
+		case 0:
+			// x1 ← (−1 + √−3)/2 − t
+			fqMul(x, &t, w)
+			fqSub(x, fqHalfSqrNeg3Minus1, x)
+		case 1:
+			// x2 ← −1 − x
+			fqSub(x, fqNeg1, x)
+		case 2:
+			// x3 ← 1 + 1/w
+			fqSqr(x, w)
+			fqInv(x, x)
+			fqAdd(x, x, &fq1)
+		}
+
+		// y
+		fqSqr(y, x)
+		fqMul(y, y, y)
+		fqAdd(y, y, &curveB)
+		fqSqrt(y, y)
+
+		if y != nil {
+			return newCurvePoint(*x, *y)
+		}
+	}
+
+	return nil
 }

@@ -11,8 +11,8 @@ type curvePoint struct {
 	x, y, z fq
 }
 
-func newCurvePoint(x, y fq) curvePoint {
-	return curvePoint{
+func newCurvePoint(x, y fq) *curvePoint {
+	return &curvePoint{
 		x: x,
 		y: y,
 	}

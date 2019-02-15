@@ -21,9 +21,3 @@ type g2 struct{}
 func (g2 *g2) elementAt(n *big.Int) *twistPoint {
 	return new(twistPoint).mul(g2Gen, n)
 }
-
-// TODO hash to G2 https://eprint.iacr.org/2017/419.pdf
-//func hashG2(data []byte) *curvePoint {
-//	point := swEncG1()
-//	return point
-//}

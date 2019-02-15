@@ -8,12 +8,23 @@ import (
 
 const fqNumWords = 6
 
-var fqZero = fq{0}
+var (
+	fq0                 = fq{0}
+	fq1                 = newFq(big1)
+	fqNeg1              = new(fq)
+	fqSqrtNeg3          = new(fq)
+	fqInv2              = new(fq)
+	fqHalfSqrNeg3Minus1 = new(fq)
+)
 
 type (
 	fq      [fqNumWords]uint64
 	fqLarge [2 * fqNumWords]uint64
 )
+
+func init() {
+
+}
 
 func newFq(n *big.Int) fq {
 	fq := fq{}
@@ -32,7 +43,7 @@ func newFq(n *big.Int) fq {
 }
 
 func (elm fq) isZero() bool {
-	return elm == fqZero
+	return elm == fq0
 }
 
 // String satisfies the Stringer interface.

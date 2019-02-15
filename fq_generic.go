@@ -63,3 +63,5 @@ func fqMul(c, a, b *fq) {
 func fqReduceLarge(out, in *fqLarge) {}
 func fqSqr(c, a *fq)                 {}
 func fqDbl(c, a *fq)                 {}
+func fqInv(c, a *fq)                 {}
+func fqSqrt(c, a *fq)                {}
