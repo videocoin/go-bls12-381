@@ -1,12 +1,13 @@
 package bls12
 
 import (
+	"bytes"
 	"math/big"
 )
 
 var curveB = newFq(bigFromBase10("4"))
 
-// curvePoint implements the elliptic curve y²=x³+3 over GF(fq)
+// curvePoint is an elliptic curve(y²=x³+3) point over the finite field Fq.
 type curvePoint struct {
 	x, y, z fq
 }
@@ -32,10 +33,10 @@ func (cp *curvePoint) set(p *curvePoint) {
 func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
 	if a.isInfinity() {
-		return a
+		return b
 	}
 	if b.isInfinity() {
-		return b
+		return a
 	}
 
 	z1z1, z2z2 := new(fq), new(fq)
@@ -124,4 +125,23 @@ func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 	cp.set(q)
 
 	return cp
+}
+
+func (cp *curvePoint) Marshal() ([]byte, error) {
+	// See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381 - "Serialization"
+	buffer := new(bytes.Buffer)
+
+	x, err := cp.x.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	buffer.Write(x)
+
+	y, err := cp.y.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	buffer.Write(y)
+
+	return buffer.Bytes(), nil
 }

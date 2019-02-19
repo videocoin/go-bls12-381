@@ -1,52 +1,71 @@
 package bls12
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"strconv"
 )
 
-const fqNumWords = 6
+const (
+	// fqLen is the expected length of a field element
+	fqLen = 6
+)
+
+var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
-	fq0                 = fq{0}
-	fq1                 = newFq(big1)
-	fqNeg1              = new(fq)
-	fqSqrtNeg3          = new(fq)
-	fqInv2              = new(fq)
-	fqHalfSqrNeg3Minus1 = new(fq)
+	fq0 = fq{0}
+	fq1 = fq{1}
 )
 
-type (
-	fq      [fqNumWords]uint64
-	fqLarge [2 * fqNumWords]uint64
-)
+// fq is an element of the finite field of order q.
+type fq [fqLen]uint64
 
-func init() {
-
-}
-
-func newFq(n *big.Int) fq {
-	fq := fq{}
-	words := n.Bits()
-	numWords := len(words)
-	if strconv.IntSize == 64 {
-		for i := 0; i < numWords && i < fqNumWords; i++ {
-			fq[i] = uint64(words[i])
-		}
-	} else {
-		for i := 0; i < numWords && i < fqNumWords*2; i++ {
-			fq[i/2] = uint64(words[i]) << uint(32*(i%2))
+// equal checks if the field elements are equal.
+func (fq fq) equal(b fq) bool {
+	for i, fqi := range fq {
+		if fqi != b[i] {
+			return false
 		}
 	}
-	return fq
+
+	return true
 }
 
-func (elm fq) isZero() bool {
-	return elm == fq0
+// Hex returns the field element in the hexadecimal base
+func (fq *fq) Hex() string {
+	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fq[5], fq[4], fq[3], fq[2], fq[1], fq[0])
 }
 
 // String satisfies the Stringer interface.
-func (elm *fq) String() string {
-	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", elm[5], elm[4], elm[3], elm[2], elm[1], elm[0])
+func (fq *fq) String() string {
+	return fq.Hex()
+}
+
+// isFieldElement checks if value is within the field bounds.
+func isFieldElement(value *big.Int) bool {
+	return (value.Sign() >= 0) && (value.Cmp(bigQ) < 0)
+}
+
+// fqFromBig converts a big integer to a field element.
+func fqFromBig(value *big.Int) (fq, error) {
+	if !isFieldElement(value) {
+		return fq{}, errOutOfBounds
+	}
+
+	fq := fq{0}
+	words := value.Bits()
+	numWords := len(words)
+	if strconv.IntSize == 64 {
+		for i := 0; i < numWords; i++ {
+			fq[i] = uint64(words[i])
+		}
+	} else {
+		for i := 0; i < numWords; i++ {
+			fq[i/2] |= uint64(words[i]) << uint(32*(i%2))
+		}
+	}
+
+	return fq, nil
 }

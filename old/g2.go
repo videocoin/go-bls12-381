@@ -15,7 +15,7 @@ var g2Gen = &twistPoint{
 	},
 }
 
-// g2 is an abstract cyclic group.
+// g2 is an abstract cyclic group of the bilinear map
 type g2 struct{}
 
 func (g2 *g2) elementAt(n *big.Int) *twistPoint {

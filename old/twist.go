@@ -6,7 +6,7 @@ import (
 
 var twistB = twistPoint{}
 
-// twist point implements the eliptic curve y2 = x3 + 4(u + 1) over GF(fq2)
+// twist point is an eliptic curve(y²=x³+4(u+1)) point over the finite field Fq².
 type twistPoint struct {
 	x, y, z fq2
 }
