@@ -4,6 +4,3 @@ package bls12
 
 //go:noescape
 func fqAdd(c, a, b *fq)
-
-//go:noescape
-func fqMod(a *fq, head uint64)
