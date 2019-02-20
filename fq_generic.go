@@ -2,7 +2,7 @@
 
 package bls12
 
-func fqMod(a *fq, head uint64) {
+func fqMod(a *fq) {
 	b := new(fq)
 	var carry uint64
 	for i, qi := range qU64 {
@@ -11,10 +11,8 @@ func fqMod(a *fq, head uint64) {
 		b[i] = bi
 		carry = (qi&^ai | (qi|^ai)&bi) >> 63
 	}
-	carry = carry &^ head
 
-	// if b is negative, then return a.
-	// else return b.
+	// if b is negative, then return a, else return b.
 	carry = -carry
 	ncarry := ^carry
 	for i := 0; i < fqLen; i++ {
@@ -30,5 +28,6 @@ func fqAdd(c, a, b *fq) {
 		c[i] = ci
 		carry = (ai&bi | (ai|bi)&^ci) >> 63
 	}
-	fqMod(c, carry)
+	// note: carry is always 0 for the last iteration
+	fqMod(c)
 }
