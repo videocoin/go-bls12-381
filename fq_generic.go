@@ -20,7 +20,7 @@ func fqMod(a *fq) {
 	}
 }
 
-func fqAdd(c, a, b *fq) {
+func fqAdd(z, x, y *fq) {
 	var carry uint64
 	for i, ai := range a {
 		bi := b[i]
@@ -30,4 +30,35 @@ func fqAdd(c, a, b *fq) {
 	}
 	// note: carry is always 0 for the last iteration
 	fqMod(c)
+}
+
+func mul(x, y [6]uint64) (z [12]uint64) {
+	var carry uint64
+	for i, yi := range y {
+		if yi != 0 {
+			y0, y1 := yi&M2, yi>>32
+			for j, xj := range x {
+				x0, x1 := xj&M2, xj>>32
+				zi := x * y
+				z1 = x1*y1 + ((x1*y0 + (x0*y0)>>32) >> 32) + (t&_M2+x0*y1)>>32
+
+				z0 := zi
+				if zi += z[i+j]; zi < z0 {
+					z1++
+				}
+
+				z0 = zi
+				if zi += carry; zi < z0 {
+					z1++
+				}
+
+				z[i+j] = zi
+				carry = z1
+			}
+		}
+	}
+}
+
+func fqMul(z, x, y *fq) {
+	fqLarge := mul(x, y)
 }
