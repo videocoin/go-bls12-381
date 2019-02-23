@@ -26,3 +26,7 @@ func TestFqAdd(t *testing.T) {
 		})
 	}
 }
+
+func TestFqMul(t *testing.T) {
+
+}

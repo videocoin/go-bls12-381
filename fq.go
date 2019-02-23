@@ -15,12 +15,16 @@ const (
 var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
-	fq0 = fq{0}
-	fq1 = fq{1}
+	fq0    = fq{0}
+	fq1, _ = fqFromBig(big1) // TODO This is wrong (montgomery form)
+	fqR2   = fq{}            // TODO
 )
 
 // fq is an element of the finite field of order q.
-type fq [fqLen]uint64
+type (
+	fq      [fqLen]uint64
+	fqLarge [fqLen * 2]uint64
+)
 
 // equal checks if the field elements are equal.
 func (fq fq) equal(b fq) bool {
@@ -67,5 +71,18 @@ func fqFromBig(value *big.Int) (fq, error) {
 		}
 	}
 
+	// TODO - Montgomery form
+	// montEncode(fq)
+
 	return fq, nil
 }
+
+/*
+func montEncode(x *fq) {
+	fqMul(x, x, r2)
+}
+
+func montDecode(x *fq) {
+
+}
+*/
