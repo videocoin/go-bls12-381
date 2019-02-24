@@ -36,6 +36,21 @@ func fqDouble(z, x *fq) {
 	fqAdd(z, x, x)
 }
 
+func fqSub(z, x, y *fq) {
+	fqNeg(y, y)
+	fqAdd(z, x, y)
+}
+
+func fqNeg(z, x *fq) {
+	var carry uint64
+	for i, qi := _Q64 {
+		xi := x[i]
+		zi := qi - xi - carry
+		z[i] = zi
+		carry = (xi&^qi | (xi|^qi)&zi) >> 63
+	}
+}
+
 func fqBasicMul(z fqLarge, x, y fq) {
 	var carry uint64
 	for i, yi := range y {
@@ -104,21 +119,6 @@ func fqMul(z, x, y *fq) {
 	large := new(fqLarge)
 	fqBasicMul(&large, x, y)
 	fqREDC(z, large)
-}
-
-func fqSub(z, x, y *fq) {
-	fqNeg(y, y)
-	fqAdd(z, x, y)
-}
-
-func fqNeg(z, x *fq) {
-	var carry uint64
-	for i, qi := _Q64 {
-		xi := x[i]
-		zi := qi - xi - carry
-		z[i] = zi
-		carry = (xi&^qi | (xi|^qi)&zi) >> 63
-	}
 }
 
 func fqSqr(z, x *fq) {

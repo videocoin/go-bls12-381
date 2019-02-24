@@ -23,12 +23,12 @@
         MOVQ a3, b3 \
         MOVQ a4, b4 \
         MOVQ a5, b5 \
-        SUBQ ·_Q64+0(SB), b0 \
-        SBBQ ·_Q64+8(SB), b1 \
-        SBBQ ·_Q64+16(SB), b2 \
-        SBBQ ·_Q64+24(SB), b3 \
-        SBBQ ·_Q64+32(SB), b4 \
-        SBBQ ·_Q64+40(SB), b5 \
+        SUBQ ·q64+0(SB), b0 \
+        SBBQ ·q64+8(SB), b1 \
+        SBBQ ·q64+16(SB), b2 \
+        SBBQ ·q64+24(SB), b3 \
+        SBBQ ·q64+32(SB), b4 \
+        SBBQ ·q64+40(SB), b5 \
         \ // if b is negative then return a else return b
         CMOVQCC b0, a0 \
         CMOVQCC b1, a1 \
@@ -53,12 +53,12 @@ TEXT ·fqAdd(SB),0,$0-24
     RET
 
 TEXT ·fqNeg(SB),0,$0-16
-    MOVQ ·_Q64+0(SB), R8
-    MOVQ ·_Q64+8(SB), R9
-    MOVQ ·_Q64+16(SB), R10
-    MOVQ ·_Q64+24(SB), R11
-    MOVQ ·_Q64+32(SB), R12
-    MOVQ ·_Q64+40(SB), R13
+    MOVQ ·q64+0(SB), R8
+    MOVQ ·q64+8(SB), R9
+    MOVQ ·q64+16(SB), R10
+    MOVQ ·q64+24(SB), R11
+    MOVQ ·q64+32(SB), R12
+    MOVQ ·q64+40(SB), R13
     MOVQ a+8(FP), DI
     SUBQ 0(DI), R8
     SBBQ 8(DI), R9

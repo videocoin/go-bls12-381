@@ -27,8 +27,6 @@ func TestFqAdd(t *testing.T) {
 	}
 }
 
-func TestFqMul(t *testing.T) {}
-
 func TestFqNeg(t *testing.T) {
 	testCases := []struct {
 		input, output fq
@@ -46,3 +44,5 @@ func TestFqNeg(t *testing.T) {
 		})
 	}
 }
+
+func TestFqMul(t *testing.T) {}

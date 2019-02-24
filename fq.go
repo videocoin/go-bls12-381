@@ -9,20 +9,20 @@ import (
 
 const (
 	// fqLen is the expected length of a field element
-	_FqLen = 6
+	fqLen = 6
 )
 
 var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
 	fq0    = fq{0}
-	fq1, _ = fqFromBig(big1) // TODO This is wrong (montgomery form)
+	fq1, _ = fqFromBig(big1)
 )
 
-// fq is an element of the finite field of order q.
 type (
-	fq      [_FqLen]uint64
-	fqLarge [_FqLen * 2]uint64
+	// fq is an element of the finite field of order q.
+	fq      [fqLen]uint64
+	fqLarge [fqLen * 2]uint64
 )
 
 // equal checks if the field elements are equal.
@@ -86,7 +86,7 @@ func fqMontgomeryFromBig(value *big.Int) (fq, error) {
 // montEncode converts the input to Montgomery form.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func montgomeryEncode(a *fq) {
-	fqMul(a, a, &_R2)
+	fqMul(a, a, &r2)
 }
 
 // montDecode converts the input in the Montgomery form back to
