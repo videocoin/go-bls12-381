@@ -3,4 +3,10 @@
 package bls12
 
 //go:noescape
-func fqAdd(c, a, b *fq)
+func fqAdd(z, x, y *fq)
+
+//go:noescape
+func fqMul(z, x, y *fq)
+
+//go:noescape
+func fqNeg(z, x *fq)

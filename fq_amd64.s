@@ -23,12 +23,12 @@
         MOVQ a3, b3 \
         MOVQ a4, b4 \
         MOVQ a5, b5 \
-        SUBQ ·qU64+0(SB), b0 \
-        SBBQ ·qU64+8(SB), b1 \
-        SBBQ ·qU64+16(SB), b2 \
-        SBBQ ·qU64+24(SB), b3 \
-        SBBQ ·qU64+32(SB), b4 \
-        SBBQ ·qU64+40(SB), b5 \
+        SUBQ ·_Q64+0(SB), b0 \
+        SBBQ ·_Q64+8(SB), b1 \
+        SBBQ ·_Q64+16(SB), b2 \
+        SBBQ ·_Q64+24(SB), b3 \
+        SBBQ ·_Q64+32(SB), b4 \
+        SBBQ ·_Q64+40(SB), b5 \
         \ // if b is negative then return a else return b
         CMOVQCC b0, a0 \
         CMOVQCC b1, a1 \
@@ -36,7 +36,7 @@
         CMOVQCC b3, a3 \
         CMOVQCC b4, a4 \
         CMOVQCC b5, a5
-        
+          
 TEXT ·fqAdd(SB),0,$0-24
     MOVQ a+8(FP), DI
     MOVQ b+16(FP), SI
@@ -52,3 +52,15 @@ TEXT ·fqAdd(SB),0,$0-24
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
+TEXT ·fqNeg(SB),0,$0-16
+    MOVQ a+8(FP), DI
+    fqLoad(0(DI), R8, R9, R10, R11, R12, R13)
+    SUBQ ·_Q64+0(SB), R8
+    SBBQ ·_Q64+8(SB), R9
+    SBBQ ·_Q64+16(SB), R10
+    SBBQ ·_Q64+24(SB), R11
+    SBBQ ·_Q64+32(SB), R12
+    SBBQ ·_Q64+40(SB), R13
+    MOVQ c+0(FP), DI
+    fqStore(0(DI), R8, R9, R10, R11, R12, R13)
+    RET

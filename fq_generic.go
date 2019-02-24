@@ -32,6 +32,10 @@ func fqAdd(z, x, y *fq) {
 	fqMod(c)
 }
 
+func fqDouble(z, x *fq) {
+	fqAdd(z, x, x)
+}
+
 func fqBasicMul(z fqLarge, x, y fq) {
 	var carry uint64
 	for i, yi := range y {
@@ -73,7 +77,7 @@ func fqREDC(c *fq, x *fqLarge) {
 				t := q1*s0 + ((q0*s0 + (carryMul & _M2) + (sum & _M2)) >> _W2)
 				if j > 0 {
 					// note(rgeraldes): since the low order bits are going to be discarded and x[i+j=0]
-					// is not used anymore during the program, we can skip the assignment
+					// is not used anymore during the program, we can skip the assignment.
 					x[i+j] = s * q
 				}
 				carryMul := q1*s1 + (t >> _W2) + ((t & _M2) + q0*s1 + (sum >> _W2) + (carryMul>>_W2)>>_W2)
@@ -101,3 +105,23 @@ func fqMul(z, x, y *fq) {
 	fqBasicMul(&large, x, y)
 	fqREDC(z, large)
 }
+
+func fqSub(z, x, y *fq) {
+	fqNeg(y, y)
+	fqAdd(z, x, y)
+}
+
+func fqNeg(z, x *fq) {
+	var carry uint64
+	for i, qi := _Q64 {
+		xi := x[i]
+		zi := qi - xi - carry
+		z[i] = zi
+		carry = (xi&^qi | (xi|^qi)&zi) >> 63
+	}
+}
+
+func fqSqr(z, x *fq) {
+	fqMul(c, a, a)
+}
+

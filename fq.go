@@ -9,7 +9,7 @@ import (
 
 const (
 	// fqLen is the expected length of a field element
-	fqLen = 6
+	_FqLen = 6
 )
 
 var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
@@ -17,13 +17,12 @@ var errOutOfBounds = errors.New("value is not an element of the finite field of 
 var (
 	fq0    = fq{0}
 	fq1, _ = fqFromBig(big1) // TODO This is wrong (montgomery form)
-	fqR2   = fq{}            // TODO
 )
 
 // fq is an element of the finite field of order q.
 type (
-	fq      [fqLen]uint64
-	fqLarge [fqLen * 2]uint64
+	fq      [_FqLen]uint64
+	fqLarge [_FqLen * 2]uint64
 )
 
 // equal checks if the field elements are equal.
@@ -52,7 +51,7 @@ func isFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(bigQ) < 0)
 }
 
-// fqFromBig converts a big integer to a field element.
+// fqFromBig converts a big integer to a field element in the Montgomery form.
 func fqFromBig(value *big.Int) (fq, error) {
 	if !isFieldElement(value) {
 		return fq{}, errOutOfBounds
@@ -71,18 +70,30 @@ func fqFromBig(value *big.Int) (fq, error) {
 		}
 	}
 
-	// TODO - Montgomery form
-	// montEncode(fq)
+	//montgomeryEncode(&fq)
 
 	return fq, nil
 }
 
-/*
-func montEncode(x *fq) {
-	fqMul(x, x, r2)
+func fqMontgomeryFromBig(value *big.Int) (fq, error) {
+	fieldElement, err := fqFromBig(value)
+	if err != nil {
+		return fq{}, err
+	}
+	montgomeryEncode(&fieldElement)
+
+	return fieldElement, nil
 }
 
-func montDecode(x *fq) {
-
+// montEncode converts the input to Montgomery form.
+// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+func montgomeryEncode(a *fq) {
+	fqMul(a, a, &_R2)
 }
-*/
+
+// montDecode converts the input in the Montgomery form back to
+// the standard form.
+// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+func montgomeryDecode(c *fq) {
+	fqMul(c, c, &fq1)
+}

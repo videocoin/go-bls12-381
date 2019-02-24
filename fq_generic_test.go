@@ -27,6 +27,22 @@ func TestFqAdd(t *testing.T) {
 	}
 }
 
-func TestFqMul(t *testing.T) {
+func TestFqMul(t *testing.T) {}
 
+func TestFqNeg(t *testing.T) {
+	testCases := []struct {
+		input, output fq
+	}{
+		{input: fqLastElement, output: fq1},
+		{input: fq1, output: fqLastElement},
+	}
+	for _, testCase := range testCases {
+		t.Run(fmt.Sprintf("input: %s", testCase.input.String()), func(t *testing.T) {
+			var result fq
+			fqNeg(&result, &testCase.input)
+			if result != testCase.output {
+				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+			}
+		})
+	}
 }
