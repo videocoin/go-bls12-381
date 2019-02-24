@@ -53,14 +53,19 @@ TEXT ·fqAdd(SB),0,$0-24
     RET
 
 TEXT ·fqNeg(SB),0,$0-16
+    MOVQ ·_Q64+0(SB), R8
+    MOVQ ·_Q64+8(SB), R9
+    MOVQ ·_Q64+16(SB), R10
+    MOVQ ·_Q64+24(SB), R11
+    MOVQ ·_Q64+32(SB), R12
+    MOVQ ·_Q64+40(SB), R13
     MOVQ a+8(FP), DI
-    fqLoad(0(DI), R8, R9, R10, R11, R12, R13)
-    SUBQ ·_Q64+0(SB), R8
-    SBBQ ·_Q64+8(SB), R9
-    SBBQ ·_Q64+16(SB), R10
-    SBBQ ·_Q64+24(SB), R11
-    SBBQ ·_Q64+32(SB), R12
-    SBBQ ·_Q64+40(SB), R13
+    SUBQ 0(DI), R8
+    SBBQ 8(DI), R9
+    SBBQ 16(DI), R10
+    SBBQ 24(DI), R11
+    SBBQ 32(DI), R12
+    SBBQ 40(DI), R13
     MOVQ c+0(FP), DI
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET

@@ -70,8 +70,6 @@ func fqFromBig(value *big.Int) (fq, error) {
 		}
 	}
 
-	//montgomeryEncode(&fq)
-
 	return fq, nil
 }
 
