@@ -96,6 +96,9 @@ TEXT ·fqSub(SB),0,$0-24
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
+TEXT ·fqBasicMul,0,$0-24
+    RET
+
 TEXT ·fqMul(SB),0,$0-24
     RET
     

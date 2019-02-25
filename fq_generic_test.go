@@ -78,6 +78,11 @@ func TestFqBasicMul(t *testing.T) {
 			b:      fq{0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF},
 			output: fqLarge{0x0000000000000001, 0x0000000000000001, 0x0000000000000001, 0x0000000000000001, 0x0000000000000001, 0000000000000001, 0000000000000001, 0000000000000001, 0000000000000001},
 		},
+		{
+			a:      fq0,
+			b:      fq1,
+			output: fqLarge{0},
+		},
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
