@@ -4,14 +4,8 @@ const (
 	// q is a prime number that specifies the number of elements of the finite field (order)
 	q = "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787"
 
-	/*
-		_WORD64 = 64        // word size in bits
-		_WORD63 = _WORD64 - 1  // word size in bits - 1
-		_WORD32 = _WORD64 / 2  // half word size in bits
-		_BASE32 = 1 << _W64 // half digit base
-		_SIZE32 = 32
-		_MASK32 = _B32 - 1  // half digit mask
-	*/
+	// k64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n
+	k64 = uint64(0x89f3fffcfffcfffd)
 )
 
 var (

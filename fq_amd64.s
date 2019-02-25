@@ -69,3 +69,33 @@ TEXT ·fqNeg(SB),0,$0-16
     MOVQ c+0(FP), DI
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
+
+TEXT ·fqSub(SB),0,$0-24
+    MOVQ ·q64+0(SB), R8
+    MOVQ ·q64+8(SB), R9
+    MOVQ ·q64+16(SB), R10
+    MOVQ ·q64+24(SB), R11
+    MOVQ ·q64+32(SB), R12
+    MOVQ ·q64+40(SB), R13
+    MOVQ b+16(FP), SI
+    SUBQ 0(SI), R8
+    SBBQ 8(SI), R9
+    SBBQ 16(SI), R10
+    SBBQ 24(SI), R11
+    SBBQ 32(SI), R12
+    SBBQ 40(SI), R13
+    MOVQ a+8(FP), DI
+    ADDQ 0(DI), R8
+    ADCQ 8(DI), R9
+    ADCQ 16(DI), R10
+    ADCQ 24(DI), R11
+    ADCQ 32(DI), R12
+    ADCQ 40(DI), R13
+    fqMod(R8, R9, R10, R11, R12, R13, R14, R15, AX, BX, CX, DX)
+    MOVQ c+0(FP), DI
+    fqStore(0(DI), R8, R9, R10, R11, R12, R13)
+    RET
+
+TEXT ·fqMul(SB),0,$0-24
+    RET
+    

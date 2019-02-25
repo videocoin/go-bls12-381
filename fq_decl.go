@@ -6,7 +6,7 @@ package bls12
 func fqAdd(z, x, y *fq)
 
 //go:noescape
-func fqMul(z, x, y *fq)
+func fqNeg(z, x *fq)
 
 //go:noescape
-func fqNeg(z, x *fq)
+func fqMul(z, x, y *fq)

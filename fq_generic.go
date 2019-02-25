@@ -2,14 +2,20 @@
 
 package bls12
 
+const (
+	wordSize     = 64
+	halfWordSize = wordSize / 2
+	halfWordMask = (1 << halfWordSize) - 1
+)
+
 func fqMod(a *fq) {
 	b := new(fq)
 	var carry uint64
-	for i, qi := range qU64 {
+	for i, qi := range q64 {
 		ai := a[i]
 		bi := ai - qi - carry
 		b[i] = bi
-		carry = (qi&^ai | (qi|^ai)&bi) >> _WMinus1
+		carry = (qi&^ai | (qi|^ai)&bi) >> (wordSize - 1)
 	}
 
 	// if b is negative, then return a, else return b.
@@ -22,14 +28,14 @@ func fqMod(a *fq) {
 
 func fqAdd(z, x, y *fq) {
 	var carry uint64
-	for i, ai := range a {
-		bi := b[i]
-		ci := ai + bi + carry
-		c[i] = ci
-		carry = (ai&bi | (ai|bi)&^ci) >> _WMinus1
+	for i, xi := range x {
+		yi := y[i]
+		zi := xi + yi + carry
+		z[i] = zi
+		carry = (xi&yi | (xi|yi)&^zi) >> (wordSize - 1)
 	}
 	// note(rgeraldes): carry is always 0 for the last word
-	fqMod(c)
+	fqMod(z)
 }
 
 func fqDouble(z, x *fq) {
@@ -43,7 +49,7 @@ func fqSub(z, x, y *fq) {
 
 func fqNeg(z, x *fq) {
 	var carry uint64
-	for i, qi := _Q64 {
+	for i, qi := range q64 {
 		xi := x[i]
 		zi := qi - xi - carry
 		z[i] = zi
@@ -51,20 +57,20 @@ func fqNeg(z, x *fq) {
 	}
 }
 
-func fqBasicMul(z fqLarge, x, y fq) {
+func fqBasicMul(z *fqLarge, x, y *fq) {
 	var carry uint64
 	for i, yi := range y {
 		carry = 0
 		if yi != 0 {
-			y0, y1 := yi&_M2, yi>>_W2
+			y0, y1 := yi&halfWordMask, yi>>halfWordSize
 			for j, xj := range x {
-				x0, x1 := xj&_M2, xj>>_W2
+				x0, x1 := xj&halfWordMask, xj>>halfWordSize
 				sum := z[i+j]
 
 				// Adapted from Hacker's Delight - Multiword Multiplication
-				t := q1*s0 + ((q0*s0 + (carry & _M2) + (sum & _M2)) >> _W2)
-				z[i+j] := s * q
-				carry := q1*s1 + (t >> _W2) + ((t & _M2) + q0*s1 + (sum >> _W2) + (carry>>_W2)>>_W2)
+				t := x1*y0 + ((x0*y0 + (carry & halfWordMask) + (sum & halfWordMask)) >> halfWordSize)
+				z[i+j] = xj * yi
+				carry = x1*y1 + (t >> halfWordSize) + ((t & halfWordMask) + x0*y1 + (sum >> halfWordSize) + (carry>>halfWordSize)>>halfWordSize)
 			}
 			z[i+6] = carry
 		}
@@ -80,30 +86,31 @@ func fqREDC(c *fq, x *fqLarge) {
 	var carryMul, carrySum uint64
 	for i := 0; i < fqLen; i++ {
 		carryMul = 0
-		// 5. s=(x*k mod r).
-		s := x[i] * nq
+		// 2. k=(r(r^−1 mod n)−1)/n
+		// 5. s=(x*k mod r);
+		s := x[i] * k64
 		if s != 0 {
-			s0, s1 := s&_M2, s>>_W2
-			for j, q := range qU64 {
-				q0, q1 := q&_M2, q>>_W2
+			s0, s1 := s&halfWordMask, s>>halfWordSize
+			for j, q := range q64 {
+				q0, q1 := q&halfWordMask, q>>halfWordSize
 				sum := x[i+j]
 
 				// 6. s*q - Adapted from Hacker's Delight - Multiword Multiplication
-				t := q1*s0 + ((q0*s0 + (carryMul & _M2) + (sum & _M2)) >> _W2)
+				t := q1*s0 + ((q0*s0 + (carryMul & halfWordMask) + (sum & halfWordMask)) >> halfWordSize)
 				if j > 0 {
 					// note(rgeraldes): since the low order bits are going to be discarded and x[i+j=0]
 					// is not used anymore during the program, we can skip the assignment.
 					x[i+j] = s * q
 				}
-				carryMul := q1*s1 + (t >> _W2) + ((t & _M2) + q0*s1 + (sum >> _W2) + (carryMul>>_W2)>>_W2)
+				carryMul = q1*s1 + (t >> halfWordSize) + ((t & halfWordMask) + q0*s1 + (sum >> halfWordSize) + (carryMul>>halfWordSize)>>halfWordSize)
 			}
 		}
 		// 6. t=x+sn.
 		xi := x[i]
-		t0 := xi&_M2 + carryMul&_M2 + carrySum
-		t1 := (t0 >> _W2) + xi>>_W2 + carryMul>>_W2
-		carrySum := (t1 >> _W2)
-		x[i+6] = t0 | (t1 << _W2)
+		t0 := xi&halfWordMask + carryMul&halfWordMask + carrySum
+		t1 := (t0 >> halfWordSize) + xi>>halfWordSize + carryMul>>halfWordSize
+		carrySum = (t1 >> halfWordSize)
+		x[i+6] = t0 | (t1 << halfWordSize)
 	}
 
 	// 7. u=t/r
@@ -117,11 +124,10 @@ func fqREDC(c *fq, x *fqLarge) {
 
 func fqMul(z, x, y *fq) {
 	large := new(fqLarge)
-	fqBasicMul(&large, x, y)
+	fqBasicMul(large, x, y)
 	fqREDC(z, large)
 }
 
 func fqSqr(z, x *fq) {
-	fqMul(c, a, a)
+	fqMul(z, x, x)
 }
-
