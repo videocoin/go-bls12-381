@@ -9,4 +9,10 @@ func fqAdd(z, x, y *fq)
 func fqNeg(z, x *fq)
 
 //go:noescape
+func fqSub(z, x, y *fq)
+
+//go:noescape
+func fqBasicMul(z *fqLarge, x, y *fq)
+
+//go:noescape
 func fqMul(z, x, y *fq)

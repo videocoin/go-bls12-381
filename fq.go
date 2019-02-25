@@ -46,6 +46,14 @@ func (fq *fq) String() string {
 	return fq.Hex()
 }
 
+func (fl *fqLarge) Hex() string {
+	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fl[11], fl[10], fl[9], fl[8], fl[7], fl[6], fl[5], fl[4], fl[3], fl[2], fl[1], fl[0])
+}
+
+func (fl *fqLarge) String() string {
+	return fl.Hex()
+}
+
 // isFieldElement checks if value is within the field bounds.
 func isFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(bigQ) < 0)
