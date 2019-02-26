@@ -40,7 +40,11 @@ func TestFqFromBig(t *testing.T) {
 	}
 }
 
-func TestHex(t *testing.T) {
+func TestFqMontgomeryFromBig(t *testing.T) {
+
+}
+
+func TestFqHex(t *testing.T) {
 	testCases := []struct {
 		input  fq
 		output string
@@ -58,7 +62,7 @@ func TestHex(t *testing.T) {
 		})
 	}
 }
-func TestEqual(t *testing.T) {
+func TestFqEqual(t *testing.T) {
 	testCases := []struct {
 		a, b   fq
 		output bool

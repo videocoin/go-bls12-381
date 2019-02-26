@@ -76,18 +76,46 @@ func TestFqBasicMul(t *testing.T) {
 		{
 			a:      fq{0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF},
 			b:      fq{0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF},
-			output: fqLarge{0x0000000000000001, 0x0000000000000001, 0x0000000000000001, 0x0000000000000001, 0x0000000000000001, 0000000000000001, 0000000000000001, 0000000000000001, 0000000000000001},
+			output: fqLarge{0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1},
 		},
 		{
 			a:      fq0,
 			b:      fq1,
 			output: fqLarge{0},
 		},
+		{
+			a:      fq{0, 0, 0, 0, 1},
+			b:      fq1,
+			output: fqLarge{0, 0, 0, 0, 1},
+		},
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
 			var result fqLarge
 			fqBasicMul(&result, &testCase.a, &testCase.b)
+			if result != testCase.output {
+				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+			}
+		})
+	}
+}
+
+func TestFqREDC(t *testing.T) {
+	testCases := []struct {
+		input  fqLarge
+		output fq
+	}{
+		{
+			input:  fqLarge{0x00f630eca1bd6630, 0xfd5552c7c9513c59, 0x4bd35517a56fa1a5, 0xda0eea7dbbcbb3f2, 0x6ab765fc88b83da5, 0xd5bb7a80c6cbb4a7, 0xb8ace446959099f0, 0x873087f81d8beac0, 0xcd85184272c3ee73, 0x27d2462594a0a1e5, 0x2ad107a9544cc968, 0x075cfe63e862ac9b},
+			output: fq{0xf5f70713b717914c, 0x355ea5ac64cbbab1, 0xce60dd43417ec960, 0xf16b9d77b0ad7d10, 0xa44c204c1de7cdb7, 0x1684487772bc9a5a},
+		},
+	}
+	// bls12: 144fb1019f8e91b25f7b8ffde88a30adf33ca1b49e03a60beb66a8c54e38c359bdb913d49fb352404e450d3690ca3e8a
+
+	for _, testCase := range testCases {
+		t.Run(fmt.Sprintf("input: %s\n", testCase.input.String()), func(t *testing.T) {
+			var result fq
+			fqREDC(&result, &testCase.input)
 			if result != testCase.output {
 				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
 			}

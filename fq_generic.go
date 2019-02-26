@@ -106,11 +106,11 @@ func fqREDC(c *fq, x *fqLarge) {
 			}
 		}
 		// 6. t=x+sn.
-		xi := x[i]
-		t0 := xi&halfWordMask + carryMul&halfWordMask + carrySum
-		t1 := (t0 >> halfWordSize) + xi>>halfWordSize + carryMul>>halfWordSize
-		carrySum = (t1 >> halfWordSize)
-		x[i+6] = t0 | (t1 << halfWordSize)
+		xi := x[i+fqLen]
+		t0 := xi&halfWordMask + carryMul&halfWordMask + carrySum&halfWordMask
+		t1 := (t0 >> halfWordSize) + (xi >> halfWordSize) + (carryMul >> halfWordSize) + (carrySum >> halfWordSize)
+		carrySum = t1 >> halfWordSize
+		x[i+fqLen] = (t0 & halfWordMask) | (t1 << halfWordSize)
 	}
 
 	// 7. u=t/r

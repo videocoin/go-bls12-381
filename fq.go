@@ -21,7 +21,8 @@ var (
 
 type (
 	// fq is an element of the finite field of order q.
-	fq      [fqLen]uint64
+	fq [fqLen]uint64
+	// fqLarge is used for storing the basic multiplication result.
 	fqLarge [fqLen * 2]uint64
 )
 
@@ -59,7 +60,7 @@ func isFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(bigQ) < 0)
 }
 
-// fqFromBig converts a big integer to a field element in the Montgomery form.
+// fqFromBig converts a big integer to a field element.
 func fqFromBig(value *big.Int) (fq, error) {
 	if !isFieldElement(value) {
 		return fq{}, errOutOfBounds
@@ -81,6 +82,7 @@ func fqFromBig(value *big.Int) (fq, error) {
 	return fq, nil
 }
 
+// fqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
 func fqMontgomeryFromBig(value *big.Int) (fq, error) {
 	fieldElement, err := fqFromBig(value)
 	if err != nil {

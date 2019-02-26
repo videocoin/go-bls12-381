@@ -15,4 +15,7 @@ func fqSub(z, x, y *fq)
 func fqBasicMul(z *fqLarge, x, y *fq)
 
 //go:noescape
+func fqREDC(z *fq, x *fqLarge)
+
+//go:noescape
 func fqMul(z, x, y *fq)
