@@ -2,6 +2,8 @@
 
 package bls12
 
+import "fmt"
+
 const (
 	wordSize     = 64
 	halfWordSize = wordSize / 2
@@ -38,7 +40,7 @@ func fqAdd(z, x, y *fq) {
 	fqMod(z)
 }
 
-func fqDouble(z, x *fq) {
+func fqDbl(z, x *fq) {
 	fqAdd(z, x, x)
 }
 
@@ -95,14 +97,22 @@ func fqREDC(c *fq, x *fqLarge) {
 				q0, q1 := q&halfWordMask, q>>halfWordSize
 				sum := x[i+j]
 
+				fmt.Println(s)
+				fmt.Println(q)
+				fmt.Println(sum)
+
 				// 6. s*q - Adapted from Hacker's Delight - Multiword Multiplication
 				t := q1*s0 + ((q0*s0 + (carryMul & halfWordMask) + (sum & halfWordMask)) >> halfWordSize)
 				if j > 0 {
 					// note(rgeraldes): since the low order bits are going to be discarded and x[i+j=0]
 					// is not used anymore during the program, we can skip the assignment.
 					x[i+j] = s * q
+					fmt.Println(s)
+					fmt.Println(q)
+					fmt.Println(x[i+j])
 				}
 				carryMul = q1*s1 + (t >> halfWordSize) + ((t & halfWordMask) + q0*s1 + (sum >> halfWordSize) + (carryMul>>halfWordSize)>>halfWordSize)
+				fmt.Println(carryMul)
 			}
 		}
 		// 6. t=x+sn.

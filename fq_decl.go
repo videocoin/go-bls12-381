@@ -19,3 +19,11 @@ func fqREDC(z *fq, x *fqLarge)
 
 //go:noescape
 func fqMul(z, x, y *fq)
+
+func fqSqr(z, x *fq) {
+	fqMul(z, x, x)
+}
+
+func fqDbl(z, x *fq) {
+	fqAdd(z, x, x)
+}

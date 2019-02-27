@@ -4,7 +4,6 @@ type curvePoint struct {
 	x, y, z fq
 }
 
-/*
 // add sets cp to the sum a+b and returns c.
 func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -53,7 +52,7 @@ func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
 
 func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-	a, b, c, d, e, f := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
+	a, b, c, d, e, f, t0 := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
 
 	fqSqr(a, &p.x)
 	fqSqr(b, &p.y)
@@ -67,7 +66,6 @@ func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 	fqAdd(e, e, a)
 	fqSqr(f, e)
 
-	t0 := new(fq)
 	fqDbl(&cp.x, d)
 	fqSub(&cp.x, f, &cp.x)
 	fqAdd(t0, c, c)
@@ -81,4 +79,3 @@ func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 
 	return cp
 }
-*/
