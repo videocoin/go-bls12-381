@@ -1,10 +1,13 @@
 package bls12
 
+import "math/big"
+
+// curvePoint is an elliptic curve point in projective coordinates.
+// The elliptic curve is defined by the following equation y²=x³+3.
 type curvePoint struct {
 	x, y, z fq
 }
 
-// add sets cp to the sum a+b and returns c.
 func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
 	z1z1, z2z2 := new(fq), new(fq)
@@ -78,4 +81,9 @@ func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 	fqAdd(&cp.z, &cp.z, &cp.z)
 
 	return cp
+}
+
+func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
+	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+	return &curvePoint{}
 }
