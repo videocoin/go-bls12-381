@@ -32,11 +32,3 @@ func fq2Mul(c, a, b *fq2) {
 	fqMul(t1, &a.c1, &b.c0)
 	fqAdd(&c.c1, t0, t1)
 }
-
-func fq2Sqr(c, a *fq2) {
-	fq2Mul(c, a, a)
-}
-
-func fq2Dbl(c, a *fq2) {
-	fq2Add(c, a, a)
-}

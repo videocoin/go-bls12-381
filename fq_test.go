@@ -18,10 +18,10 @@ func TestFqFromBig(t *testing.T) {
 		output      fq
 		expectedErr error
 	}{
-		{input: bigQ, output: fq{}, expectedErr: errOutOfBounds},
+		{input: q, output: fq{}, expectedErr: errOutOfBounds},
 		{input: big0, output: fq0, expectedErr: nil},
 		{input: big1, output: fq1, expectedErr: nil},
-		{input: new(big.Int).Sub(bigQ, big1), output: fqLastElement, expectedErr: nil},
+		{input: new(big.Int).Sub(q, big1), output: fqLastElement, expectedErr: nil},
 	}
 
 	for _, testCase := range testCases {

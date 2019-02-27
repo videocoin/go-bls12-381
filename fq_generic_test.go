@@ -100,6 +100,7 @@ func TestFqBasicMul(t *testing.T) {
 	}
 }
 
+/*
 func TestFqREDC(t *testing.T) {
 	testCases := []struct {
 		input  fqLarge
@@ -123,7 +124,7 @@ func TestFqREDC(t *testing.T) {
 	}
 }
 
-/*
+
 func TestFqMul(t *testing.T) {
 	testCases := []struct {
 		a, b, output fq

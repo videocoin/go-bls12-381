@@ -13,7 +13,7 @@ var (
 	}
 
 	g10 = []byte("G1_0")
-	g11 = []byte("G1_0")
+	g11 = []byte("G1_1")
 )
 
 // g1 is an abstract cyclic group of the bilinear map

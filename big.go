@@ -5,7 +5,6 @@ import "math/big"
 const decimalBase = 10
 
 var (
-	bigQ = bigFromBase10(q)
 	big0 = big.NewInt(0)
 	big1 = big.NewInt(1)
 )

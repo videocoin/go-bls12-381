@@ -1,10 +1,7 @@
 package bls12
 
-// fq6 is an element of Fq6 = Fq2[Y]/(Y3 − γ), where γ
-// is a quadratic non-residue in Fq and γ = √β is a
-// cubic non-residue in Fq2 with a value of X + 1.
 // fq6 is represented as c0 + c1Y + c2Y2, where ci ∈ Fq2.
-// See https://eprint.iacr.org/2006/471.pdf - "6.2 Cubic over quadratic"
+
 type fq6 struct {
 	c0, c1, c2 fq2
 }

@@ -7,7 +7,7 @@ import (
 
 var curveB = newFq(bigFromBase10("4"))
 
-// curvePoint is an elliptic curve() point over the finite field Fq.
+// curvePoint is an elliptic curve(y²=x³+3) point over the finite field Fq.
 type curvePoint struct {
 	x, y, z fq
 }
@@ -30,7 +30,7 @@ func (cp *curvePoint) set(p *curvePoint) {
 }
 
 func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
-	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+
 	q := new(curvePoint)
 	for i := scalar.BitLen(); i > 0; i-- {
 		q.double(q)

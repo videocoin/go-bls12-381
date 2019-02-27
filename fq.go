@@ -1,8 +1,10 @@
 package bls12
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"strconv"
 )
@@ -57,7 +59,7 @@ func (fl *fqLarge) String() string {
 
 // isFieldElement checks if value is within the field bounds.
 func isFieldElement(value *big.Int) bool {
-	return (value.Sign() >= 0) && (value.Cmp(bigQ) < 0)
+	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
 }
 
 // fqFromBig converts a big integer to a field element.
@@ -91,6 +93,22 @@ func fqMontgomeryFromBig(value *big.Int) (fq, error) {
 	montgomeryEncode(&fieldElement)
 
 	return fieldElement, nil
+}
+
+// randInt returns a random scalar between 0 and max.
+func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
+	for {
+		n, err = rand.Int(reader, max)
+		if n.Sign() > 0 || err != nil {
+			return
+		}
+	}
+}
+
+// randFieldElement returns a random element of the field underlying the given
+// curve.
+func randFieldElement(reader io.Reader) (n *big.Int, err error) {
+	return randInt(reader, q)
 }
 
 // montEncode converts the input to Montgomery form.

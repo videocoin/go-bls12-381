@@ -2,10 +2,25 @@ package bls12
 
 import "math/big"
 
+var (
+	g1Generator = newCurvePoint(g1X, g1Y)
+
+	// g1 is the r-order subgroup of points on the curve
+	g1 = newCurveSubGroup(g1Generator)
+)
+
 // curvePoint is an elliptic curve point in projective coordinates.
 // The elliptic curve is defined by the following equation y²=x³+3.
 type curvePoint struct {
 	x, y, z fq
+}
+
+func newCurvePoint(x, y fq) *curvePoint {
+	return &curvePoint{
+		x: x,
+		y: y,
+		z: fq0,
+	}
 }
 
 func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
@@ -85,5 +100,17 @@ func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 
 func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+	// TODO (rgeraldes)
 	return &curvePoint{}
+}
+
+// curveSubGroup is a cyclic group of the elliptic curve.
+type curveSubGroup struct {
+	generator *curvePoint
+}
+
+func newCurveSubGroup(gen *curvePoint) *curveSubGroup {
+	return &curveSubGroup{
+		generator: gen,
+	}
 }
