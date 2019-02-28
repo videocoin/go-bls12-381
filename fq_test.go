@@ -85,5 +85,6 @@ func TestFqEqual(t *testing.T) {
 			}
 		})
 	}
-
 }
+
+func TestFqExp(t *testing.T) {}

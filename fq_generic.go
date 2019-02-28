@@ -141,3 +141,20 @@ func fqMul(z, x, y *fq) {
 func fqSqr(z, x *fq) {
 	fqMul(z, x, x)
 }
+
+func fqExp(ret, base *fq, exponent []uint64) {
+	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
+	*ret = fqMont1
+	for i, word := range exponent {
+		for j := 0; i < wordSize; i++ {
+			if (word & (1 << j)) != 0 {
+				fqMul(ret, ret, base)
+			}
+			fqSqr(base, base, base)
+		}
+	}
+}
+
+func fqInv(c, x *fq) {
+	fqExp(c, x, qm2[:])
+}

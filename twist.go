@@ -100,9 +100,18 @@ func (tp *twistPoint) double(p *twistPoint) *twistPoint {
 	return tp
 }
 
-func (tp *twistPoint) mul(point *twistPoint, scalar *big.Int) *twistPoint {
-	// TODO(rgeraldes)
-	return &twistPoint{}
+func (tp *twistPoint) mul(p *twistPoint, scalar *big.Int) *twistPoint {
+	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+	// TODO(rgeraldes) - is it ok to leave z with value of 0?
+	q := new(twistPoint)
+	for i := scalar.BitLen(); i > 0; i-- {
+		q.double(q)
+		if scalar.Bit(i) == 1 {
+			q.add(q, p)
+		}
+	}
+
+	return q
 }
 
 // twistSubGroup is a cyclic group of the elliptic curve twist.
@@ -116,6 +125,6 @@ func newTwistSubGroup(gen *twistPoint) *twistSubGroup {
 	}
 }
 
-func (sg *twistSubGroup) getElement(index *big.Int) *twistPoint {
+func (sg *twistSubGroup) element(index *big.Int) *twistPoint {
 	return new(twistPoint).mul(sg.generator, index)
 }

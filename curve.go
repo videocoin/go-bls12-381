@@ -1,8 +1,12 @@
 package bls12
 
-import "math/big"
+import (
+	"math/big"
+)
 
 var (
+	curveB, _ = fqFromBig(bigFromBase10("4"))
+
 	g1Generator = newCurvePoint(g1X, g1Y)
 
 	// g1 is the r-order subgroup of points on the curve
@@ -100,8 +104,15 @@ func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 
 func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-	// TODO (rgeraldes)
-	return &curvePoint{}
+	q := new(curvePoint)
+	for i := scalar.BitLen(); i > 0; i-- {
+		q.double(q)
+		if scalar.Bit(i) == 1 {
+			q.add(q, p)
+		}
+	}
+
+	return q
 }
 
 // curveSubGroup is a cyclic group of the elliptic curve.
@@ -114,3 +125,45 @@ func newCurveSubGroup(gen *curvePoint) *curveSubGroup {
 		generator: gen,
 	}
 }
+
+/*
+// swEncode is the Shallue and van de Woestijne encoding of a field element to a curve point
+// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf
+func swEncodeCurve(t fq) *curvePoint {
+	w, inv := new(fq), new(fq)
+	fqMul(w, fqSqrtNeg3, &t)
+	fqMul(inv, &t, &t)
+	fqAdd(inv, inv, &curveB)
+	fqAdd(inv, inv, &fqMont1)
+	fqInv(inv, inv)
+	fqMul(w, w, inv)
+
+	for i := 0
+
+	x1, x2, x3 := new(fq), new(fq), new(fq)
+	fqSub(x1, fqSqrtNeg3, &fq1)
+	fqSub(x2, fqNeg1, x1)
+	fqMul(x3, w, w)
+
+}
+
+
+func hashToG1(msg []byte) *curvePoint {
+	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
+	h256, _ := blake2b.New256(nil)
+	h256.Write(msg)
+	hash := h256.Sum(nil)
+
+	h512, _ := blake2b.New512(nil)
+	h512.Write(hash)
+	h512.Write([]byte("G1_0"))
+	p0 := swEncodeCurve(fqFromHash(h512.Sum(nil)))
+
+	h512.Reset()
+	h512.Write(hash)
+	h512.Write([]byte("G1_1"))
+	p1 := swEncodeCurve(fqFromHash(h512.Sum(nil)))
+
+	return &curvePoint{}
+}
+*/

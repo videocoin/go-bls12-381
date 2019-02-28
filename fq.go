@@ -17,9 +17,27 @@ const (
 var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
+	// field elements
 	fq0    = fq{0}
 	fq1, _ = fqFromBig(big1)
 )
+
+var (
+	// field elements in the Montgomery form
+	fqMont1, _ = fqMontgomeryFromBig(big1)
+)
+
+var (
+	// swEncode values
+	fqNeg1              *fq
+	fqSqrtNeg3          = &fq{}
+	fqHalfSqrNeg3Minus1 = &fq{}
+)
+
+func init() {
+	// TODO replace with exact value
+	fqNeg(fqNeg1, &fq1)
+}
 
 type (
 	// fq is an element of the finite field of order q.
@@ -93,6 +111,23 @@ func fqMontgomeryFromBig(value *big.Int) (fq, error) {
 	montgomeryEncode(&fieldElement)
 
 	return fieldElement, nil
+}
+
+// fqFromHash converts a hash value to a field element.
+// See https://golang.org/src/crypto/ecdsa/ecdsa.go?s=1572:1621#L118
+func fqFromHash(hash []byte) fq {
+	if len(hash) > orderBytes {
+		hash = hash[:orderBytes]
+	}
+	bigInt := new(big.Int).SetBytes(hash)
+	excess := orderBytes*8 - orderBits
+	if excess > 0 {
+		bigInt.Rsh(bigInt, uint(excess))
+	}
+
+	ret, _ := fqFromBig(bigInt)
+
+	return ret
 }
 
 // randInt returns a random scalar between 0 and max.

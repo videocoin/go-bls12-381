@@ -58,3 +58,19 @@ func (elm *fq) Marshal() ([]byte, error) {
 func (elm *fq) String() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", elm[5], elm[4], elm[3], elm[2], elm[1], elm[0])
 }
+
+// fqFromHash converts a hash value to a field element.
+// See https://golang.org/src/crypto/ecdsa/ecdsa.go?s=1572:1621#L118
+func fqFromHash(hash []byte) fq {
+	orderBytes := (orderBits + 7) / 8
+	if len(hash) > orderBytes {
+		hash = hash[:orderBytes]
+	}
+	ret := new(big.Int).SetBytes(hash)
+	excess := orderBytes*8 - orderBits
+	if excess > 0 {
+		ret.Rsh(ret, uint(excess))
+	}
+
+	return ret
+}

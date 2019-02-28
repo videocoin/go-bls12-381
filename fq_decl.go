@@ -5,6 +5,8 @@ package bls12
 //go:noescape
 func fqAdd(z, x, y *fq)
 
+func fqDbl(z, x *fq) { fqAdd(z, x, x) }
+
 //go:noescape
 func fqNeg(z, x *fq)
 
@@ -20,10 +22,9 @@ func fqREDC(z *fq, x *fqLarge)
 //go:noescape
 func fqMul(z, x, y *fq)
 
-func fqSqr(z, x *fq) {
-	fqMul(z, x, x)
-}
+func fqSqr(z, x *fq) { fqMul(z, x, x) }
 
-func fqDbl(z, x *fq) {
-	fqAdd(z, x, x)
-}
+//go:noescape
+func fqExp(z, x *fq, y []uint64)
+
+func fqInv(c, x *fq) { fqExp(c, x, qm2[:]) }
