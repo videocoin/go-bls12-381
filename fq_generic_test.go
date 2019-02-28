@@ -100,6 +100,10 @@ func TestFqBasicMul(t *testing.T) {
 	}
 }
 
+func TestFqCube(t *testing.T) {}
+
+func TestFqSqrt(t *testing.T) {}
+
 /*
 func TestFqREDC(t *testing.T) {
 	testCases := []struct {

@@ -52,6 +52,6 @@ func GenerateKey(reader io.Reader) (*PrivateKey, error) {
 // using the private key, priv. If the hash is longer than the bit-length of the
 // private key's curve order, the hash will be truncated to that length.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	//return blsSignature{curvePoint: new(curvePoint).mul(hashToG1(hash), priv.Secret)}.Marshal()
+	//return blsSignature{curvePoint: new(curvePoint).mul(hashToCurveSubGroup(hash, g1), priv.Secret)}
 	return []byte("")
 }

@@ -142,6 +142,29 @@ func fqSqr(z, x *fq) {
 	fqMul(z, x, x)
 }
 
+func fqCube(z, x *fq) {
+	fqSqr(z, x, x)
+	fqMul(z, z, x)
+}
+
+func fqSqrt(x, a *fq) bool {
+	// See https://eprint.iacr.org/2012/685.pdf - Algorithm 2
+	a1, a0 := new(fq), new(fq)
+
+	fqExp(a1, a, fqQMinus3Over4)
+
+	fqSqr(a0, a1)
+	fqMul(a0, a0, a)
+
+	if fqEqual(a0, fqNeg1) {
+		return false
+	}
+
+	fqMul(x, a1, a)
+
+	return true
+}
+
 func fqExp(ret, base *fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	*ret = fqMont1

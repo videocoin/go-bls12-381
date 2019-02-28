@@ -1,8 +1,11 @@
 package bls12
 
 import (
+	"bytes"
 	"math/big"
 )
+
+// TODO: https://golang.org/src/crypto/elliptic/elliptic.go?s=8258:8305#L296
 
 var (
 	curveB, _ = fqFromBig(bigFromBase10("4"))
@@ -10,7 +13,7 @@ var (
 	g1Generator = newCurvePoint(g1X, g1Y)
 
 	// g1 is the r-order subgroup of points on the curve
-	g1 = newCurveSubGroup(g1Generator)
+	g1 = newCurveSubGroup(g1Generator, g1Cofactor)
 )
 
 // curvePoint is an elliptic curve point in projective coordinates.
@@ -115,55 +118,55 @@ func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 	return q
 }
 
-// curveSubGroup is a cyclic group of the elliptic curve.
-type curveSubGroup struct {
-	generator *curvePoint
-}
-
-func newCurveSubGroup(gen *curvePoint) *curveSubGroup {
-	return &curveSubGroup{
-		generator: gen,
-	}
+func (cp *curvePoint) Marshal() []byte {
+	buffer := new(bytes.Buffer)
+	return buffer.Bytes()
 }
 
 /*
-// swEncode is the Shallue and van de Woestijne encoding of a field element to a curve point
-// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf
-func swEncodeCurve(t fq) *curvePoint {
-	w, inv := new(fq), new(fq)
-	fqMul(w, fqSqrtNeg3, &t)
-	fqMul(inv, &t, &t)
-	fqAdd(inv, inv, &curveB)
-	fqAdd(inv, inv, &fqMont1)
-	fqInv(inv, inv)
-	fqMul(w, w, inv)
-
-	for i := 0
-
-	x1, x2, x3 := new(fq), new(fq), new(fq)
-	fqSub(x1, fqSqrtNeg3, &fq1)
-	fqSub(x2, fqNeg1, x1)
-	fqMul(x3, w, w)
-
-}
-
-
-func hashToG1(msg []byte) *curvePoint {
+// hashToCurvePoint hashes the msg to a curve point.
+// The point is not guaranteed to be in a particular subgroup.
+func hashToCurvePoint(msg []byte) *curvePoint {
 	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
 	h256, _ := blake2b.New256(nil)
 	h256.Write(msg)
-	hash := h256.Sum(nil)
+	h := h256.Sum(nil)
 
 	h512, _ := blake2b.New512(nil)
-	h512.Write(hash)
+	h512.Write(h)
 	h512.Write([]byte("G1_0"))
-	p0 := swEncodeCurve(fqFromHash(h512.Sum(nil)))
+	t0 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
 
 	h512.Reset()
-	h512.Write(hash)
+	h512.Write(h)
 	h512.Write([]byte("G1_1"))
-	p1 := swEncodeCurve(fqFromHash(h512.Sum(nil)))
+	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
 
 	return &curvePoint{}
+}
+*/
+
+// curveSubGroup is a cyclic group of the elliptic curve.
+type curveSubGroup struct {
+	generator *curvePoint
+	cofactor  *big.Int
+}
+
+func newCurveSubGroup(gen *curvePoint, cofactor *big.Int) *curveSubGroup {
+	return &curveSubGroup{
+		generator: gen,
+		cofactor:  cofactor,
+	}
+}
+
+func curvePointFromFq(elm fq) *curvePoint {
+	return newCurvePoint(coordinatesFromFq(elm))
+}
+
+/*
+// hashToCurveSubGroup hashes the msg to a curve sub group point via the given cofactor.
+func hashToCurveSubGroup(msg []byte, cofactor *big.Int) *curvePoint {
+	point := hashToCurvePoint(msg)
+	return point.mul(point, cofactor)
 }
 */

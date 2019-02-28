@@ -41,4 +41,7 @@ var (
 
 	// g2Y1 is the c1 y-coordinate of G2's generator in the Montgomery form
 	g2Y1, _ = fqMontgomeryFromBig(bigFromBase10("927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582"))
+
+	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
+	g1Cofactor = bigFromBase10("0x396C8C005555E1568C00AAAB0000AAAB")
 )

@@ -25,6 +25,12 @@ func fqMul(z, x, y *fq)
 func fqSqr(z, x *fq) { fqMul(z, x, x) }
 
 //go:noescape
+func fqSqrt(z, x *fq) bool
+
+//go:noescape
+func fqCube(z, x *fq)
+
+//go:noescape
 func fqExp(z, x *fq, y []uint64)
 
 func fqInv(c, x *fq) { fqExp(c, x, qm2[:]) }
