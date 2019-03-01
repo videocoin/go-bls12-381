@@ -6,6 +6,10 @@ import (
 
 var curveB, _ = fqFromBase10("4")
 
+const (
+	compressedFormMask = 1 << 7
+)
+
 // curvePoint is an elliptic curve point in projective coordinates.
 // The elliptic curve is defined by the following equation y²=x³+3.
 type curvePoint struct {
@@ -108,10 +112,32 @@ func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 	return q
 }
 
-func (cp *curvePoint) Marshal() []byte {
+// Marshal converts a point into the compressed form specified in
+// https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
+func (cp *curvePoint) marshal() []byte {
 	// See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization
 	// TODO: https://golang.org/src/crypto/elliptic/elliptic.go?s=8258:8305#L296
-	return cp.x.Marshal()
+	//cp.MakeAffine()
+
+	var x fq
+	montgomeryDecode(&x, &cp.x)
+
+	xBytes := x.Bytes()
+	xBytes[0] &= compressedFormMask
+
+	return xBytes
+
+}
+
+// UnmarshalCurvePoint converts a point, serialized by Marshal, into an x, y pair.
+// It is an error if the point is not in compressed form or is not on the curve.
+// On error, x = nil.
+func nmarshalCurvePoint(data []byte) (*curvePoint, error) {
+	return &curvePoint{}, nil
+}
+
+func curvePointFromFq(elm fq) *curvePoint {
+	return newCurvePoint(coordinatesFromFq(elm))
 }
 
 /*

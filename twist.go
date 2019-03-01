@@ -117,7 +117,3 @@ func newTwistSubGroup(gen *twistPoint) *twistSubGroup {
 		generator: gen,
 	}
 }
-
-func (sg *twistSubGroup) element(index *big.Int) *twistPoint {
-	return new(twistPoint).mul(sg.generator, index)
-}

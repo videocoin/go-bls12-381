@@ -12,8 +12,7 @@ import (
 
 const (
 	// fqLen is the expected length of a field element
-	fqLen = 6
-
+	fqLen            = 6
 	fqCompressedLen  = 48
 	fqUnompressedLen = 96
 
@@ -60,11 +59,13 @@ func (fq *fq) String() string {
 	return fq.Hex()
 }
 
-func (fq *fq) Marshal() (ret []byte) {
+// Bytes returns the absolute value of fq as a big-endian byte slice.
+func (fq *fq) Bytes() (ret []byte) {
 	ret = make([]byte, fqCompressedLen)
 	for i, fqi := range fq {
 		binary.LittleEndian.PutUint64(ret[i+i*8:], fqi)
 	}
+
 	return
 }
 

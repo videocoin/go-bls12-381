@@ -3,20 +3,20 @@ package bls12
 import "math/big"
 
 var (
-	g1Generator = newCurvePoint(g1X, g1Y)
-
+	// G1 is the r-order subgroup of points on the curve
 	G1 = new(g1)
+
+	g1Generator = newCurvePoint(g1X, g1Y)
 )
 
-// g1 is the r-order subgroup of points on the curve
 type g1 struct{}
 
-func (g1 *g1) element(index *big.Int) *twistPoint {
-	return new(twistPoint).mul(g2Generator, index)
+func (g1 *g1) Element(index *big.Int) *curvePoint {
+	return new(curvePoint).mul(g1Generator, index)
 }
 
-func curvePointFromFq(elm fq) *curvePoint {
-	return newCurvePoint(coordinatesFromFq(elm))
+func (g1 *g1) ElementFromHash(hash []byte) *curvePoint {
+	return &curvePoint{}
 }
 
 /*
