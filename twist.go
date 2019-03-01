@@ -2,13 +2,6 @@ package bls12
 
 import "math/big"
 
-var (
-	g2Generator = newTwistPoint(newFq2(g2X0, g2X1), newFq2(g2Y0, g2Y1))
-
-	// g2 is the r-order subgroup of points on the curve twist
-	g2 = newTwistSubGroup(g2Generator)
-)
-
 // twistPoint is a curve point in the elliptic curve's twist
 // over an extension field Fq².
 type twistPoint struct {

@@ -2,6 +2,7 @@ package bls12
 
 import (
 	"crypto/rand"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -12,17 +13,22 @@ import (
 const (
 	// fqLen is the expected length of a field element
 	fqLen = 6
+
+	fqCompressedLen  = 48
+	fqUnompressedLen = 96
+
+	decimalBase = 10
 )
 
 var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
 	// field elements
-	fq0    = fq{0}
-	fq1, _ = fqFromBig(big1)
+	fq0 = fq{0}
+	fq1 = fq{1}
 
 	// field elements in the Montgomery form
-	fqMont1, _ = fqMontgomeryFromBig(big1)
+	fqMont1, _ = fqMontgomeryFromBase10("1")
 
 	// swEncode helpers
 	fqNeg1              = new(fq)
@@ -54,6 +60,14 @@ func (fq *fq) String() string {
 	return fq.Hex()
 }
 
+func (fq *fq) Marshal() (ret []byte) {
+	ret = make([]byte, fqCompressedLen)
+	for i, fqi := range fq {
+		binary.LittleEndian.PutUint64(ret[i+i*8:], fqi)
+	}
+	return
+}
+
 func (fl *fqLarge) Hex() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fl[11], fl[10], fl[9], fl[8], fl[7], fl[6], fl[5], fl[4], fl[3], fl[2], fl[1], fl[0])
 }
@@ -65,6 +79,11 @@ func (fl *fqLarge) String() string {
 // isFieldElement checks if value is within the field bounds.
 func isFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
+}
+
+func bigFromBase10(str string) *big.Int {
+	n, _ := new(big.Int).SetString(str, decimalBase)
+	return n
 }
 
 // fqFromBase10 converts a base10 value to a field element.

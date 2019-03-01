@@ -7,6 +7,9 @@ import (
 )
 
 var (
+	big0 = new(big.Int).SetUint64(0)
+	big1 = new(big.Int).SetUint64(1)
+
 	fqLastElement = fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 	fq100         = fq{100}
 	fq99          = fq{99}
@@ -40,7 +43,36 @@ func TestFqFromBig(t *testing.T) {
 	}
 }
 
-func TestFqMontgomeryFromBig(t *testing.T) {}
+func TestFqFromBase10(t *testing.T) {
+	testCases := []struct {
+		input       string
+		output      fq
+		expectedErr error
+	}{
+		{input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787", output: fq{}, expectedErr: errOutOfBounds},
+		{input: "0", output: fq0, expectedErr: nil},
+		{input: "1", output: fq1, expectedErr: nil},
+		{input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786", output: fqLastElement, expectedErr: nil},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
+			result, err := fqFromBase10(testCase.input)
+			if err != nil {
+				if err != testCase.expectedErr {
+					t.Errorf("expected %s, got %s\n", testCase.expectedErr, err)
+				}
+				return
+			}
+			if result != testCase.output {
+				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+			}
+		})
+	}
+}
+
+func TestFqMontgomeryFromBig(t *testing.T)    {}
+func TestFqMontgomeryFromBase10(t *testing.T) {}
 
 func TestFqHex(t *testing.T) {
 	testCases := []struct {
@@ -60,6 +92,8 @@ func TestFqHex(t *testing.T) {
 		})
 	}
 }
+
+func TestFqLargeHex(t *testing.T) {}
 
 func TestMontEncode(t *testing.T) {
 	testCases := []struct {

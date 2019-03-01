@@ -1,20 +1,10 @@
 package bls12
 
 import (
-	"bytes"
 	"math/big"
 )
 
-// TODO: https://golang.org/src/crypto/elliptic/elliptic.go?s=8258:8305#L296
-
-var (
-	curveB, _ = fqFromBig(bigFromBase10("4"))
-
-	g1Generator = newCurvePoint(g1X, g1Y)
-
-	// g1 is the r-order subgroup of points on the curve
-	g1 = newCurveSubGroup(g1Generator, g1Cofactor)
-)
+var curveB, _ = fqFromBase10("4")
 
 // curvePoint is an elliptic curve point in projective coordinates.
 // The elliptic curve is defined by the following equation y²=x³+3.
@@ -119,8 +109,9 @@ func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 }
 
 func (cp *curvePoint) Marshal() []byte {
-	buffer := new(bytes.Buffer)
-	return buffer.Bytes()
+	// See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization
+	// TODO: https://golang.org/src/crypto/elliptic/elliptic.go?s=8258:8305#L296
+	return cp.x.Marshal()
 }
 
 /*
@@ -143,30 +134,5 @@ func hashToCurvePoint(msg []byte) *curvePoint {
 	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
 
 	return &curvePoint{}
-}
-*/
-
-// curveSubGroup is a cyclic group of the elliptic curve.
-type curveSubGroup struct {
-	generator *curvePoint
-	cofactor  *big.Int
-}
-
-func newCurveSubGroup(gen *curvePoint, cofactor *big.Int) *curveSubGroup {
-	return &curveSubGroup{
-		generator: gen,
-		cofactor:  cofactor,
-	}
-}
-
-func curvePointFromFq(elm fq) *curvePoint {
-	return newCurvePoint(coordinatesFromFq(elm))
-}
-
-/*
-// hashToCurveSubGroup hashes the msg to a curve sub group point via the given cofactor.
-func hashToCurveSubGroup(msg []byte, cofactor *big.Int) *curvePoint {
-	point := hashToCurvePoint(msg)
-	return point.mul(point, cofactor)
 }
 */
