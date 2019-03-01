@@ -40,9 +40,7 @@ func TestFqFromBig(t *testing.T) {
 	}
 }
 
-func TestFqMontgomeryFromBig(t *testing.T) {
-
-}
+func TestFqMontgomeryFromBig(t *testing.T) {}
 
 func TestFqHex(t *testing.T) {
 	testCases := []struct {
@@ -62,29 +60,39 @@ func TestFqHex(t *testing.T) {
 		})
 	}
 }
-func TestFqEqual(t *testing.T) {
-	testCases := []struct {
-		a, b   fq
-		output bool
-	}{
-		{fq0, fq0, true},
-		{fq0, fq{0}, true},
-		{fq1, fq{1}, true},
-		{fq0, fq1, false},
-		{fq{0x0, 0x1, 0x2, 0x4, 0x5, 0x5}, fq{0x0, 0x1, 0x2, 0x4, 0x5, 0x5}, true},
-		{fq{0x5, 0x4, 0x3, 0x2, 0x1, 0x0}, fq{0x5, 0x4, 0x3, 0x2, 0x1, 0x0}, true},
-		{fq{0x5, 0x4, 0x3, 0x2, 0x1, 0x0}, fq{0x5, 0x4, 0x3, 0x2, 0x1}, true},
-		{fq{0x5, 0x4, 0x3, 0x2, 0x1, 0x3}, fq{0x5, 0x4, 0x3, 0x2, 0x1}, false},
-		{fq{0x5, 0x4, 0x3, 0x2, 0x1, 0x0}, fq{0x6, 0x4, 0x3, 0x2, 0x1, 0x0}, false},
-	}
 
+func TestMontEncode(t *testing.T) {
+	testCases := []struct {
+		input, output fq
+	}{
+		{
+			input:  fq1,
+			output: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
+		},
+	}
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
-			if result := testCase.a.equal(testCase.b); result != testCase.output {
-				t.Errorf("expected %t, got %t\n", testCase.output, result)
-			}
-		})
+		var result fq
+		montgomeryEncode(&result, &testCase.input)
+		if result != testCase.output {
+			t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+		}
 	}
 }
 
-func TestFqExp(t *testing.T) {}
+func TestMontDecode(t *testing.T) {
+	testCases := []struct {
+		input, output fq
+	}{
+		{
+			input:  fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
+			output: fq1,
+		},
+	}
+	for _, testCase := range testCases {
+		var result fq
+		montgomeryDecode(&result, &testCase.input)
+		if result != testCase.output {
+			t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+		}
+	}
+}

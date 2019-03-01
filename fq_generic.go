@@ -2,8 +2,6 @@
 
 package bls12
 
-import "fmt"
-
 const (
 	wordSize     = 64
 	halfWordSize = wordSize / 2
@@ -55,7 +53,7 @@ func fqNeg(z, x *fq) {
 		xi := x[i]
 		zi := qi - xi - carry
 		z[i] = zi
-		carry = (xi&^qi | (xi|^qi)&zi) >> 63
+		carry = (xi&^qi | (xi|^qi)&zi) >> (wordSize - 1)
 	}
 }
 
@@ -67,14 +65,19 @@ func fqBasicMul(z *fqLarge, x, y *fq) {
 			y0, y1 := yi&halfWordMask, yi>>halfWordSize
 			for j, xj := range x {
 				x0, x1 := xj&halfWordMask, xj>>halfWordSize
-				sum := z[i+j]
 
-				// Adapted from Hacker's Delight - Multiword Multiplication
-				t := x1*y0 + ((x0*y0 + (carry & halfWordMask) + (sum & halfWordMask)) >> halfWordSize)
-				z[i+j] = xj * yi
-				carry = x1*y1 + (t >> halfWordSize) + ((t & halfWordMask) + x0*y1 + (sum >> halfWordSize) + (carry>>halfWordSize)>>halfWordSize)
+				// See Hacker's Delight - Multiword Multiplication
+				x0y0 := x0 * y0
+				x1y0 := x1 * y0
+				x0y1 := x0 * y1
+				x1y1 := x1 * y1
+				w0 := (x0y0 & halfWordMask) + (z[i+j] & halfWordMask) + (carry & halfWordMask)
+				w1 := (w0 >> halfWordSize) + (x0y0 >> halfWordSize) + (z[i+j] >> halfWordSize) + (x1y0 & halfWordMask) + (x0y1 & halfWordMask) + (carry >> halfWordSize)
+				w2 := (w1 >> halfWordSize) + (x1y0 >> halfWordSize) + (x0y1 >> halfWordSize) + (x1y1 & halfWordMask)
+				carry = (((w2 >> halfWordSize) + (x1y1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
+				z[i+j] = (w1 << halfWordSize) | (w0 & halfWordMask)
 			}
-			z[i+6] = carry
+			z[i+fqLen] = carry
 		}
 	}
 
@@ -95,24 +98,21 @@ func fqREDC(c *fq, x *fqLarge) {
 			s0, s1 := s&halfWordMask, s>>halfWordSize
 			for j, q := range q64 {
 				q0, q1 := q&halfWordMask, q>>halfWordSize
-				sum := x[i+j]
 
-				fmt.Println(s)
-				fmt.Println(q)
-				fmt.Println(sum)
-
-				// 6. s*q - Adapted from Hacker's Delight - Multiword Multiplication
-				t := q1*s0 + ((q0*s0 + (carryMul & halfWordMask) + (sum & halfWordMask)) >> halfWordSize)
+				// See Hacker's Delight - Multiword Multiplication
+				q0s0 := q0 * s0
+				q1s0 := q1 * s0
+				q0s1 := q0 * s1
+				q1s1 := q1 * s1
+				w0 := (q0s0 & halfWordMask) + (x[i+j] & halfWordMask) + (carryMul & halfWordMask)
+				w1 := (w0 >> halfWordSize) + (q0s0 >> halfWordSize) + (x[i+j] >> halfWordSize) + (q1s0 & halfWordMask) + (q0s1 & halfWordMask) + (carryMul >> halfWordSize)
+				w2 := (w1 >> halfWordSize) + (q1s0 >> halfWordSize) + (q0s1 >> halfWordSize) + (q1s1 & halfWordMask)
+				carryMul = (((w2 >> halfWordSize) + (q1s1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
 				if j > 0 {
 					// note(rgeraldes): since the low order bits are going to be discarded and x[i+j=0]
 					// is not used anymore during the program, we can skip the assignment.
-					x[i+j] = s * q
-					fmt.Println(s)
-					fmt.Println(q)
-					fmt.Println(x[i+j])
+					x[i+j] = (w1 << halfWordSize) | (w0 & halfWordMask)
 				}
-				carryMul = q1*s1 + (t >> halfWordSize) + ((t & halfWordMask) + q0*s1 + (sum >> halfWordSize) + (carryMul>>halfWordSize)>>halfWordSize)
-				fmt.Println(carryMul)
 			}
 		}
 		// 6. t=x+sn.
@@ -143,7 +143,7 @@ func fqSqr(z, x *fq) {
 }
 
 func fqCube(z, x *fq) {
-	fqSqr(z, x, x)
+	fqSqr(z, x)
 	fqMul(z, z, x)
 }
 
@@ -156,7 +156,7 @@ func fqSqrt(x, a *fq) bool {
 	fqSqr(a0, a1)
 	fqMul(a0, a0, a)
 
-	if fqEqual(a0, fqNeg1) {
+	if *a0 == *fqNeg1 {
 		return false
 	}
 
@@ -169,11 +169,11 @@ func fqExp(ret, base *fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	*ret = fqMont1
 	for i, word := range exponent {
-		for j := 0; i < wordSize; i++ {
+		for j := uint(0); i < wordSize; i++ {
 			if (word & (1 << j)) != 0 {
 				fqMul(ret, ret, base)
 			}
-			fqSqr(base, base, base)
+			fqSqr(base, base)
 		}
 	}
 }

@@ -20,18 +20,16 @@ var (
 	// field elements
 	fq0    = fq{0}
 	fq1, _ = fqFromBig(big1)
-)
 
-var (
 	// field elements in the Montgomery form
 	fqMont1, _ = fqMontgomeryFromBig(big1)
-)
 
-var (
-	// swEncode values
-	fqNeg1              *fq
+	// swEncode helpers
+	fqNeg1              = new(fq)
 	fqSqrtNeg3          = &fq{}
 	fqHalfSqrNeg3Minus1 = &fq{}
+
+	fqQMinus3Over4 []uint64
 )
 
 func init() {
@@ -45,17 +43,6 @@ type (
 	// fqLarge is used for storing the basic multiplication result.
 	fqLarge [fqLen * 2]uint64
 )
-
-// equal checks if the field elements are equal.
-func (fq fq) equal(b fq) bool {
-	for i, fqi := range fq {
-		if fqi != b[i] {
-			return false
-		}
-	}
-
-	return true
-}
 
 // Hex returns the field element in the hexadecimal base
 func (fq *fq) Hex() string {
@@ -78,6 +65,16 @@ func (fl *fqLarge) String() string {
 // isFieldElement checks if value is within the field bounds.
 func isFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
+}
+
+// fqFromBase10 converts a base10 value to a field element.
+func fqFromBase10(str string) (fq, error) {
+	return fqFromBig(bigFromBase10(str))
+}
+
+// fqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
+func fqMontgomeryFromBase10(str string) (fq, error) {
+	return fqMontgomeryFromBig(bigFromBase10(str))
 }
 
 // fqFromBig converts a big integer to a field element.
@@ -108,7 +105,7 @@ func fqMontgomeryFromBig(value *big.Int) (fq, error) {
 	if err != nil {
 		return fq{}, err
 	}
-	montgomeryEncode(&fieldElement)
+	montgomeryEncode(&fieldElement, &fieldElement)
 
 	return fieldElement, nil
 }
@@ -147,16 +144,16 @@ func randFieldElement(reader io.Reader) (n *big.Int, err error) {
 }
 
 // montEncode converts the input to Montgomery form.
-// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
-func montgomeryEncode(a *fq) {
-	fqMul(a, a, &r2)
+func montgomeryEncode(c, a *fq) {
+	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+	fqMul(c, a, &r2)
 }
 
 // montDecode converts the input in the Montgomery form back to
 // the standard form.
-// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
-func montgomeryDecode(c *fq) {
-	fqMul(c, c, &fq1)
+func montgomeryDecode(c, a *fq) {
+	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+	fqMul(c, a, &fq1)
 }
 
 // coordinatesFromFq implements the Shallue and van de Woestijne encoding.

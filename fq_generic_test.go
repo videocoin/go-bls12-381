@@ -74,11 +74,6 @@ func TestFqBasicMul(t *testing.T) {
 			output: fqLarge{0, 0, 0, 0, 0, 0, 0, 0, 1},
 		},
 		{
-			a:      fq{0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF},
-			b:      fq{0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF},
-			output: fqLarge{0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1},
-		},
-		{
 			a:      fq0,
 			b:      fq1,
 			output: fqLarge{0},
@@ -87,6 +82,11 @@ func TestFqBasicMul(t *testing.T) {
 			a:      fq{0, 0, 0, 0, 1},
 			b:      fq1,
 			output: fqLarge{0, 0, 0, 0, 1},
+		},
+		{
+			a:      fq1,
+			b:      r2,
+			output: fqLarge{r2[0], r2[1], r2[2], r2[3], r2[4], r2[5]},
 		},
 	}
 	for _, testCase := range testCases {
@@ -99,23 +99,16 @@ func TestFqBasicMul(t *testing.T) {
 		})
 	}
 }
-
-func TestFqCube(t *testing.T) {}
-
-func TestFqSqrt(t *testing.T) {}
-
-/*
 func TestFqREDC(t *testing.T) {
 	testCases := []struct {
 		input  fqLarge
 		output fq
 	}{
 		{
-			input:  fqLarge{0x00f630eca1bd6630, 0xfd5552c7c9513c59, 0x4bd35517a56fa1a5, 0xda0eea7dbbcbb3f2, 0x6ab765fc88b83da5, 0xd5bb7a80c6cbb4a7, 0xb8ace446959099f0, 0x873087f81d8beac0, 0xcd85184272c3ee73, 0x27d2462594a0a1e5, 0x2ad107a9544cc968, 0x075cfe63e862ac9b},
-			output: fq{0xf5f70713b717914c, 0x355ea5ac64cbbab1, 0xce60dd43417ec960, 0xf16b9d77b0ad7d10, 0xa44c204c1de7cdb7, 0x1684487772bc9a5a},
+			input:  fqLarge{r2[0], r2[1], r2[2], r2[3], r2[4], r2[5]},
+			output: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
 		},
 	}
-	// bls12: 144fb1019f8e91b25f7b8ffde88a30adf33ca1b49e03a60beb66a8c54e38c359bdb913d49fb352404e450d3690ca3e8a
 
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("input: %s\n", testCase.input.String()), func(t *testing.T) {
@@ -128,15 +121,14 @@ func TestFqREDC(t *testing.T) {
 	}
 }
 
-
 func TestFqMul(t *testing.T) {
 	testCases := []struct {
 		a, b, output fq
 	}{
 		{
-			a:      fq{0xcc6200000020aa8a, 0x422800801dd8001a, 0x7f4f5e619041c62c, 0x8a55171ac70ed2ba, 0x3f69cc3a3d07d58b, 0xb972455fd09b8ef},
-			b:      fq{0x329300000030ffcf, 0x633c00c02cc40028, 0xbef70d925862a942, 0x4f7fa2a82a963c17, 0xdf1eb2575b8bc051, 0x1162b680fb8e9566},
-			output: fq{0x9dc4000001ebfe14, 0x2850078997b00193, 0xa8197f1abb4d7bf, 0xc0309573f4bfe871, 0xf48d0923ffaf7620, 0x11d4b58c7a926e66},
+			a:      fqMont1,
+			b:      fqMont1,
+			output: fqMont1,
 		},
 	}
 	for _, testCase := range testCases {
@@ -149,36 +141,29 @@ func TestFqMul(t *testing.T) {
 		})
 	}
 }
-*/
 
-/*
-OUR:
-11159732349363015024
-13402431016077863595
-69296637154780720
-821004262248500634
+func TestFqExp(t *testing.T) {
+	testCases := []struct {
+		base, output fq
+		exponent     []uint64
+	}{
+		{
+			base:     fqMont1,
+			exponent: []uint64{3},
+			output:   fqMont1,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(fmt.Sprintf("base: %s, exponent: %v", testCase.base.String(), testCase.exponent), func(t *testing.T) {
+			var result fq
+			fqExp(&result, &testCase.base, testCase.exponent)
+			if result != testCase.output {
+				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+			}
+		})
+	}
+}
 
-11159732349363015024
-2210141511517208575
-18254587682645687385
-11159732349363015024
-2210141511517208575
-9718722949989020304
-9067282531769192061
-*/
+func TestFqCube(t *testing.T) {}
 
-/*
-BLS12NATIVE:
-11159732349363015024
-13402431016077863595
-69296637154780720
-8108072751082139500
-
-11159732349363015024
-2210141511517208575
-18254587682645687385
-11159732349363015024
-2210141511517208575
-17634639310007295573
-1337069979623170057
-*/
+func TestFqSqrt(t *testing.T) {}
