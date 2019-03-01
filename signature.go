@@ -55,3 +55,16 @@ func Sign(priv *PrivateKey, hash []byte) []byte {
 	return blsSignature{}.Marshal()
 	//return blsSignature{curvePoint: new(curvePoint).mul(hashToCurveSubGroup(hash, g1), priv.Secret)}.Marshal()
 }
+
+// Verify verifies the signature of hash using the public key(s), pub. Its
+// return value records whether the signature is valid.
+func Verify(hash []byte, sig []byte, pub ...*PublicKey) bool {
+	// TODO
+	return false
+}
+
+// Aggregate aggregates the signature(s) into a short convincing aggregate signature.
+func Aggregate(sig ...[]byte) []byte {
+	// TODO
+	return []byte{}
+}
