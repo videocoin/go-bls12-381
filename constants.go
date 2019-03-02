@@ -1,5 +1,12 @@
 package bls12
 
+// TODO package description
+// This package operates, internally, on projective coordinates. For a given
+// (x, y) position on the curve, the Jacobian coordinates are (x1, y1, z1)
+// where x = x1/z1² and y = y1/z1³.
+// See https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates.
+// # BLS parameter, used to generate other parameters: x = -0xd201000000010000
+
 const (
 	// k64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n
 	k64 uint64 = 0x89f3fffcfffcfffd
@@ -43,5 +50,5 @@ var (
 	g2Y1, _ = fqMontgomeryFromBase10("927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582")
 
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
-	g1Cofactor = bigFromBase10("0x396C8C005555E1568C00AAAB0000AAAB")
+	g1Cofactor = bigFromBase10("76329603384216526031706109802092473003")
 )

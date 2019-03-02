@@ -16,13 +16,5 @@ func (g1 *g1) Element(index *big.Int) *curvePoint {
 }
 
 func (g1 *g1) ElementFromHash(hash []byte) *curvePoint {
-	return &curvePoint{}
+	return hashToCurveSubGroup(hash, g1Cofactor)
 }
-
-/*
-// hashToCurveSubGroup hashes the msg to a curve sub group point via the given cofactor.
-func hashToCurveSubGroup(msg []byte, cofactor *big.Int) *curvePoint {
-	point := hashToCurvePoint(msg)
-	return point.mul(point, cofactor)
-}
-*/

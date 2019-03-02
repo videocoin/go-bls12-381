@@ -2,12 +2,15 @@ package bls12
 
 import (
 	"math/big"
+
+	"golang.org/x/crypto/blake2b"
 )
 
 var curveB, _ = fqFromBase10("4")
 
 const (
-	compressedFormMask = 1 << 7
+	compressedFormMask  uint8 = 1 << 7
+	pointAtInfinityMask uint8 = 1 << 6
 )
 
 // curvePoint is an elliptic curve point in projective coordinates.
@@ -22,6 +25,27 @@ func newCurvePoint(x, y fq) *curvePoint {
 		y: y,
 		z: fq0,
 	}
+}
+
+// curvePointFromHash converts the hash to a curve point.
+// The point is not guaranteed to be in a particular subgroup.
+func curvePointFromHash(hash []byte) *curvePoint {
+	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
+	h256, _ := blake2b.New256(nil)
+	h256.Write(hash)
+	h := h256.Sum(nil)
+
+	h512, _ := blake2b.New512(nil)
+	h512.Write(h)
+	h512.Write([]byte("G1_0"))
+	t0 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
+
+	h512.Reset()
+	h512.Write(h)
+	h512.Write([]byte("G1_1"))
+	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
+
+	return new(curvePoint).add(t0, t1)
 }
 
 func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
@@ -112,9 +136,27 @@ func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 	return q
 }
 
+// isInfinty check if the point is a point at "infinity"
+func (cp *curvePoint) isInfinity() bool {
+	return cp.z == fq0
+}
+
+func (cp *curvePoint) makeAffine() {
+	// TODO create new curve point
+	if cp.isInfinity() {
+		//  If this bit is set, the remaining bits of the group element's encoding should be set to zero.
+		//pointAtInfinityMask
+	}
+	zInv := new(fq)
+	fqInv(zInv, &cp.z)
+	fqMul(&cp.x, &cp.x, zInv)
+	fqMul(&cp.y, &cp.y, zInv)
+}
+
 // Marshal converts a point into the compressed form specified in
 // https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
 func (cp *curvePoint) marshal() []byte {
+	cp.makeAffine()
 	// See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization
 	// TODO: https://golang.org/src/crypto/elliptic/elliptic.go?s=8258:8305#L296
 	//cp.MakeAffine()
@@ -129,10 +171,19 @@ func (cp *curvePoint) marshal() []byte {
 
 }
 
-// UnmarshalCurvePoint converts a point, serialized by Marshal, into an x, y pair.
+// unmarshalCurvePoint converts a point, serialized by Marshal, into an x, y pair.
 // It is an error if the point is not in compressed form or is not on the curve.
 // On error, x = nil.
-func nmarshalCurvePoint(data []byte) (*curvePoint, error) {
+func umarshalCurvePoint(data []byte) (*curvePoint, error) {
+	if len(data) != fqCompressedLen {
+		// TODO (error)
+		return nil, nil
+	}
+	if data[0]&compressedFormMask == 0 {
+		// TODO (error)
+		return nil, nil
+	}
+
 	return &curvePoint{}, nil
 }
 
@@ -140,25 +191,8 @@ func curvePointFromFq(elm fq) *curvePoint {
 	return newCurvePoint(coordinatesFromFq(elm))
 }
 
-/*
-// hashToCurvePoint hashes the msg to a curve point.
-// The point is not guaranteed to be in a particular subgroup.
-func hashToCurvePoint(msg []byte) *curvePoint {
-	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
-	h256, _ := blake2b.New256(nil)
-	h256.Write(msg)
-	h := h256.Sum(nil)
-
-	h512, _ := blake2b.New512(nil)
-	h512.Write(h)
-	h512.Write([]byte("G1_0"))
-	t0 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
-
-	h512.Reset()
-	h512.Write(h)
-	h512.Write([]byte("G1_1"))
-	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
-
-	return &curvePoint{}
+// hashToCurveSubGroup hashes the msg to a specific curve subgroup.
+// cofactor https://crypto.stackexchange.com/questions/33028/order-and-cofactor-of-the-base-point
+func hashToCurveSubGroup(msg []byte, cofactor *big.Int) *curvePoint {
+	return new(curvePoint).mul(curvePointFromHash(msg), cofactor)
 }
-*/
