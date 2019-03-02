@@ -5,9 +5,12 @@ import (
 	"math/big"
 )
 
+// The modified BLS multi-signature construction
+// See https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html
+
 // PublicKey represents a BLS12-381 public key.
 type PublicKey struct {
-	*twistPoint
+	*g2Point
 }
 
 // PrivateKey represents a BLS12-381 private key.
@@ -26,14 +29,14 @@ func (priv *PrivateKey) Sign(hash []byte) []byte {
 }
 
 type blsSignature struct {
-	*curvePoint
+	*g1Point
 }
 
 func newPrivateKey(index *big.Int) *PrivateKey {
 	return &PrivateKey{
 		Secret: index,
 		PublicKey: PublicKey{
-			twistPoint: G2.Element(index),
+			G2.Element(index),
 		},
 	}
 }
@@ -57,8 +60,10 @@ func Sign(priv *PrivateKey, hash []byte) []byte {
 
 // Verify verifies the signature of hash using the public key(s), pub. Its
 // return value records whether the signature is valid.
-func Verify(hash []byte, sig []byte, pub ...*PublicKey) bool {
+func Verify(hash []byte, sig []byte, pubKeys ...*PublicKey) bool {
 	// TODO
+	// for _, pubKey := range pubKey {}
+
 	return false
 }
 

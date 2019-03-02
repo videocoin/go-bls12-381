@@ -6,12 +6,12 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
-var curveB, _ = fqFromBase10("4")
-
 const (
 	compressedFormMask  uint8 = 1 << 7
 	pointAtInfinityMask uint8 = 1 << 6
 )
+
+var curveB, _ = fqFromBase10("4")
 
 // curvePoint is an elliptic curve point in projective coordinates.
 // The elliptic curve is defined by the following equation y²=x³+3.
