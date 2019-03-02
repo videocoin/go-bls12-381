@@ -174,7 +174,7 @@ func (cp *curvePoint) marshal() []byte {
 // unmarshalCurvePoint converts a point, serialized by Marshal, into an x, y pair.
 // It is an error if the point is not in compressed form or is not on the curve.
 // On error, x = nil.
-func umarshalCurvePoint(data []byte) (*curvePoint, error) {
+func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 	if len(data) != fqCompressedLen {
 		// TODO (error)
 		return nil, nil

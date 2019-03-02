@@ -7,6 +7,9 @@ import (
 
 // The modified BLS multi-signature construction
 // See https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html
+// Keep it simple for now - no signature aggregation
+
+var unmarshalSignature = unmarshalG1Point
 
 // PublicKey represents a BLS12-381 public key.
 type PublicKey struct {
@@ -60,15 +63,19 @@ func Sign(priv *PrivateKey, hash []byte) []byte {
 
 // Verify verifies the signature of hash using the public key(s), pub. Its
 // return value records whether the signature is valid.
-func Verify(hash []byte, sig []byte, pubKeys ...*PublicKey) bool {
-	// TODO
-	// for _, pubKey := range pubKey {}
+func Verify(hash []byte, sig []byte, pubKey *PublicKey) (bool, error) {
+	sigPoint, err := unmarshalSignature(sig)
+	if err != nil {
+		return false, err
+	}
 
-	return false
+	return pair(sigPoint, g2Generator).equal(pair(G1.ElementFromHash(hash), pubKey.g2Point)), nil
 }
 
+/*
 // Aggregate aggregates the signature(s) into a short convincing aggregate signature.
 func Aggregate(sig ...[]byte) []byte {
 	// TODO
 	return []byte{}
 }
+*/

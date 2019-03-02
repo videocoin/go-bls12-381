@@ -9,6 +9,8 @@ var (
 	G1 = new(g1)
 
 	g1Generator = newCurvePoint(g1X, g1Y)
+
+	unmarshalG1Point = unmarshalCurvePoint
 )
 
 type g1 struct{}
