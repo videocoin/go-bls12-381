@@ -72,10 +72,8 @@ func Verify(hash []byte, sig []byte, pubKey *PublicKey) (bool, error) {
 	return pair(sigPoint, g2Generator).equal(pair(G1.ElementFromHash(hash), pubKey.g2Point)), nil
 }
 
-/*
 // Aggregate aggregates the signature(s) into a short convincing aggregate signature.
 func Aggregate(sig ...[]byte) []byte {
 	// TODO
 	return []byte{}
 }
-*/
