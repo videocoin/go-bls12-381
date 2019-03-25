@@ -23,7 +23,7 @@ var ErrOutOfBounds = errors.New("value is not an element of the finite field of 
 
 var (
 	// field elements
-	fq0 = Fq{0}
+	Fq0 = Fq{0}
 	fq1 = Fq{1}
 
 	// field elements in the Montgomery form
