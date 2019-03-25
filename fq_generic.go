@@ -8,7 +8,7 @@ const (
 	halfWordMask = (1 << halfWordSize) - 1
 )
 
-func FqMod(a *fq) {
+func fqMod(a *fq) {
 	b := new(fq)
 	var carry uint64
 	for i, qi := range q64 {
@@ -38,16 +38,16 @@ func FqAdd(z, x, y *fq) {
 	FqMod(z)
 }
 
-func fqDbl(z, x *fq) {
+func FqDbl(z, x *fq) {
 	FqAdd(z, x, x)
 }
 
-func fqSub(z, x, y *fq) {
+func FqSub(z, x, y *fq) {
 	FqNeg(y, y)
 	FqAdd(z, x, y)
 }
 
-func fqNeg(z, x *fq) {
+func FqNeg(z, x *fq) {
 	var carry uint64
 	for i, qi := range q64 {
 		xi := x[i]
@@ -57,7 +57,7 @@ func fqNeg(z, x *fq) {
 	}
 }
 
-func fqBasicMul(z *fqLarge, x, y *fq) {
+func FqBasicMul(z *fqLarge, x, y *fq) {
 	var carry uint64
 	for i, yi := range y {
 		carry = 0
@@ -87,7 +87,7 @@ func fqBasicMul(z *fqLarge, x, y *fq) {
 // fqREDC applies the montgomery reduction.
 // See https://www.nayuki.io/page/montgomery-reduction-algorithm - Summary
 // 4. x=a¯b¯.
-func fqREDC(c *fq, x *fqLarge) {
+func FqREDC(c *fq, x *fqLarge) {
 	var carryMul, carrySum uint64
 	for i := 0; i < fqLen; i++ {
 		carryMul = 0
@@ -138,16 +138,16 @@ func FqMul(z, x, y *fq) {
 	fqREDC(z, large)
 }
 
-func fqSqr(z, x *fq) {
+func FqSqr(z, x *fq) {
 	fqMul(z, x, x)
 }
 
-func fqCube(z, x *fq) {
+func FqCube(z, x *fq) {
 	fqSqr(z, x)
 	fqMul(z, z, x)
 }
 
-func fqSqrt(x, a *fq) bool {
+func FqSqrt(x, a *fq) bool {
 	// See https://eprint.iacr.org/2012/685.pdf - Algorithm 2
 	a1, a0 := new(fq), new(fq)
 
@@ -165,7 +165,7 @@ func fqSqrt(x, a *fq) bool {
 	return true
 }
 
-func fqExp(ret, base *fq, exponent []uint64) {
+func FqExp(ret, base *fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	*ret = fqMont1
 	for i, word := range exponent {
@@ -178,6 +178,6 @@ func fqExp(ret, base *fq, exponent []uint64) {
 	}
 }
 
-func fqInv(c, x *fq) {
+func FqInv(c, x *fq) {
 	fqExp(c, x, qm2[:])
 }

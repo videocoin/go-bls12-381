@@ -37,7 +37,7 @@
         CMOVQCC b4, a4 \
         CMOVQCC b5, a5
           
-TEXT ·fqAdd(SB),0,$0-24
+TEXT ·FqAdd(SB),0,$0-24
     MOVQ a+8(FP), DI
     MOVQ b+16(FP), SI
     fqLoad(0(DI), R8, R9, R10, R11, R12, R13)
@@ -52,7 +52,7 @@ TEXT ·fqAdd(SB),0,$0-24
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
-TEXT ·fqNeg(SB),0,$0-16
+TEXT ·FqNeg(SB),0,$0-16
     MOVQ ·q64+0(SB), R8
     MOVQ ·q64+8(SB), R9
     MOVQ ·q64+16(SB), R10
@@ -70,7 +70,7 @@ TEXT ·fqNeg(SB),0,$0-16
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
-TEXT ·fqSub(SB),0,$0-24
+TEXT ·FqSub(SB),0,$0-24
     MOVQ ·q64+0(SB), R8
     MOVQ ·q64+8(SB), R9
     MOVQ ·q64+16(SB), R10
@@ -99,6 +99,6 @@ TEXT ·fqSub(SB),0,$0-24
 TEXT ·fqBasicMul(SB),0,$0-24
     RET
 
-TEXT ·fqMul(SB),0,$0-24
+TEXT ·FqMul(SB),0,$0-24
     RET
     

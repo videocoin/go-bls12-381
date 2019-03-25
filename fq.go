@@ -159,6 +159,26 @@ func fqFromHash(hash []byte) Fq {
 	return ret
 }
 
+// FqToBig converts a field element to a big integer.
+func FqToBig(fq Fq) *big.Int {
+	var words []big.Word
+
+	if strconv.IntSize == 64 {
+		words = make([]big.Word, 0, FqLen)
+		for _, word := range fq {
+			words = append(words, big.Word(word))
+		}
+	} else {
+		numWords := FqLen * 2
+		words = make([]big.Word, 0, numWords)
+		for i := 0; i < numWords; i++ {
+			words = append(words, big.Word(uint32((fq[i/2])>>uint(32*(i%2)))))
+		}
+	}
+
+	return new(big.Int).SetBits(words)
+}
+
 // randInt returns a random scalar between 0 and max.
 func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
 	for {
