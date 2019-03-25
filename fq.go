@@ -171,7 +171,7 @@ func RandFieldElement(reader io.Reader) (Fq, error) {
 		return Fq{}, err
 	}
 
-	return FqFromBig(elem)
+	return FqFromFqBig(elem), nil
 }
 
 // montEncode converts the input to Montgomery form.
