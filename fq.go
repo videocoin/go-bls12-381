@@ -103,6 +103,12 @@ func FqFromBig(value *big.Int) (Fq, error) {
 		return Fq{}, ErrOutOfBounds
 	}
 
+	return FqFromFqBig(value), nil
+}
+
+// FqFromFqBig converts the big integer representing the
+// field element to the field element representation.
+func FqFromFqBig(value *big.Int) Fq {
 	fq := Fq{0}
 	words := value.Bits()
 	numWords := len(words)
@@ -116,7 +122,7 @@ func FqFromBig(value *big.Int) (Fq, error) {
 		}
 	}
 
-	return fq, nil
+	return fq
 }
 
 // FqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
@@ -159,8 +165,13 @@ func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
 
 // RandFieldElement returns a random element of the field underlying the given
 // curve.
-func RandFieldElement(reader io.Reader) (n *big.Int, err error) {
-	return randInt(reader, q)
+func RandFieldElement(reader io.Reader) (Fq, error) {
+	elem, err := randInt(reader, q)
+	if err != nil {
+		return Fq{}, err
+	}
+
+	return FqFromBig(elem)
 }
 
 // montEncode converts the input to Montgomery form.
