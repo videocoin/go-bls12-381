@@ -12,7 +12,7 @@ import (
 
 const (
 	// fqLen is the expected length of a field element
-	fqLen            = 6
+	FqLen            = 6
 	fqCompressedLen  = 48
 	fqUnompressedLen = 96
 
@@ -23,16 +23,16 @@ var ErrOutOfBounds = errors.New("value is not an element of the finite field of 
 
 var (
 	// field elements
-	fq0 = fq{0}
-	fq1 = fq{1}
+	fq0 = Fq{0}
+	fq1 = Fq{1}
 
 	// field elements in the Montgomery form
 	fqMont1, _ = FqMontgomeryFromBase10("1")
 
 	// swEncode helpers
-	fqNeg1              = new(fq)
-	fqSqrtNeg3          = &fq{}
-	fqHalfSqrNeg3Minus1 = &fq{}
+	fqNeg1              = new(Fq)
+	fqSqrtNeg3          = &Fq{}
+	fqHalfSqrNeg3Minus1 = &Fq{}
 
 	fqQMinus3Over4 []uint64
 )
@@ -44,23 +44,23 @@ func init() {
 
 type (
 	// fq is an element of the finite field of order q.
-	fq [fqLen]uint64
+	Fq [FqLen]uint64
 	// fqLarge is used for storing the basic multiplication result.
-	fqLarge [fqLen * 2]uint64
+	FqLarge [FqLen * 2]uint64
 )
 
 // Hex returns the field element in the hexadecimal base
-func (fq *fq) Hex() string {
+func (fq *Fq) Hex() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fq[5], fq[4], fq[3], fq[2], fq[1], fq[0])
 }
 
 // String satisfies the Stringer interface.
-func (fq *fq) String() string {
+func (fq *Fq) String() string {
 	return fq.Hex()
 }
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.
-func (fq *fq) Bytes() (ret []byte) {
+func (fq *Fq) Bytes() (ret []byte) {
 	ret = make([]byte, fqCompressedLen)
 	for i, fqi := range fq {
 		binary.LittleEndian.PutUint64(ret[i+i*8:], fqi)
@@ -69,11 +69,11 @@ func (fq *fq) Bytes() (ret []byte) {
 	return
 }
 
-func (fl *fqLarge) Hex() string {
+func (fl *FqLarge) Hex() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fl[11], fl[10], fl[9], fl[8], fl[7], fl[6], fl[5], fl[4], fl[3], fl[2], fl[1], fl[0])
 }
 
-func (fl *fqLarge) String() string {
+func (fl *FqLarge) String() string {
 	return fl.Hex()
 }
 
@@ -88,22 +88,22 @@ func BigFromBase10(str string) *big.Int {
 }
 
 // FqFromBase10 converts a base10 value to a field element.
-func FqFromBase10(str string) (fq, error) {
+func FqFromBase10(str string) (Fq, error) {
 	return FqFromBig(BigFromBase10(str))
 }
 
 // FqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
-func FqMontgomeryFromBase10(str string) (fq, error) {
+func FqMontgomeryFromBase10(str string) (Fq, error) {
 	return FqMontgomeryFromBig(BigFromBase10(str))
 }
 
 // FqFromBig converts a big integer to a field element.
-func FqFromBig(value *big.Int) (fq, error) {
+func FqFromBig(value *big.Int) (Fq, error) {
 	if !IsFieldElement(value) {
-		return fq{}, ErrOutOfBounds
+		return Fq{}, ErrOutOfBounds
 	}
 
-	fq := fq{0}
+	fq := Fq{0}
 	words := value.Bits()
 	numWords := len(words)
 	if strconv.IntSize == 64 {
@@ -120,10 +120,10 @@ func FqFromBig(value *big.Int) (fq, error) {
 }
 
 // FqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
-func FqMontgomeryFromBig(value *big.Int) (fq, error) {
+func FqMontgomeryFromBig(value *big.Int) (Fq, error) {
 	fieldElement, err := FqFromBig(value)
 	if err != nil {
-		return fq{}, err
+		return Fq{}, err
 	}
 	montgomeryEncode(&fieldElement, &fieldElement)
 
@@ -132,7 +132,7 @@ func FqMontgomeryFromBig(value *big.Int) (fq, error) {
 
 // fqFromHash converts a hash value to a field element.
 // See https://golang.org/src/crypto/ecdsa/ecdsa.go?s=1572:1621#L118
-func fqFromHash(hash []byte) fq {
+func fqFromHash(hash []byte) Fq {
 	if len(hash) > orderBytes {
 		hash = hash[:orderBytes]
 	}
@@ -164,14 +164,14 @@ func RandFieldElement(reader io.Reader) (n *big.Int, err error) {
 }
 
 // montEncode converts the input to Montgomery form.
-func montgomeryEncode(c, a *fq) {
+func montgomeryEncode(c, a *Fq) {
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 	fqMul(c, a, &r2)
 }
 
 // montDecode converts the input in the Montgomery form back to
 // the standard form.
-func montgomeryDecode(c, a *fq) {
+func montgomeryDecode(c, a *Fq) {
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 	fqMul(c, a, &fq1)
 }
@@ -179,9 +179,9 @@ func montgomeryDecode(c, a *fq) {
 // coordinatesFromFq implements the Shallue and van de Woestijne encoding.
 // The point is not guaranteed to be in a particular subgroup.
 // See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf
-func coordinatesFromFq(t fq) (x, y fq) {
+func coordinatesFromFq(t Fq) (x, y Fq) {
 	// w = (t^2 + 4u + 1)^(-1) * sqrt(-3) * t
-	w, inv := new(fq), new(fq)
+	w, inv := new(Fq), new(Fq)
 	fqMul(w, fqSqrtNeg3, &t)
 	fqMul(inv, &t, &t)
 	fqAdd(inv, inv, &curveB)

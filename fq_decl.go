@@ -3,34 +3,34 @@
 package bls12
 
 //go:noescape
-func fqAdd(z, x, y *fq)
+func fqAdd(z, x, y *Fq)
 
-func fqDbl(z, x *fq) { fqAdd(z, x, x) }
-
-//go:noescape
-func fqNeg(z, x *fq)
+func fqDbl(z, x *Fq) { fqAdd(z, x, x) }
 
 //go:noescape
-func fqSub(z, x, y *fq)
+func fqNeg(z, x *Fq)
 
 //go:noescape
-func fqBasicMul(z *fqLarge, x, y *fq)
+func fqSub(z, x, y *Fq)
 
 //go:noescape
-func fqREDC(z *fq, x *fqLarge)
+func fqBasicMul(z *FqLarge, x, y *Fq)
 
 //go:noescape
-func fqMul(z, x, y *fq)
-
-func fqSqr(z, x *fq) { fqMul(z, x, x) }
+func fqREDC(z *Fq, x *FqLarge)
 
 //go:noescape
-func fqSqrt(z, x *fq) bool
+func fqMul(z, x, y *Fq)
+
+func fqSqr(z, x *Fq) { fqMul(z, x, x) }
 
 //go:noescape
-func fqCube(z, x *fq)
+func fqSqrt(z, x *Fq) bool
 
 //go:noescape
-func fqExp(z, x *fq, y []uint64)
+func fqCube(z, x *Fq)
 
-func fqInv(c, x *fq) { fqExp(c, x, qm2[:]) }
+//go:noescape
+func fqExp(z, x *Fq, y []uint64)
+
+func fqInv(c, x *Fq) { fqExp(c, x, qm2[:]) }

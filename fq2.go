@@ -5,9 +5,9 @@ import "fmt"
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β
 // is a quadratic non-residue in Fq with a value of -1.
 // See http://eprint.iacr.org/2006/471.pdf - Quadratic extensions.
-type fq2 struct{ c0, c1 fq }
+type fq2 struct{ c0, c1 Fq }
 
-func newFq2(c0, c1 fq) fq2 {
+func newFq2(c0, c1 Fq) fq2 {
 	return fq2{
 		c0: c0,
 		c1: c1,
@@ -29,7 +29,7 @@ func fq2Sub(z, x, y *fq2) {
 }
 
 func fq2Mul(z, x, y *fq2) {
-	v0, v1 := new(fq), new(fq)
+	v0, v1 := new(Fq), new(Fq)
 	// v0 = a0b0
 	fqMul(v0, &x.c0, &y.c0)
 	// v1 = a1b1
@@ -40,7 +40,7 @@ func fq2Mul(z, x, y *fq2) {
 
 	// c1 = (a0 + a1)(b0 + b1) − v0 − v1
 	// c1 = a0b1 + a1b0
-	tmp := new(fq)
+	tmp := new(Fq)
 	fqMul(&z.c1, &x.c0, &y.c1)
 	fqMul(tmp, &x.c1, &y.c0)
 	fqAdd(&z.c1, &z.c1, tmp)

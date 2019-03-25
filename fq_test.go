@@ -21,7 +21,7 @@ func TestFqFromBig(t *testing.T) {
 		output      fq
 		expectedErr error
 	}{
-		{input: q, output: fq{}, expectedErr: errOutOfBounds},
+		{input: q, output: fq{}, expectedErr: ErrOutOfBounds},
 		{input: big0, output: fq0, expectedErr: nil},
 		{input: big1, output: fq1, expectedErr: nil},
 		{input: new(big.Int).Sub(q, big1), output: fqLastElement, expectedErr: nil},
@@ -29,7 +29,7 @@ func TestFqFromBig(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
-			result, err := fqFromBig(testCase.input)
+			result, err := FqFromBig(testCase.input)
 			if err != nil {
 				if err != testCase.expectedErr {
 					t.Errorf("expected %s, got %s\n", testCase.expectedErr, err)
@@ -49,7 +49,7 @@ func TestFqFromBase10(t *testing.T) {
 		output      fq
 		expectedErr error
 	}{
-		{input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787", output: fq{}, expectedErr: errOutOfBounds},
+		{input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787", output: fq{}, expectedErr: ErrOutOfBounds},
 		{input: "0", output: fq0, expectedErr: nil},
 		{input: "1", output: fq1, expectedErr: nil},
 		{input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786", output: fqLastElement, expectedErr: nil},
@@ -57,7 +57,7 @@ func TestFqFromBase10(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
-			result, err := fqFromBase10(testCase.input)
+			result, err := FqFromBase10(testCase.input)
 			if err != nil {
 				if err != testCase.expectedErr {
 					t.Errorf("expected %s, got %s\n", testCase.expectedErr, err)
