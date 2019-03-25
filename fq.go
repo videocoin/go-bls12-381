@@ -27,7 +27,7 @@ var (
 	fq1 = Fq{1}
 
 	// field elements in the Montgomery form
-	fqMont1, _ = FqMontgomeryFromBase10("1")
+	FqMont1, _ = FqMontgomeryFromBase10("1")
 
 	// swEncode helpers
 	fqNeg1              = new(Fq)
@@ -196,7 +196,7 @@ func coordinatesFromFq(t Fq) (x, y Fq) {
 	fqMul(w, fqSqrtNeg3, &t)
 	fqMul(inv, &t, &t)
 	fqAdd(inv, inv, &curveB)
-	fqAdd(inv, inv, &fqMont1)
+	fqAdd(inv, inv, &FqMont1)
 	fqInv(inv, inv)
 	fqMul(w, w, inv)
 
