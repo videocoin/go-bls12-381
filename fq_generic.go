@@ -8,8 +8,8 @@ const (
 	halfWordMask = (1 << halfWordSize) - 1
 )
 
-func fqMod(a *fq) {
-	b := new(fq)
+func FqMod(a *Fq) {
+	b := new(Fq)
 	var carry uint64
 	for i, qi := range q64 {
 		ai := a[i]
@@ -38,16 +38,16 @@ func FqAdd(z, x, y *fq) {
 	FqMod(z)
 }
 
-func FqDbl(z, x *fq) {
+func FqDbl(z, x *Fq) {
 	FqAdd(z, x, x)
 }
 
-func FqSub(z, x, y *fq) {
+func FqSub(z, x, y *Fq) {
 	FqNeg(y, y)
 	FqAdd(z, x, y)
 }
 
-func FqNeg(z, x *fq) {
+func FqNeg(z, x *Fq) {
 	var carry uint64
 	for i, qi := range q64 {
 		xi := x[i]
@@ -57,7 +57,7 @@ func FqNeg(z, x *fq) {
 	}
 }
 
-func FqBasicMul(z *fqLarge, x, y *fq) {
+func FqBasicMul(z *FqLarge, x, y *Fq) {
 	var carry uint64
 	for i, yi := range y {
 		carry = 0
@@ -87,7 +87,7 @@ func FqBasicMul(z *fqLarge, x, y *fq) {
 // fqREDC applies the montgomery reduction.
 // See https://www.nayuki.io/page/montgomery-reduction-algorithm - Summary
 // 4. x=a¯b¯.
-func FqREDC(c *fq, x *fqLarge) {
+func FqREDC(c *Fq, x *FqLarge) {
 	var carryMul, carrySum uint64
 	for i := 0; i < fqLen; i++ {
 		carryMul = 0
@@ -120,34 +120,34 @@ func FqREDC(c *fq, x *fqLarge) {
 		t0 := xi&halfWordMask + carryMul&halfWordMask + carrySum&halfWordMask
 		t1 := (t0 >> halfWordSize) + (xi >> halfWordSize) + (carryMul >> halfWordSize) + (carrySum >> halfWordSize)
 		carrySum = t1 >> halfWordSize
-		x[i+fqLen] = (t0 & halfWordMask) | (t1 << halfWordSize)
+		x[i+FqLen] = (t0 & halfWordMask) | (t1 << halfWordSize)
 	}
 
 	// 7. u=t/r
-	for i := 0; i < fqLen; i++ {
-		c[i] = x[i+fqLen]
+	for i := 0; i < FqLen; i++ {
+		c[i] = x[i+FqLen]
 	}
 
 	// 8. c¯=if (u<n) then (u) else (u−n).
 	fqMod(c)
 }
 
-func FqMul(z, x, y *fq) {
+func FqMul(z, x, y *Fq) {
 	large := new(fqLarge)
 	fqBasicMul(large, x, y)
 	fqREDC(z, large)
 }
 
-func FqSqr(z, x *fq) {
+func FqSqr(z, x *Fq) {
 	fqMul(z, x, x)
 }
 
-func FqCube(z, x *fq) {
+func FqCube(z, x *Fq) {
 	fqSqr(z, x)
 	fqMul(z, z, x)
 }
 
-func FqSqrt(x, a *fq) bool {
+func FqSqrt(x, a *Fq) bool {
 	// See https://eprint.iacr.org/2012/685.pdf - Algorithm 2
 	a1, a0 := new(fq), new(fq)
 
@@ -165,7 +165,7 @@ func FqSqrt(x, a *fq) bool {
 	return true
 }
 
-func FqExp(ret, base *fq, exponent []uint64) {
+func FqExp(ret, base *Fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	*ret = fqMont1
 	for i, word := range exponent {
@@ -178,6 +178,6 @@ func FqExp(ret, base *fq, exponent []uint64) {
 	}
 }
 
-func FqInv(c, x *fq) {
+func FqInv(c, x *Fq) {
 	fqExp(c, x, qm2[:])
 }

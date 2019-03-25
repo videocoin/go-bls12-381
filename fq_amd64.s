@@ -96,7 +96,19 @@ TEXT ·FqSub(SB),0,$0-24
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
-TEXT ·fqBasicMul(SB),0,$0-24
+TEXT ·FqBasicMul(SB),0,$0-24
+    RET
+
+TEXT ·FqExp(SB),0,$0-24
+    RET
+
+TEXT ·FqSqrt(SB),0,$0-24
+    RET
+
+TEXT ·FqREDC(SB),0,$0-24
+    RET
+
+TEXT ·FqCube(SB),0,$0-24
     RET
 
 TEXT ·FqMul(SB),0,$0-24
