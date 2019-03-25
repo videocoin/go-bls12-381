@@ -19,7 +19,7 @@ const (
 	decimalBase = 10
 )
 
-var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
+var ErrOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
 	// field elements
@@ -100,7 +100,7 @@ func fqMontgomeryFromBase10(str string) (fq, error) {
 // FqFromBig converts a big integer to a field element.
 func FqFromBig(value *big.Int) (fq, error) {
 	if !IsFieldElement(value) {
-		return fq{}, errOutOfBounds
+		return fq{}, ErrOutOfBounds
 	}
 
 	fq := fq{0}
