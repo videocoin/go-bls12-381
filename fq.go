@@ -137,8 +137,8 @@ func FqMontgomeryFromBig(value *big.Int) (Fq, error) {
 }
 
 // FqFromFqMontgomery decodes a field element in the montgomery form.
-func FqFromFqMontgomery(fq *Fq) *Fq {
-	montgomeryDecode(fq, fq)
+func FqFromFqMontgomery(fq Fq) Fq {
+	montgomeryDecode(&fq, &fq)
 	return fq
 }
 
