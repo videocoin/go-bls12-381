@@ -136,6 +136,12 @@ func FqMontgomeryFromBig(value *big.Int) (Fq, error) {
 	return fieldElement, nil
 }
 
+// FqFromFqMontgomery decodes a field element in the montgomery form.
+func FqFromFqMontgomery(fq *Fq) *Fq {
+	montgomeryDecode(fq, fq)
+	return fq
+}
+
 // fqFromHash converts a hash value to a field element.
 // See https://golang.org/src/crypto/ecdsa/ecdsa.go?s=1572:1621#L118
 func fqFromHash(hash []byte) Fq {
