@@ -8,7 +8,7 @@ const (
 	halfWordMask = (1 << halfWordSize) - 1
 )
 
-func fqMod(a *fq) {
+func FqMod(a *fq) {
 	b := new(fq)
 	var carry uint64
 	for i, qi := range q64 {
@@ -26,7 +26,7 @@ func fqMod(a *fq) {
 	}
 }
 
-func fqAdd(z, x, y *fq) {
+func FqAdd(z, x, y *fq) {
 	var carry uint64
 	for i, xi := range x {
 		yi := y[i]
@@ -35,16 +35,16 @@ func fqAdd(z, x, y *fq) {
 		carry = (xi&yi | (xi|yi)&^zi) >> (wordSize - 1)
 	}
 	// note(rgeraldes): carry is always 0 for the last word
-	fqMod(z)
+	FqMod(z)
 }
 
 func fqDbl(z, x *fq) {
-	fqAdd(z, x, x)
+	FqAdd(z, x, x)
 }
 
 func fqSub(z, x, y *fq) {
-	fqNeg(y, y)
-	fqAdd(z, x, y)
+	FqNeg(y, y)
+	FqAdd(z, x, y)
 }
 
 func fqNeg(z, x *fq) {
@@ -132,7 +132,7 @@ func fqREDC(c *fq, x *fqLarge) {
 	fqMod(c)
 }
 
-func fqMul(z, x, y *fq) {
+func FqMul(z, x, y *fq) {
 	large := new(fqLarge)
 	fqBasicMul(large, x, y)
 	fqREDC(z, large)

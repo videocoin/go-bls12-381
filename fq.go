@@ -193,18 +193,18 @@ func montgomeryDecode(c, a *Fq) {
 func coordinatesFromFq(t Fq) (x, y Fq) {
 	// w = (t^2 + 4u + 1)^(-1) * sqrt(-3) * t
 	w, inv := new(Fq), new(Fq)
-	fqMul(w, fqSqrtNeg3, &t)
-	fqMul(inv, &t, &t)
-	fqAdd(inv, inv, &curveB)
-	fqAdd(inv, inv, &FqMont1)
-	fqInv(inv, inv)
-	fqMul(w, w, inv)
+	FqMul(w, fqSqrtNeg3, &t)
+	FqMul(inv, &t, &t)
+	FqAdd(inv, inv, &curveB)
+	FqAdd(inv, inv, &FqMont1)
+	FqInv(inv, inv)
+	FqMul(w, w, inv)
 
 	for i := 0; i < 3; i++ {
 		switch i {
 		// x = (sqrt(-3) - 1) / 2 - (w * t)
 		case 0:
-			fqMul(&x, &t, w)
+			FqMul(&x, &t, w)
 			fqSub(&x, fqHalfSqrNeg3Minus1, &x)
 		// x = -1 - x
 		case 1:
