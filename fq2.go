@@ -24,8 +24,8 @@ func fq2Add(z, x, y *fq2) {
 }
 
 func fq2Sub(z, x, y *fq2) {
-	fqSub(&z.c0, &x.c0, &y.c0)
-	fqSub(&z.c1, &x.c1, &y.c1)
+	FqSub(&z.c0, &x.c0, &y.c0)
+	FqSub(&z.c1, &x.c1, &y.c1)
 }
 
 func fq2Mul(z, x, y *fq2) {
@@ -36,7 +36,7 @@ func fq2Mul(z, x, y *fq2) {
 	FqMul(v1, &x.c1, &y.c1)
 	// c0 = v0 + βv1
 	// c0 = v0 - v1
-	fqSub(&z.c0, v0, v1)
+	FqSub(&z.c0, v0, v1)
 
 	// c1 = (a0 + a1)(b0 + b1) − v0 − v1
 	// c1 = a0b1 + a1b0

@@ -39,7 +39,7 @@ var (
 
 func init() {
 	// TODO replace with exact value
-	fqNeg(fqNeg1, &fq1)
+	FqNeg(fqNeg1, &fq1)
 }
 
 type (
@@ -177,14 +177,14 @@ func RandFieldElement(reader io.Reader) (Fq, error) {
 // montEncode converts the input to Montgomery form.
 func montgomeryEncode(c, a *Fq) {
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
-	fqMul(c, a, &r2)
+	FqMul(c, a, &r2)
 }
 
 // montDecode converts the input in the Montgomery form back to
 // the standard form.
 func montgomeryDecode(c, a *Fq) {
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
-	fqMul(c, a, &fq1)
+	FqMul(c, a, &fq1)
 }
 
 // coordinatesFromFq implements the Shallue and van de Woestijne encoding.
@@ -205,23 +205,23 @@ func coordinatesFromFq(t Fq) (x, y Fq) {
 		// x = (sqrt(-3) - 1) / 2 - (w * t)
 		case 0:
 			FqMul(&x, &t, w)
-			fqSub(&x, fqHalfSqrNeg3Minus1, &x)
+			FqSub(&x, fqHalfSqrNeg3Minus1, &x)
 		// x = -1 - x
 		case 1:
-			fqSub(&x, fqNeg1, &x)
+			FqSub(&x, fqNeg1, &x)
 		// x = 1/w^2 + 1
 		case 2:
-			fqSqr(&x, w)
-			fqInv(&x, &x)
-			fqAdd(&x, &x, &fq1)
+			FqSqr(&x, w)
+			FqInv(&x, &x)
+			FqAdd(&x, &x, &fq1)
 		}
 
 		// y^2 = x^3 + 4u
-		fqCube(&y, &x)
-		fqAdd(&y, &y, &curveB)
+		FqCube(&y, &x)
+		FqAdd(&y, &y, &curveB)
 
 		// y = sqrt(y2)
-		if fqSqrt(&y, &y) {
+		if FqSqrt(&y, &y) {
 			return
 		}
 	}

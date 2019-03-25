@@ -33,4 +33,4 @@ func FqCube(z, x *Fq)
 //go:noescape
 func FqExp(z, x *Fq, y []uint64)
 
-func FqInv(c, x *Fq) { fqExp(c, x, qm2[:]) }
+func FqInv(c, x *Fq) { FqExp(c, x, qm2[:]) }
