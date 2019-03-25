@@ -27,7 +27,7 @@ var (
 	fq1 = fq{1}
 
 	// field elements in the Montgomery form
-	fqMont1, _ = fqMontgomeryFromBase10("1")
+	fqMont1, _ = FqMontgomeryFromBase10("1")
 
 	// swEncode helpers
 	fqNeg1              = new(fq)
@@ -82,19 +82,19 @@ func IsFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
 }
 
-func bigFromBase10(str string) *big.Int {
+func BigFromBase10(str string) *big.Int {
 	n, _ := new(big.Int).SetString(str, decimalBase)
 	return n
 }
 
-// fqFromBase10 converts a base10 value to a field element.
-func fqFromBase10(str string) (fq, error) {
-	return FqFromBig(bigFromBase10(str))
+// FqFromBase10 converts a base10 value to a field element.
+func FqFromBase10(str string) (fq, error) {
+	return FqFromBig(BigFromBase10(str))
 }
 
-// fqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
-func fqMontgomeryFromBase10(str string) (fq, error) {
-	return fqMontgomeryFromBig(bigFromBase10(str))
+// FqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
+func FqMontgomeryFromBase10(str string) (fq, error) {
+	return FqMontgomeryFromBig(BigFromBase10(str))
 }
 
 // FqFromBig converts a big integer to a field element.
@@ -119,8 +119,8 @@ func FqFromBig(value *big.Int) (fq, error) {
 	return fq, nil
 }
 
-// fqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
-func fqMontgomeryFromBig(value *big.Int) (fq, error) {
+// FqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
+func FqMontgomeryFromBig(value *big.Int) (fq, error) {
 	fieldElement, err := FqFromBig(value)
 	if err != nil {
 		return fq{}, err

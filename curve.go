@@ -11,7 +11,7 @@ const (
 	pointAtInfinityMask uint8 = 1 << 6
 )
 
-var curveB, _ = fqFromBase10("4")
+var curveB, _ = FqFromBase10("4")
 
 // curvePoint is an elliptic curve point in projective coordinates.
 // The elliptic curve is defined by the following equation y²=x³+3.
