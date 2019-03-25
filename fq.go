@@ -77,8 +77,8 @@ func (fl *fqLarge) String() string {
 	return fl.Hex()
 }
 
-// isFieldElement checks if value is within the field bounds.
-func isFieldElement(value *big.Int) bool {
+// IsFieldElement checks if value is within the field bounds.
+func IsFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
 }
 
@@ -89,7 +89,7 @@ func bigFromBase10(str string) *big.Int {
 
 // fqFromBase10 converts a base10 value to a field element.
 func fqFromBase10(str string) (fq, error) {
-	return fqFromBig(bigFromBase10(str))
+	return FqFromBig(bigFromBase10(str))
 }
 
 // fqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
@@ -97,9 +97,9 @@ func fqMontgomeryFromBase10(str string) (fq, error) {
 	return fqMontgomeryFromBig(bigFromBase10(str))
 }
 
-// fqFromBig converts a big integer to a field element.
-func fqFromBig(value *big.Int) (fq, error) {
-	if !isFieldElement(value) {
+// FqFromBig converts a big integer to a field element.
+func FqFromBig(value *big.Int) (fq, error) {
+	if !IsFieldElement(value) {
 		return fq{}, errOutOfBounds
 	}
 
@@ -121,7 +121,7 @@ func fqFromBig(value *big.Int) (fq, error) {
 
 // fqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
 func fqMontgomeryFromBig(value *big.Int) (fq, error) {
-	fieldElement, err := fqFromBig(value)
+	fieldElement, err := FqFromBig(value)
 	if err != nil {
 		return fq{}, err
 	}
@@ -142,7 +142,7 @@ func fqFromHash(hash []byte) fq {
 		bigInt.Rsh(bigInt, uint(excess))
 	}
 
-	ret, _ := fqFromBig(bigInt)
+	ret, _ := FqFromBig(bigInt)
 
 	return ret
 }
@@ -157,9 +157,9 @@ func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
 	}
 }
 
-// randFieldElement returns a random element of the field underlying the given
+// RandFieldElement returns a random element of the field underlying the given
 // curve.
-func randFieldElement(reader io.Reader) (n *big.Int, err error) {
+func RandFieldElement(reader io.Reader) (n *big.Int, err error) {
 	return randInt(reader, q)
 }
 

@@ -46,7 +46,7 @@ func newPrivateKey(index *big.Int) *PrivateKey {
 
 // GenerateKey generates a public and private key pair.
 func GenerateKey(reader io.Reader) (*PrivateKey, error) {
-	elm, err := randFieldElement(reader)
+	elm, err := RandFieldElement(reader)
 	if err != nil {
 		return nil, err
 	}
