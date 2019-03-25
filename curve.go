@@ -23,7 +23,7 @@ func newCurvePoint(x, y Fq) *curvePoint {
 	return &curvePoint{
 		x: x,
 		y: y,
-		z: fq0,
+		z: Fq0,
 	}
 }
 
@@ -138,7 +138,7 @@ func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
 
 // isInfinty check if the point is a point at "infinity"
 func (cp *curvePoint) isInfinity() bool {
-	return cp.z == fq0
+	return cp.z == Fq0
 }
 
 func (cp *curvePoint) makeAffine() {
