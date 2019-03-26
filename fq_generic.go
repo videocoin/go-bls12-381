@@ -21,12 +21,12 @@ func FqMod(a *Fq) {
 	// if b is negative, then return a, else return b.
 	carry = -carry
 	ncarry := ^carry
-	for i := 0; i < fqLen; i++ {
+	for i := 0; i < FqLen; i++ {
 		a[i] = (a[i] & carry) | (b[i] & ncarry)
 	}
 }
 
-func FqAdd(z, x, y *fq) {
+func FqAdd(z, x, y *Fq) {
 	var carry uint64
 	for i, xi := range x {
 		yi := y[i]
@@ -77,7 +77,7 @@ func FqBasicMul(z *FqLarge, x, y *Fq) {
 				carry = (((w2 >> halfWordSize) + (x1y1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
 				z[i+j] = (w1 << halfWordSize) | (w0 & halfWordMask)
 			}
-			z[i+fqLen] = carry
+			z[i+FqLen] = carry
 		}
 	}
 
@@ -89,7 +89,7 @@ func FqBasicMul(z *FqLarge, x, y *Fq) {
 // 4. x=a¯b¯.
 func FqREDC(c *Fq, x *FqLarge) {
 	var carryMul, carrySum uint64
-	for i := 0; i < fqLen; i++ {
+	for i := 0; i < FqLen; i++ {
 		carryMul = 0
 		// 2. k=(r(r^−1 mod n)−1)/n
 		// 5. s=(x*k mod r);
@@ -116,7 +116,7 @@ func FqREDC(c *Fq, x *FqLarge) {
 			}
 		}
 		// 6. t=x+sn.
-		xi := x[i+fqLen]
+		xi := x[i+FqLen]
 		t0 := xi&halfWordMask + carryMul&halfWordMask + carrySum&halfWordMask
 		t1 := (t0 >> halfWordSize) + (xi >> halfWordSize) + (carryMul >> halfWordSize) + (carrySum >> halfWordSize)
 		carrySum = t1 >> halfWordSize
@@ -129,55 +129,55 @@ func FqREDC(c *Fq, x *FqLarge) {
 	}
 
 	// 8. c¯=if (u<n) then (u) else (u−n).
-	fqMod(c)
+	FqMod(c)
 }
 
 func FqMul(z, x, y *Fq) {
-	large := new(fqLarge)
-	fqBasicMul(large, x, y)
-	fqREDC(z, large)
+	large := new(FqLarge)
+	FqBasicMul(large, x, y)
+	FqREDC(z, large)
 }
 
 func FqSqr(z, x *Fq) {
-	fqMul(z, x, x)
+	FqMul(z, x, x)
 }
 
 func FqCube(z, x *Fq) {
-	fqSqr(z, x)
-	fqMul(z, z, x)
+	FqSqr(z, x)
+	FqMul(z, z, x)
 }
 
 func FqSqrt(x, a *Fq) bool {
 	// See https://eprint.iacr.org/2012/685.pdf - Algorithm 2
-	a1, a0 := new(fq), new(fq)
+	a1, a0 := new(Fq), new(Fq)
 
-	fqExp(a1, a, fqQMinus3Over4)
+	FqExp(a1, a, fqQMinus3Over4)
 
-	fqSqr(a0, a1)
-	fqMul(a0, a0, a)
+	FqSqr(a0, a1)
+	FqMul(a0, a0, a)
 
 	if *a0 == *fqNeg1 {
 		return false
 	}
 
-	fqMul(x, a1, a)
+	FqMul(x, a1, a)
 
 	return true
 }
 
 func FqExp(ret, base *Fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
-	*ret = fqMont1
+	*ret = FqMont1
 	for i, word := range exponent {
 		for j := uint(0); i < wordSize; i++ {
 			if (word & (1 << j)) != 0 {
-				fqMul(ret, ret, base)
+				FqMul(ret, ret, base)
 			}
-			fqSqr(base, base)
+			FqSqr(base, base)
 		}
 	}
 }
 
 func FqInv(c, x *Fq) {
-	fqExp(c, x, qm2[:])
+	FqExp(c, x, qm2[:])
 }
