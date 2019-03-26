@@ -197,7 +197,8 @@ func RandFieldElement(reader io.Reader) (Fq, error) {
 		return Fq{}, err
 	}
 
-	return FqFromFqBig(elem), nil
+	// TODO verification is not necessary out of bounds
+	return FqMontgomeryFromBig(elem)
 }
 
 // montEncode converts the input to Montgomery form.
