@@ -179,5 +179,5 @@ func FqExp(ret, base *Fq, exponent []uint64) {
 }
 
 func FqInv(c, x *Fq) {
-	FqExp(c, x, qm2[:])
+	FqExp(c, x, qMinus2[:])
 }
