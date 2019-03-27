@@ -2,6 +2,8 @@
 
 package bls12
 
+import "fmt"
+
 const (
 	wordSize     = 64
 	halfWordSize = wordSize / 2
@@ -174,8 +176,10 @@ func FqExp(ret, base *Fq, exponent []uint64) {
 		for j := uint(0); i < wordSize; i++ {
 			if (word & (1 << j)) != 0 {
 				FqMul(&result, &result, &b)
+				fmt.Printf("mul: %v, base: %v\n", result, b)
 			}
 			FqSqr(&b, &b)
+			fmt.Printf("new base: %v\n", b)
 		}
 	}
 	*ret = result
