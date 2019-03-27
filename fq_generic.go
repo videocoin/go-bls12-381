@@ -167,15 +167,16 @@ func FqSqrt(x, a *Fq) bool {
 
 func FqExp(ret, base *Fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
-	*ret = FqMont1
+	res := FqMont1
 	for i, word := range exponent {
 		for j := uint(0); i < wordSize; i++ {
 			if (word & (1 << j)) != 0 {
-				FqMul(ret, ret, base)
+				FqMul(&res, &res, base)
 			}
 			FqSqr(base, base)
 		}
 	}
+	*ret = res
 }
 
 func FqInv(c, x *Fq) {
