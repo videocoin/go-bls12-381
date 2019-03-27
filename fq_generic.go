@@ -175,7 +175,7 @@ func FqExp(ret, base *Fq, exponent []uint64) {
 			if (word & (1 << j)) != 0 {
 				FqMul(&res, &res, &b)
 			}
-			FqSqr(&b, base)
+			FqSqr(&b, &b)
 		}
 	}
 	*ret = res
