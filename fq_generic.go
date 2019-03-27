@@ -2,8 +2,6 @@
 
 package bls12
 
-import "fmt"
-
 const (
 	wordSize     = 64
 	halfWordSize = wordSize / 2
@@ -171,23 +169,16 @@ func FqSqrt(x, a *Fq) bool {
 func FqExp(ret, base *Fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	b := *base
-	result := FqMont1
+	*ret := FqMont1
 	// TODO i is not necessary
-	for i, word := range exponent {
-		for j := uint(0); i < wordSize; i++ {
+	for _, word := range exponent {
+		for j := uint(0); j < wordSize; j++ {
 			if (word & (1 << j)) != 0 {
-				FqMul(&result, &result, &b)
-				if i == 0 {
-					fmt.Printf("mul: %v, base: %v\n", result, b)
-				}
+				FqMul(&ret, &ret, &b)
 			}
 			FqSqr(&b, &b)
-			if i == 0 {
-				fmt.Printf("new base: %v\n", b)
-			}
 		}
 	}
-	*ret = result
 }
 
 func FqInv(c, x *Fq) {
