@@ -45,9 +45,13 @@ func TestFqNeg(t *testing.T) {
 }
 
 func TestFqSub(t *testing.T) {
+	// TODO complete
+	two, _ := FqMontgomeryFromBase10("2")
+
 	testCases := []struct {
 		a, b, output Fq
 	}{
+		{a: two, b: FqMont1, output: FqMont1},
 		{a: fqLastElement, b: fqLastElement, output: Fq0},
 		{a: Fq0, b: fqLastElement, output: fq1},
 		{a: fq100, b: fq99, output: fq1},
@@ -195,11 +199,33 @@ func TestFqSqrt(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("input: %s", testCase.input.String()), func(t *testing.T) {
-			var result Fq
-			FqSqrt(&result, &testCase.input)
-			if result != testCase.output {
+			result := new(Fq)
+			FqSqrt(result, &testCase.input)
+			if *result != testCase.output {
 				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
 			}
 		})
+	}
+}
+
+func TestFqInv(t *testing.T) {
+	// TODO complete
+	testCases := []struct {
+		base     Fq
+		exponent []uint64
+		output   Fq
+	}{
+		{
+			base:     FqMont1,
+			exponent: []uint64{123123},
+			output:   FqMont1,
+		},
+	}
+	for _, testCase := range testCases {
+		result := new(Fq)
+		FqExp(result, &testCase.base, testCase.exponent)
+		if *result != testCase.output {
+			t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+		}
 	}
 }
