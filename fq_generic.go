@@ -172,14 +172,19 @@ func FqExp(ret, base *Fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	b := *base
 	result := FqMont1
+	// TODO i is not necessary
 	for i, word := range exponent {
 		for j := uint(0); i < wordSize; i++ {
 			if (word & (1 << j)) != 0 {
 				FqMul(&result, &result, &b)
-				fmt.Printf("mul: %v, base: %v\n", result, b)
+				if i == 0 {
+					fmt.Printf("mul: %v, base: %v\n", result, b)
+				}
 			}
 			FqSqr(&b, &b)
-			fmt.Printf("new base: %v\n", b)
+			if i == 0 {
+				fmt.Printf("new base: %v\n", b)
+			}
 		}
 	}
 	*ret = result
