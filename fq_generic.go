@@ -43,8 +43,9 @@ func FqDbl(z, x *Fq) {
 }
 
 func FqSub(z, x, y *Fq) {
-	FqNeg(y, y)
-	FqAdd(z, x, y)
+	negY := new(Fq)
+	FqNeg(negY, y)
+	FqAdd(z, x, negY)
 }
 
 func FqNeg(z, x *Fq) {

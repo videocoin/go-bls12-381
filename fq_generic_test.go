@@ -48,6 +48,9 @@ func TestFqSub(t *testing.T) {
 	// TODO complete
 	two, _ := FqMontgomeryFromBase10("2")
 
+	negFqMont1 := new(Fq)
+	FqNeg(negFqMont1, &FqMont1)
+
 	testCases := []struct {
 		a, b, output Fq
 	}{
@@ -55,6 +58,7 @@ func TestFqSub(t *testing.T) {
 		{a: fqLastElement, b: fqLastElement, output: Fq0},
 		{a: Fq0, b: fqLastElement, output: fq1},
 		{a: fq100, b: fq99, output: fq1},
+		{a: FqMont1, b: two, output: *negFqMont1},
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
@@ -209,12 +213,20 @@ func TestFqSqrt(t *testing.T) {
 }
 
 func TestFqInv(t *testing.T) {
+	negFqMont1 := new(Fq)
+	FqNeg(negFqMont1, &FqMont1)
+
 	// TODO complete
 	testCases := []struct {
 		base     Fq
 		exponent []uint64
 		output   Fq
 	}{
+		{
+			base:     *negFqMont1,
+			exponent: []uint64{123123},
+			output:   *negFqMont1,
+		},
 		{
 			base:     FqMont1,
 			exponent: []uint64{123123},
