@@ -25,7 +25,7 @@ var (
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 	r2, _ = FqFromBase10("2708263910654730174793787626328176511836455197166317677006154293982164122222515399004018013397331347120527951271750")
 
-	// TODO - figure out how this value is calculated
+	// Since the nonzero elements of GF(pn) form a finite group with respect to multiplication, apn−1 = 1 (for a ≠ 0), thus the inverse of a is a^pn−2.
 	qMinus2, _ = FqFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559785")
 
 	// q64 is q as 64 bit words
