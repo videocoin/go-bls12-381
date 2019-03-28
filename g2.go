@@ -12,5 +12,5 @@ type g2Point = twistPoint
 type g2 struct{}
 
 func (g2 *g2) Element(index *big.Int) *twistPoint {
-	return new(g2Point).mul(g2Generator, index)
+	return new(g2Point).ScalarMult(g2Generator, index)
 }

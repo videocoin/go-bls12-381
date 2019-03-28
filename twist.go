@@ -17,7 +17,7 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	}
 }
 
-func (tp *twistPoint) add(a, b *twistPoint) *twistPoint {
+func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
 	z1z1, z2z2 := new(fq2), new(fq2)
 	fq2Sqr(z1z1, &a.z)
@@ -93,14 +93,14 @@ func (tp *twistPoint) double(p *twistPoint) *twistPoint {
 	return tp
 }
 
-func (tp *twistPoint) mul(p *twistPoint, scalar *big.Int) *twistPoint {
+func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
 	// TODO(rgeraldes) - is it ok to leave z with value of 0?
 	q := new(twistPoint)
 	for i := scalar.BitLen(); i > 0; i-- {
 		q.double(q)
 		if scalar.Bit(i) == 1 {
-			q.add(q, p)
+			q.Add(q, p)
 		}
 	}
 
