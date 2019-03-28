@@ -95,7 +95,6 @@ func (tp *twistPoint) double(p *twistPoint) *twistPoint {
 
 func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-	// TODO(rgeraldes) - is it ok to leave z with value of 0?
 	q := new(twistPoint)
 	for i := scalar.BitLen(); i > 0; i-- {
 		q.double(q)
@@ -103,8 +102,9 @@ func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 			q.Add(q, p)
 		}
 	}
+	*tp = *q
 
-	return q
+	return tp
 }
 
 func (tp *twistPoint) Equal(p *twistPoint) bool {
