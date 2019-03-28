@@ -1,6 +1,8 @@
 package bls12
 
-import "math/big"
+import (
+	"math/big"
+)
 
 // twistPoint is a curve point in the elliptic curve's twist
 // over an extension field Fq².
@@ -12,8 +14,8 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	return &twistPoint{
 		x: x,
 		y: y,
-		z: fq2{},
-		// TODO replace w/ something else?
+		// review
+		z: fq2{Fq0, FqMont1},
 	}
 }
 
@@ -96,7 +98,7 @@ func (tp *twistPoint) double(p *twistPoint) *twistPoint {
 func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
 	q := new(twistPoint)
-	for i := scalar.BitLen(); i > 0; i-- {
+	for i := scalar.BitLen() - 1; i >= 0; i-- {
 		q.double(q)
 		if scalar.Bit(i) == 1 {
 			q.Add(q, p)
