@@ -107,6 +107,10 @@ func (tp *twistPoint) mul(p *twistPoint, scalar *big.Int) *twistPoint {
 	return q
 }
 
+func (tp *twistPoint) Equal(p *twistPoint) bool {
+	return fq2Equal(&tp.x, &p.x) && fq2Equal(&tp.y, &p.y) && fq2Equal(&tp.z, &p.z)
+}
+
 // twistSubGroup is a cyclic group of the elliptic curve twist.
 type twistSubGroup struct {
 	generator *twistPoint

@@ -53,3 +53,7 @@ func fq2Sqr(c, a *fq2) {
 func fq2Dbl(c, a *fq2) {
 	fq2Add(c, a, a)
 }
+
+func fq2Equal(a, b *fq2) bool {
+	return (a.c0 == b.c0) && (a.c1 == b.c1)
+}
