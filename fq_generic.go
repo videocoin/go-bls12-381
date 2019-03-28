@@ -170,7 +170,6 @@ func FqExp(ret, base *Fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	b := *base
 	*ret = FqMont1
-	// TODO i is not necessary
 	for _, word := range exponent {
 		for j := uint(0); j < wordSize; j++ {
 			if (word & (1 << j)) != 0 {

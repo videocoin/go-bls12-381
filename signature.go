@@ -12,18 +12,16 @@ import (
 var unmarshalSignature = unmarshalG1Point
 
 // PublicKey represents a BLS12-381 public key.
-type PublicKey struct {
-	*g2Point
-}
+type PublicKey = g2Point
 
 // PrivateKey represents a BLS12-381 private key.
 type PrivateKey struct {
-	PublicKey
+	*PublicKey
 	Secret *big.Int
 }
 
 // Public returns the public key corresponding to priv.
-func (priv *PrivateKey) Public() PublicKey {
+func (priv *PrivateKey) Public() *PublicKey {
 	return priv.PublicKey
 }
 
@@ -37,10 +35,8 @@ type blsSignature struct {
 
 func newPrivateKey(index *big.Int) *PrivateKey {
 	return &PrivateKey{
-		Secret: index,
-		PublicKey: PublicKey{
-			G2.Element(index),
-		},
+		Secret:    index,
+		PublicKey: G2.Element(index),
 	}
 }
 
@@ -72,7 +68,7 @@ func Verify(hash []byte, sig []byte, pubKey *PublicKey) (bool, error) {
 		return false, err
 	}
 
-	return pair(sigPoint, g2Generator).equal(pair(G1.ElementFromHash(hash), pubKey.g2Point)), nil
+	return pair(sigPoint, g2Generator).equal(pair(G1.ElementFromHash(hash), pubKey)), nil
 }
 
 // Aggregate aggregates the signature(s) into a short convincing aggregate signature.
