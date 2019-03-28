@@ -15,29 +15,14 @@ var unmarshalSignature = unmarshalG1Point
 type PublicKey = g2Point
 
 // PrivateKey represents a BLS12-381 private key.
-type PrivateKey struct {
-	*PublicKey
-	Secret *big.Int
-}
+type PrivateKey = big.Int
 
-// Public returns the public key corresponding to priv.
-func (priv *PrivateKey) Public() *PublicKey {
-	return priv.PublicKey
-}
-
-func (priv *PrivateKey) Sign(hash []byte) []byte {
-	return Sign(priv, hash)
+func PubKeyFromPrivKey(privKey *PrivateKey) *PublicKey {
+	return G2.Element(privKey)
 }
 
 type blsSignature struct {
 	*g1Point
-}
-
-func newPrivateKey(index *big.Int) *PrivateKey {
-	return &PrivateKey{
-		Secret:    index,
-		PublicKey: G2.Element(index),
-	}
 }
 
 // GenerateKey generates a public and private key pair.
@@ -57,7 +42,7 @@ func GenerateKey(reader io.Reader) (*PrivateKey, error) {
 // using the private key, priv. If the hash is longer than the bit-length of the
 // private key's curve order, the hash will be truncated to that length.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	return blsSignature{new(curvePoint).mul(G1.ElementFromHash(hash), priv.Secret)}.marshal()
+	return blsSignature{new(curvePoint).mul(G1.ElementFromHash(hash), priv)}.marshal()
 }
 
 // Verify verifies the signature of hash using the public key(s), pub. Its
