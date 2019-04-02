@@ -58,48 +58,6 @@ func FqNeg(z, x *Fq) {
 	}
 }
 
-func fqLargeSub(c, a, b *FqLarge) {
-	var carry uint64
-	for i, pi := range a {
-		bi := b[i]
-		ti := pi - bi - carry
-		c[i] = ti
-		carry = (bi&^pi | (bi|^pi)&ti) >> 63
-	}
-	mask := -carry
-	carry = 0
-	for i, ai := range q64 {
-		ai &= mask
-		bi := c[i+6]
-		ci := ai + bi + carry
-		c[i+6] = ci
-		carry = (ai&bi | (ai|bi)&^ci) >> 63
-	}
-}
-
-func fqLargeAdd(c, a, b *FqLarge) {
-	var carry uint64
-	for i, ai := range a {
-		bi := b[i]
-		ci := ai + bi + carry
-		c[i] = ci
-		carry = (ai&bi | (ai|bi)&^ci) >> 63
-	}
-	var d Fq
-	for i, pi := range q64 {
-		ai := c[i+6]
-		bi := ai - pi - carry
-		d[i] = bi
-		carry = (pi&^ai | (pi|^ai)&bi) >> 63
-	}
-
-	carry = -carry
-	ncarry := ^carry
-	for i := 0; i < 6; i++ {
-		c[i+6] = (c[i+6] & carry) | (d[i] & ncarry)
-	}
-}
-
 func FqBasicMul(z *FqLarge, x, y *Fq) {
 	var carry uint64
 	for i, yi := range y {

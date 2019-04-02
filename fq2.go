@@ -1,7 +1,5 @@
 package bls12
 
-import "fmt"
-
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β
 // is a quadratic non-residue in Fq with a value of -1.
 // See http://eprint.iacr.org/2006/471.pdf - Quadratic extensions.
@@ -18,9 +16,11 @@ func newFq2(c0, c1 Fq) fq2 {
 	}
 }
 
+/*
 func (fq2 *fq2) String() string {
 	return fmt.Sprintf("c0: %s, c1: %s", fq2.c0.String(), fq2.c1.String())
 }
+*/
 
 func fq2Add(z, x, y *fq2) {
 	FqAdd(&z.c0, &x.c0, &y.c0)
@@ -46,11 +46,16 @@ func fq2Mul(z, x, y *fq2) {
 
 	// c1 = (a0 + a1)(b0 + b1) − v0 − v1
 	// c1 = (a0 + a1)(b0 + b1) − (v0 + v1)
+	a, b, v := new(Fq), new(Fq), new(Fq)
+	FqAdd(a, &x.c0, &x.c1)
+	FqAdd(b, &y.c0, &y.c1)
+	FqMul(&z.c1, a, b)
+	FqAdd(v, v0, v1)
+	FqSub(&z.c1, &z.c1, v)
 	// c1 = a0b1 + a1b0
-	a0b1, a1b0 := new(Fq), new(Fq)
-	FqMul(a0b1, &x.c0, &y.c1)
-	FqMul(a1b0, &x.c1, &y.c0)
-	FqAdd(&z.c1, a0b1, a1b0)
+	//FqMul(a0b1, &x.c0, &y.c1)
+	//FqMul(a1b0, &x.c1, &y.c0)
+	//FqAdd(&z.c1, a0b1, a1b0)
 }
 
 func fq2Sqr(c, a *fq2) {

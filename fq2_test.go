@@ -25,11 +25,11 @@ func TestFq2Add(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
+		t.Run(fmt.Sprintf("a: %v, b: %v\n", testCase.a, testCase.b), func(t *testing.T) {
 			var result fq2
 			fq2Add(&result, &testCase.a, &testCase.b)
 			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+				t.Errorf("expected %v, got %v\n", testCase.output, result)
 			}
 		})
 	}
@@ -55,11 +55,11 @@ func TestFq2Sub(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
+		t.Run(fmt.Sprintf("a: %v, b: %v\n", testCase.a, testCase.b), func(t *testing.T) {
 			var result fq2
 			fq2Sub(&result, &testCase.a, &testCase.b)
 			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+				t.Errorf("expected %v, got %v\n", testCase.output, result)
 			}
 		})
 	}
@@ -83,6 +83,20 @@ func TestFq2Mul(t *testing.T) {
 				c1: Fq{1625211833195412533, 6260280147765452499, 3544356884998474521, 9883248032979034166, 8703231040866562622, 339556463953896598},
 			},
 		},
+		{
+			x: fq2{
+				c0: Fq{2148348102093263616, 12232197882281708926, 11330363351339265390, 8919790901940522406, 17524282994943615806, 496043075549758450},
+				c1: Fq{406374380327561821, 16222300308001049590, 2744191801523148582, 9384378502465456106, 6088477103101489105, 1478173219842328727},
+			},
+			y: fq2{
+				c0: Fq{3656661975483800321, 2343032803162206357, 3148888360041182374, 13718521627034877454, 7582705438920995243, 1502510331453350514},
+				c1: Fq{12908108411122378854, 12884292956005326590, 14415309872191119313, 17916475641229970923, 8768506067738497560, 1577813823053251215},
+			},
+			output: fq2{
+				c0: Fq{16633317224619977984, 8114711876341744521, 5129895554745463763, 3028104440572865277, 600965037607129992, 1357055630732818745},
+				c1: Fq{18288755944664260188, 13702877223989609104, 2644274195004876278, 14707220671708472499, 15781311460087461501, 229410580688219003},
+			},
+		},
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("A: %v, B: %v\n", testCase.x, testCase.y), func(t *testing.T) {
@@ -94,3 +108,8 @@ func TestFq2Mul(t *testing.T) {
 		})
 	}
 }
+
+/*
+expected {[16633317224619977984 8114711876341744521 5129895554745463763 3028104440572865277 600965037607129992 1357055630732818745] [18288755944664260188 13702877223989609104 2644274195004876278 14707220671708472499 15781311460087461501 229410580688219003]},
+got {[16633317224619977984 8114711876341744521 5129895554745463763 3028104440572865277 600965037607129992 1357055630732818745] [16769752770056333816 9539351424971908300 1361078859430182954 6919544897282332375 8797177321797491027 1057830777381385737]}
+*/
