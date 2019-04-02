@@ -34,3 +34,7 @@ func FqCube(z, x *Fq)
 func FqExp(z, x *Fq, y []uint64)
 
 func FqInv(c, x *Fq) { FqExp(c, x, qMinus2[:]) }
+
+func fqLargeSub(c, a, b *FqLarge)
+
+func fqLargeAdd(c, a, b *FqLarge)

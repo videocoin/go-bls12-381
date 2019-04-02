@@ -14,8 +14,7 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	return &twistPoint{
 		x: x,
 		y: y,
-		// review
-		z: fq2{Fq0, FqMont1},
+		z: fq2{FqMont1, Fq0},
 	}
 }
 
@@ -44,22 +43,25 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	fq2Dbl(r, r)
 	fq2Mul(v, u1, i)
 
-	t0, t1 := new(fq2), new(fq2)
+	t0, _ := new(fq2), new(fq2)
 	fq2Dbl(t0, v)
 	fq2Sqr(&tp.x, r)
 	fq2Sub(&tp.x, &tp.x, j)
 	fq2Sub(&tp.x, &tp.x, t0)
-	fq2Dbl(t0, s1)
-	fq2Mul(t0, t0, j)
-	fq2Mul(t1, r, &tp.x)
-	fq2Mul(&tp.y, r, v)
-	fq2Sub(&tp.y, &tp.y, t1)
-	fq2Sub(&tp.y, &tp.y, t0)
-	fq2Mul(&tp.z, &a.z, &b.z)
-	fq2Sqr(&tp.z, &tp.z)
-	fq2Sub(&tp.z, &tp.z, z1z1)
-	fq2Sub(&tp.z, &tp.z, z2z2)
-	fq2Mul(&tp.z, &tp.z, h)
+
+	/*
+		fq2Dbl(t0, s1)
+		fq2Mul(t0, t0, j)
+		fq2Mul(t1, r, &tp.x)
+		fq2Mul(&tp.y, r, v)
+		fq2Sub(&tp.y, &tp.y, t1)
+		fq2Sub(&tp.y, &tp.y, t0)
+		fq2Mul(&tp.z, &a.z, &b.z)
+		fq2Sqr(&tp.z, &tp.z)
+		fq2Sub(&tp.z, &tp.z, z1z1)
+		fq2Sub(&tp.z, &tp.z, z2z2)
+		fq2Mul(&tp.z, &tp.z, h)
+	*/
 
 	return tp
 }

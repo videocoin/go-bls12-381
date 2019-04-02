@@ -6,17 +6,19 @@ func TestTwistPointAdd(t *testing.T) {
 		a, b, expectedPoint *twistPoint
 	}{
 		{
-			a:             g2Generator,
-			b:             twist0,
+			a: g2Generator,
+			b: &twistPoint{
+				x: fq2{},
+				y: fq2{},
+				z: fq2{FqMont1, Fq0},
+			},
 			expectedPoint: g2Generator,
 		},
 	}
 	for _, testCase := range testCases {
-		// TODO
-		t.Run("", func(t *testing.T) {
+		t.Run(fmt.Sprintf("A: %v, B: %v \n", testCase.a, testCase.b), func(t *testing.T) {
 			result := new(twistPoint).Add(testCase.a, testCase.b)
 			if !result.Equal(testCase.expectedPoint) {
-				// TODO type used in the printf
 				t.Errorf("expected %v, got %v\n", testCase.expectedPoint, result)
 			}
 		})
