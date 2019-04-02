@@ -52,6 +52,7 @@ func fq2Mul(z, x, y *fq2) {
 	FqMul(&z.c1, a, b)
 	FqAdd(v, v0, v1)
 	FqSub(&z.c1, &z.c1, v)
+	// expensive 2M ?
 	// c1 = a0b1 + a1b0
 	//FqMul(a0b1, &x.c0, &y.c1)
 	//FqMul(a1b0, &x.c1, &y.c0)

@@ -1,6 +1,10 @@
 package bls12
 
-/*
+import (
+	"fmt"
+	"testing"
+)
+
 func TestTwistPointAdd(t *testing.T) {
 	testCases := []struct {
 		a, b, expectedPoint *twistPoint
@@ -105,7 +109,7 @@ func TestTwistPointDouble(t *testing.T) {
 	}
 }
 
-
+/*
 func TestScalarMult(t *testing.T) {
 	testCases := []struct {
 		point         *twistPoint

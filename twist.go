@@ -90,7 +90,10 @@ func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
 	fq2Dbl(t0, t0)
 	fq2Dbl(t0, t0)
 	fq2Sub(&tp.y, d, &tp.x)
-	fq2Mul(&tp.y, e, &tp.y) // Error
+	// fixme: fq2Mul(&tp.y, e, &tp.y) // Error (references)
+	// fixme: fq2Mul(&tp.y, &tp.y, e) // Error (references)
+	t1 := tp.y
+	fq2Mul(&tp.y, e, &t1)
 	fq2Sub(&tp.y, &tp.y, t0)
 
 	fq2Mul(&tp.z, &p.y, &p.z)
