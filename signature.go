@@ -27,15 +27,7 @@ type blsSignature struct {
 
 // GenerateKey generates a public and private key pair.
 func GenerateKey(reader io.Reader) (*PrivateKey, error) {
-	/*
-		elm, err := RandFieldElement(reader)
-		if err != nil {
-			return nil, err
-		}
-
-		return newPrivateKey(elm), nil
-	*/
-	return nil, nil
+	return RandFieldElement(reader)
 }
 
 // Sign signs a hash (which should be the result of hashing a larger message)

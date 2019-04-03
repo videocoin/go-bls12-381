@@ -191,6 +191,7 @@ func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
 
 // RandFieldElement returns a random element of the field underlying the given
 // curve.
+/*
 func RandFieldElement(reader io.Reader) (Fq, error) {
 	elem, err := randInt(reader, q)
 	if err != nil {
@@ -199,6 +200,11 @@ func RandFieldElement(reader io.Reader) (Fq, error) {
 
 	// TODO verification is not necessary out of bounds
 	return FqMontgomeryFromBig(elem)
+}
+*/
+
+func RandFieldElement(reader io.Reader) (*big.Int, error) {
+	return randInt(reader, q)
 }
 
 // montEncode converts the input to Montgomery form.
