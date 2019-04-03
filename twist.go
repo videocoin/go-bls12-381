@@ -18,8 +18,28 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	}
 }
 
+func (tp *twistPoint) Set(p *twistPoint) *twistPoint {
+	tp.x = p.x
+	tp.y = p.y
+	tp.z = p.z
+
+	return tp
+}
+
 // note: room for optimization if numbers are equal (cheaper to use double instead of add)
 func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
+	// TODO is infinity confirm
+	if a.IsInfinity() {
+		tp.Set(b)
+		return tp
+	}
+
+	// TODO is infinity confirm
+	if b.IsInfinity() {
+		tp.Set(a)
+		return tp
+	}
+
 	if a.Equal(b) {
 		return tp.Double(a)
 	}
@@ -102,18 +122,22 @@ func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
 	return tp
 }
 
+// TODO confirm logic behind it
+func (c *twistPoint) IsInfinity() bool {
+	return c.z == fq2{}
+}
+
 func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-	q := new(twistPoint)
+	q := &twistPoint{}
 	for i := scalar.BitLen() - 1; i >= 0; i-- {
 		q.Double(q)
 		if scalar.Bit(i) == 1 {
 			q.Add(q, p)
 		}
 	}
-	*tp = *q
 
-	return tp
+	return tp.Set(q)
 }
 
 func (tp *twistPoint) Equal(p *twistPoint) bool {
