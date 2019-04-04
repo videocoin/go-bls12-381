@@ -18,7 +18,7 @@ func TestPubKeyFromPrivKey(t *testing.T) {
 	}{
 		{
 			privKey: new(big.Int).SetUint64(1),
-			pubKey:  g2Generator,
+			pubKey:  g2Gen,
 		},
 	}
 	for _, testCase := range testCases {

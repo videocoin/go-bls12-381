@@ -18,7 +18,7 @@ type PublicKey = g2Point
 type PrivateKey = big.Int
 
 func PubKeyFromPrivKey(privKey *PrivateKey) *PublicKey {
-	return G2.Element(privKey)
+	return G2.ScalarBaseMult(privKey)
 }
 
 type blsSignature struct {
@@ -37,6 +37,7 @@ func Sign(priv *PrivateKey, hash []byte) []byte {
 	return blsSignature{new(curvePoint).mul(G1.ElementFromHash(hash), priv)}.marshal()
 }
 
+/*
 // Verify verifies the signature of hash using the public key(s), pub. Its
 // return value records whether the signature is valid.
 func Verify(hash []byte, sig []byte, pubKey *PublicKey) (bool, error) {
@@ -47,6 +48,7 @@ func Verify(hash []byte, sig []byte, pubKey *PublicKey) (bool, error) {
 
 	return pair(sigPoint, g2Generator).equal(pair(G1.ElementFromHash(hash), pubKey)), nil
 }
+*/
 
 // Aggregate aggregates the signature(s) into a short convincing aggregate signature.
 func Aggregate(sig ...[]byte) []byte {

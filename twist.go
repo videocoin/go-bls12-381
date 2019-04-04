@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"fmt"
 	"math/big"
 )
 
@@ -14,7 +15,7 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	return &twistPoint{
 		x: x,
 		y: y,
-		z: fq2{FqMont1, Fq0},
+		z: *fq2One,
 	}
 }
 
@@ -142,6 +143,20 @@ func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 
 func (tp *twistPoint) Equal(p *twistPoint) bool {
 	return fq2Equal(&tp.x, &p.x) && fq2Equal(&tp.y, &p.y) && fq2Equal(&tp.z, &p.z)
+}
+
+func (tp *twistPoint) String() string {
+	tp.MakeAffine()
+	x, y := fq2Decode(&tp.x), fq2Decode(&tp.y)
+
+	return fmt.Sprintf("x: %s, y: %s", x.String(), y.String())
+}
+
+func (tp *twistPoint) MakeAffine() {
+	if tp.z.IsOne() {
+		return
+	}
+
 }
 
 // twistSubGroup is a cyclic group of the elliptic curve twist.

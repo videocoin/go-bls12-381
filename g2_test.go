@@ -33,7 +33,7 @@ func TestElement(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("Scalar: %s", testCase.input.String()), func(t *testing.T) {
-			if elem := G2.Element(testCase.input); !elem.Equal(testCase.output) {
+			if elem := G2.ScalarBaseMult(testCase.input); !elem.Equal(testCase.output) {
 				t.Errorf("expected %v, got %v\n", testCase.output, elem)
 			}
 		})

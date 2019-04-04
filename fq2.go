@@ -1,5 +1,9 @@
 package bls12
 
+import "fmt"
+
+var fq2One = &fq2{FqMont1, Fq0}
+
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β
 // is a quadratic non-residue in Fq with a value of -1.
 // See http://eprint.iacr.org/2006/471.pdf - Quadratic extensions.
@@ -16,11 +20,13 @@ func newFq2(c0, c1 Fq) fq2 {
 	}
 }
 
-/*
-func (fq2 *fq2) String() string {
-	return fmt.Sprintf("c0: %s, c1: %s", fq2.c0.String(), fq2.c1.String())
+func (fq *fq2) IsOne() bool {
+	return fq.c0 == fq2One.c0 && fq.c1 == fq2One.c1
 }
-*/
+
+func (fq2 *fq2) String() string {
+	return fmt.Sprintf("%s + %s*X\n", fq2.c0.String(), fq2.c1.String())
+}
 
 func fq2Add(z, x, y *fq2) {
 	FqAdd(&z.c0, &x.c0, &y.c0)
@@ -69,4 +75,16 @@ func fq2Dbl(c, a *fq2) {
 
 func fq2Equal(a, b *fq2) bool {
 	return (a.c0 == b.c0) && (a.c1 == b.c1)
+}
+
+func fq2Decode(a *fq2) *fq2 {
+	fq2 := new(fq2)
+	montgomeryDecode(&fq2.c0, &a.c0)
+	montgomeryDecode(&fq2.c1, &a.c1)
+
+	return fq2
+}
+
+func fq2Inv(a, b *fq2) {
+	// TODO
 }
