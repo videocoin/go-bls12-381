@@ -1,6 +1,9 @@
 package bls12
 
-import "math/big"
+import (
+	"fmt"
+	"math/big"
+)
 
 var (
 	G2    = new(g2)
@@ -33,6 +36,10 @@ func (z *g2Point) Add(x, y *g2Point) *g2Point {
 
 func (z *g2Point) Set(x *g2Point) {
 	z.p.Set(x.p)
+}
+
+func (z *g2Point) String() string {
+	return fmt.Sprintf("%v", z.p)
 }
 
 type g2 struct{}
