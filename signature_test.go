@@ -1,10 +1,6 @@
 package bls12
 
-import (
-	"math/big"
-	"testing"
-)
-
+/*
 func TestSign(t *testing.T) {}
 
 func TestAggregate(t *testing.T) {}
@@ -30,3 +26,4 @@ func TestPubKeyFromPrivKey(t *testing.T) {
 		})
 	}
 }
+*/

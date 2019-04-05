@@ -1,7 +1,5 @@
 package bls12
 
-import "fmt"
-
 var fq2One = &fq2{FqMont1, Fq0}
 
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β
@@ -24,9 +22,11 @@ func (fq *fq2) IsOne() bool {
 	return fq.c0 == fq2One.c0 && fq.c1 == fq2One.c1
 }
 
+/*
 func (fq2 *fq2) String() string {
 	return fmt.Sprintf("%s + %s*X\n", fq2.c0.String(), fq2.c1.String())
 }
+*/
 
 func fq2Add(z, x, y *fq2) {
 	FqAdd(&z.c0, &x.c0, &y.c0)

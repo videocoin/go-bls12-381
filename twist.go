@@ -1,7 +1,6 @@
 package bls12
 
 import (
-	"fmt"
 	"math/big"
 )
 
@@ -58,12 +57,15 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	fq2Mul(s1, &a.y, &b.z)
 	fq2Mul(s1, s1, z2z2)
 	fq2Mul(s2, &b.y, &a.z)
-	fq2Mul(s2, s2, z1z1)
+	// fix me
+	tmp := *s2
+	fq2Mul(s2, &tmp, z1z1)
 
 	h, i, j, r, v := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
 	fq2Sub(h, u2, u1)
 	fq2Dbl(i, h)
-	fq2Sqr(i, i)
+	tmp2 := *i
+	fq2Sqr(i, &tmp2)
 	fq2Mul(j, h, i)
 	fq2Sub(r, s2, s1)
 	fq2Dbl(r, r)
@@ -75,16 +77,19 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	fq2Sub(&tp.x, &tp.x, j)
 	fq2Sub(&tp.x, &tp.x, t0)
 	fq2Dbl(t0, s1)
-	fq2Mul(t0, t0, j)
+	tmp3 := *t0
+	fq2Mul(t0, &tmp3, j)
 	fq2Mul(t1, r, &tp.x)
 	fq2Mul(&tp.y, r, v)
 	fq2Sub(&tp.y, &tp.y, t1)
 	fq2Sub(&tp.y, &tp.y, t0)
-	fq2Mul(&tp.z, &a.z, &b.z)
-	fq2Sqr(&tp.z, &tp.z)
+	fq2Add(&tp.z, &a.z, &b.z)
+	tmp4 := tp.z
+	fq2Sqr(&tp.z, &tmp4)
 	fq2Sub(&tp.z, &tp.z, z1z1)
 	fq2Sub(&tp.z, &tp.z, z2z2)
-	fq2Mul(&tp.z, &tp.z, h)
+	tmp5 := tp.z
+	fq2Mul(&tp.z, &tmp5, h)
 
 	return tp
 }
@@ -92,6 +97,7 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
 	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
 	// D=4*X1*B
+
 	a, b, c, d, e, f := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
 	fq2Sqr(a, &p.x)
 	fq2Sqr(b, &p.y)
@@ -130,27 +136,32 @@ func (c *twistPoint) IsInfinity() bool {
 
 func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-	q := &twistPoint{}
+	sumX2 := &twistPoint{}
+	// fixme? BitLen or BitLen - 1
 	for i := scalar.BitLen() - 1; i >= 0; i-- {
-		q.Double(q)
+		sumX2.Double(tp)
 		if scalar.Bit(i) == 1 {
-			q.Add(q, p)
+			tp.Add(sumX2, p)
+		} else {
+			tp.Set(sumX2)
 		}
 	}
 
-	return tp.Set(q)
+	return tp
 }
 
 func (tp *twistPoint) Equal(p *twistPoint) bool {
 	return fq2Equal(&tp.x, &p.x) && fq2Equal(&tp.y, &p.y) && fq2Equal(&tp.z, &p.z)
 }
 
+/*
 func (tp *twistPoint) String() string {
 	tp.MakeAffine()
 	x, y := fq2Decode(&tp.x), fq2Decode(&tp.y)
 
 	return fmt.Sprintf("x: %s, y: %s", x.String(), y.String())
 }
+*/
 
 func (tp *twistPoint) MakeAffine() {
 	if tp.z.IsOne() {
