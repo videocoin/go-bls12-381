@@ -26,6 +26,11 @@ func (z *g2Point) Equal(x *g2Point) bool {
 	return z.p.Equal(x.p)
 }
 
+func (z *g2Point) Add(x, y *g2Point) *g2Point {
+	z.p.Add(x.p, y.p)
+	return z
+}
+
 type g2 struct{}
 
 func (g2 *g2) ScalarBaseMult(index *big.Int) *g2Point {
