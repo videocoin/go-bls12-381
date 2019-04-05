@@ -31,6 +31,10 @@ func (z *g2Point) Add(x, y *g2Point) *g2Point {
 	return z
 }
 
+func (z *g2Point) Set(x *g2Point) {
+	z.p.Set(x.p)
+}
+
 type g2 struct{}
 
 func (g2 *g2) ScalarBaseMult(index *big.Int) *g2Point {
