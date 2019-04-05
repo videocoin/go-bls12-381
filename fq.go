@@ -203,7 +203,7 @@ func RandFieldElement(reader io.Reader) (Fq, error) {
 }
 */
 
-func RandFieldElement(reader io.Reader) (*big.Int, error) {
+func randFieldElement(reader io.Reader) (*big.Int, error) {
 	return randInt(reader, q)
 }
 
