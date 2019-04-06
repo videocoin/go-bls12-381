@@ -1,7 +1,6 @@
 package bls12
 
 import (
-	"crypto"
 	"io"
 	"math/big"
 )
@@ -36,8 +35,8 @@ func GenerateKey(reader io.Reader) (*PrivateKey, error) {
 }
 
 // Public returns the public key corresponding to priv.
-func (priv *PrivateKey) Public() crypto.PublicKey {
-	return &priv.PublicKey
+func (priv *PrivateKey) Public() PublicKey {
+	return priv.PublicKey
 }
 
 /*
