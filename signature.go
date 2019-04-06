@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"crypto"
 	"io"
 	"math/big"
 )
@@ -16,8 +17,8 @@ type PrivateKey struct {
 
 type blsSignature = g1Point
 
-// NewPrivateKey returns a new private key instance.
-func NewPrivateKey(scalar *big.Int) *PrivateKey {
+// PrivateKeyFromScalar returns a new private key instance.
+func PrivateKeyFromScalar(scalar *big.Int) *PrivateKey {
 	return &PrivateKey{
 		Secret:    scalar,
 		PublicKey: *G2.ScalarBaseMult(scalar),
@@ -31,15 +32,15 @@ func GenerateKey(reader io.Reader) (*PrivateKey, error) {
 		return nil, err
 	}
 
-	return NewPrivateKey(elem), nil
+	return PrivateKeyFromScalar(elem), nil
 }
 
-/*
 // Public returns the public key corresponding to priv.
 func (priv *PrivateKey) Public() crypto.PublicKey {
 	return &priv.PublicKey
 }
 
+/*
 // Sign signs a hash (which should be the result of hashing a larger message)
 // using the private key, priv. If the hash is longer than the bit-length of the
 // private key's curve order, the hash will be truncated to that length.
