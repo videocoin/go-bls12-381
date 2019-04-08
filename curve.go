@@ -123,10 +123,10 @@ func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 	return cp
 }
 
-func (cp *curvePoint) mul(p *curvePoint, scalar *big.Int) *curvePoint {
+func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
 	q := new(curvePoint)
-	for i := scalar.BitLen(); i > 0; i-- {
+	for i := scalar.BitLen() - 1; i >= 0; i-- {
 		q.double(q)
 		if scalar.Bit(i) == 1 {
 			q.add(q, p)
@@ -191,8 +191,10 @@ func curvePointFromFq(elm Fq) *curvePoint {
 	return newCurvePoint(coordinatesFromFq(elm))
 }
 
+/*
 // hashToCurveSubGroup hashes the msg to a specific curve subgroup.
 // cofactor https://crypto.stackexchange.com/questions/33028/order-and-cofactor-of-the-base-point
-func hashToCurveSubGroup(msg []byte, cofactor *big.Int) *curvePoint {
+func hashToCurve(msg []byte, cofactor *big.Int) *curvePoint {
 	return new(curvePoint).mul(curvePointFromHash(msg), cofactor)
 }
+*/

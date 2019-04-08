@@ -2,23 +2,25 @@ package bls12
 
 import "math/big"
 
-type g1Point = curvePoint
+var g1Gen = &g1Point{newCurvePoint(g1X, g1Y)}
 
-var (
-	// G1 is the r-order subgroup of points on the curve
-	G1 = new(g1)
-
-	g1Generator = newCurvePoint(g1X, g1Y)
-
-	unmarshalG1Point = unmarshalCurvePoint
-)
-
-type g1 struct{}
-
-func (g1 *g1) Element(index *big.Int) *g1Point {
-	return new(g1Point).mul(g1Generator, index)
+type g1Point struct {
+	p *curvePoint
 }
 
-func (g1 *g1) ElementFromHash(hash []byte) *g1Point {
-	return hashToCurveSubGroup(hash, g1Cofactor)
+func newG1Point() *g1Point {
+	return &g1Point{p: new(curvePoint)}
+}
+
+// TODO
+func (z *g1Point) ScalarMult(x *g1Point, scalar *big.Int) *g1Point {
+	z.p.ScalarMult(x.p, scalar)
+
+	return z
+}
+
+// TODO
+func (z *g1Point) SetBytes(buf []byte) *g1Point {
+	// TODO
+	return &g1Point{}
 }

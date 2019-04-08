@@ -16,11 +16,11 @@ type PrivateKey struct {
 
 type blsSignature = g1Point
 
-// PrivateKeyFromScalar returns a new private key instance.
-func PrivateKeyFromScalar(scalar *big.Int) *PrivateKey {
+// privateKeyFromScalar returns a new private key instance.
+func privKeyFromScalar(scalar *big.Int) *PrivateKey {
 	return &PrivateKey{
 		Secret:    scalar,
-		PublicKey: *G2.ScalarBaseMult(scalar),
+		PublicKey: *newG2Point().ScalarMult(g2Gen, scalar),
 	}
 }
 
@@ -31,7 +31,7 @@ func GenerateKey(reader io.Reader) (*PrivateKey, error) {
 		return nil, err
 	}
 
-	return PrivateKeyFromScalar(elem), nil
+	return privKeyFromScalar(elem), nil
 }
 
 // Public returns the public key corresponding to priv.
@@ -39,16 +39,14 @@ func (priv *PrivateKey) Public() PublicKey {
 	return priv.PublicKey
 }
 
-/*
 // Sign signs a hash (which should be the result of hashing a larger message)
-// using the private key, priv. If the hash is longer than the bit-length of the
-// private key's curve order, the hash will be truncated to that length.
-
+// using the private key, priv.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	return blsSignature{new(curvePoint).mul(G1.ElementFromHash(hash), priv)}.marshal()
+	return []byte{}
+	//return newG1Point().ScalarMult(g1Gen, priv.Secret).Marshal()
 }
 
-
+/*
 // Verify verifies the signature of hash using the public key(s), pub. Its
 // return value records whether the signature is valid.
 func Verify(hash []byte, sig []byte, pubKey *PublicKey) (bool, error) {
