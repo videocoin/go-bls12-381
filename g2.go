@@ -32,7 +32,10 @@ func (z *g2Point) Add(x, y *g2Point) *g2Point {
 }
 
 func (z *g2Point) Set(x *g2Point) *g2Point {
-	z.p.Set(x.p)
+	if z != x {
+		z.p.Set(x.p)
+	}
+
 	return z
 }
 
