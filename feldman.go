@@ -24,7 +24,7 @@ type Point struct {
 }
 
 type polynomial struct {
-	coefficients []Fq
+	coefficients []fq
 }
 
 func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
@@ -33,7 +33,7 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 	}
 
 	p := &polynomial{
-		coefficients: make([]Fq, 0, len(coefficients)),
+		coefficients: make([]fq, 0, len(coefficients)),
 	}
 
 	for _, priv := range coefficients {
@@ -52,16 +52,16 @@ func (p *polynomial) evaluate(x uint64) (*PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	mul := FqMont1
+	mul := fqMont1
 	sum := p.coefficients[0]
 	for _, coeff := range p.coefficients[1:] {
-		term := new(Fq)
-		FqMul(&mul, &mul, &fqX)
-		FqMul(term, &coeff, &mul)
-		FqAdd(&sum, &sum, term)
+		term := new(fq)
+		fqMul(&mul, &mul, &fqX)
+		fqMul(term, &coeff, &mul)
+		fqAdd(&sum, &sum, term)
 	}
 
-	return privKeyFromScalar(FqToBig(FqFromFqMontgomery(sum))), nil
+	return privKeyFromScalar(fqToBig(fqFromFqMontgomery(sum))), nil
 }
 
 // CreateShares divides the secret into parts, giving each participant its own unique part.
@@ -167,8 +167,8 @@ func SecretFromShares(reader io.Reader, threshold uint64, numShares uint64, priv
 // Passing less shares than the minimum required results in the wrong secret.
 func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
 	// See https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing#Computationally_efficient_approach
-	ids := make([]Fq, 0, len(shares))
-	secrets := make([]Fq, 0, len(shares))
+	ids := make([]fq, 0, len(shares))
+	secrets := make([]fq, 0, len(shares))
 	for _, share := range shares {
 		idMont, err := FqMontgomeryFromBig(new(big.Int).SetUint64(share.X))
 		if err != nil {
@@ -182,23 +182,23 @@ func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
 		secrets = append(secrets, secretMont)
 	}
 
-	sum := new(Fq)
+	sum := new(fq)
 	for i := 0; i < len(shares); i++ {
-		mul := FqMont1
+		mul := fqMont1
 		for j := 0; j < len(shares); j++ {
 			if j != i {
-				term := new(Fq)
-				FqSub(term, &ids[j], &ids[i])
-				FqInv(term, term)
-				FqMul(term, term, &ids[j])
-				FqMul(&mul, &mul, term)
+				term := new(fq)
+				fqSub(term, &ids[j], &ids[i])
+				fqInv(term, term)
+				fqMul(term, term, &ids[j])
+				fqMul(&mul, &mul, term)
 			}
 		}
-		FqMul(&mul, &mul, &secrets[i])
-		FqAdd(sum, sum, &mul)
+		fqMul(&mul, &mul, &secrets[i])
+		fqAdd(sum, sum, &mul)
 	}
 
-	return privKeyFromScalar(FqToBig(FqFromFqMontgomery(*sum))), nil
+	return privKeyFromScalar(fqToBig(fqFromFqMontgomery(*sum))), nil
 }
 
 type publicPolynomial struct {

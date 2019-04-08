@@ -43,4 +43,9 @@ func TestFeldman(t *testing.T) {
 	if err := VerifyShare(shares[0], verificationVec); err != nil {
 		t.Fatal(err)
 	}
+	/*
+		for _, share := range shares {
+
+		}
+	*/
 }

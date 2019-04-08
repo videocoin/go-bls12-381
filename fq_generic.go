@@ -8,8 +8,8 @@ const (
 	halfWordMask = (1 << halfWordSize) - 1
 )
 
-func FqMod(a *Fq) {
-	b := new(Fq)
+func fqMod(a *fq) {
+	b := new(fq)
 	var carry uint64
 	for i, qi := range q64 {
 		ai := a[i]
@@ -21,12 +21,13 @@ func FqMod(a *Fq) {
 	// if b is negative, then return a, else return b.
 	carry = -carry
 	ncarry := ^carry
-	for i := 0; i < FqLen; i++ {
+	for i := 0; i < fqLen; i++ {
 		a[i] = (a[i] & carry) | (b[i] & ncarry)
 	}
 }
 
-func FqAdd(z, x, y *Fq) {
+// note(rgeraldes): carry is always 0 for the last word
+func fqAdd(z, x, y *fq) {
 	var carry uint64
 	for i, xi := range x {
 		yi := y[i]
@@ -34,21 +35,21 @@ func FqAdd(z, x, y *Fq) {
 		z[i] = zi
 		carry = (xi&yi | (xi|yi)&^zi) >> (wordSize - 1)
 	}
-	// note(rgeraldes): carry is always 0 for the last word
-	FqMod(z)
+
+	fqMod(z)
 }
 
-func FqDbl(z, x *Fq) {
-	FqAdd(z, x, x)
+func fqDbl(z, x *fq) {
+	fqAdd(z, x, x)
 }
 
-func FqSub(z, x, y *Fq) {
-	negY := new(Fq)
-	FqNeg(negY, y)
-	FqAdd(z, x, negY)
+func fqSub(z, x, y *fq) {
+	negY := new(fq)
+	fqNeg(negY, y)
+	fqAdd(z, x, negY)
 }
 
-func FqNeg(z, x *Fq) {
+func fqNeg(z, x *fq) {
 	var carry uint64
 	for i, qi := range q64 {
 		xi := x[i]
@@ -58,7 +59,7 @@ func FqNeg(z, x *Fq) {
 	}
 }
 
-func FqBasicMul(z *FqLarge, x, y *Fq) {
+func fqBasicMul(z *fqLarge, x, y *fq) {
 	var carry uint64
 	for i, yi := range y {
 		carry = 0
@@ -78,7 +79,7 @@ func FqBasicMul(z *FqLarge, x, y *Fq) {
 				carry = (((w2 >> halfWordSize) + (x1y1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
 				z[i+j] = (w1 << halfWordSize) | (w0 & halfWordMask)
 			}
-			z[i+FqLen] = carry
+			z[i+fqLen] = carry
 		}
 	}
 
@@ -88,9 +89,9 @@ func FqBasicMul(z *FqLarge, x, y *Fq) {
 // fqREDC applies the montgomery reduction.
 // See https://www.nayuki.io/page/montgomery-reduction-algorithm - Summary
 // 4. x=a¯b¯.
-func FqREDC(c *Fq, x *FqLarge) {
+func fqREDC(c *fq, x *fqLarge) {
 	var carryMul, carrySum uint64
-	for i := 0; i < FqLen; i++ {
+	for i := 0; i < fqLen; i++ {
 		carryMul = 0
 		// 2. k=(r(r^−1 mod n)−1)/n
 		// 5. s=(x*k mod r);
@@ -117,69 +118,69 @@ func FqREDC(c *Fq, x *FqLarge) {
 			}
 		}
 		// 6. t=x+sn.
-		xi := x[i+FqLen]
+		xi := x[i+fqLen]
 		t0 := xi&halfWordMask + carryMul&halfWordMask + carrySum&halfWordMask
 		t1 := (t0 >> halfWordSize) + (xi >> halfWordSize) + (carryMul >> halfWordSize) + (carrySum >> halfWordSize)
 		carrySum = t1 >> halfWordSize
-		x[i+FqLen] = (t0 & halfWordMask) | (t1 << halfWordSize)
+		x[i+fqLen] = (t0 & halfWordMask) | (t1 << halfWordSize)
 	}
 
 	// 7. u=t/r
-	for i := 0; i < FqLen; i++ {
-		c[i] = x[i+FqLen]
+	for i := 0; i < fqLen; i++ {
+		c[i] = x[i+fqLen]
 	}
 
 	// 8. c¯=if (u<n) then (u) else (u−n).
-	FqMod(c)
+	fqMod(c)
 }
 
-func FqMul(z, x, y *Fq) {
-	large := new(FqLarge)
-	FqBasicMul(large, x, y)
-	FqREDC(z, large)
+func fqMul(z, x, y *fq) {
+	large := new(fqLarge)
+	fqBasicMul(large, x, y)
+	fqREDC(z, large)
 }
 
-func FqSqr(z, x *Fq) {
-	FqMul(z, x, x)
+func fqSqr(z, x *fq) {
+	fqMul(z, x, x)
 }
 
-func FqCube(z, x *Fq) {
-	FqSqr(z, x)
-	FqMul(z, z, x)
+func fqCube(z, x *fq) {
+	fqSqr(z, x)
+	fqMul(z, z, x)
 }
 
-func FqSqrt(x, a *Fq) bool {
+func fqSqrt(x, a *fq) bool {
 	// See https://eprint.iacr.org/2012/685.pdf - Algorithm 2
-	a1, a0 := new(Fq), new(Fq)
+	a1, a0 := new(fq), new(fq)
 
-	FqExp(a1, a, fqQMinus3Over4)
+	fqExp(a1, a, fqQMinus3Over4)
 
-	FqSqr(a0, a1)
-	FqMul(a0, a0, a)
+	fqSqr(a0, a1)
+	fqMul(a0, a0, a)
 
 	if *a0 == *fqNeg1 {
 		return false
 	}
 
-	FqMul(x, a1, a)
+	fqMul(x, a1, a)
 
 	return true
 }
 
-func FqExp(ret, base *Fq, exponent []uint64) {
+func fqExp(ret, base *fq, exponent []uint64) {
 	// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 	b := *base
-	*ret = FqMont1
+	*ret = fqMont1
 	for _, word := range exponent {
 		for j := uint(0); j < wordSize; j++ {
 			if (word & (1 << j)) != 0 {
-				FqMul(ret, ret, &b)
+				fqMul(ret, ret, &b)
 			}
-			FqSqr(&b, &b)
+			fqSqr(&b, &b)
 		}
 	}
 }
 
-func FqInv(c, x *Fq) {
-	FqExp(c, x, qMinus2[:])
+func fqInv(c, x *fq) {
+	fqExp(c, x, qMinus2[:])
 }

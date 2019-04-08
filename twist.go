@@ -169,14 +169,3 @@ func (tp *twistPoint) MakeAffine() {
 	}
 
 }
-
-// twistSubGroup is a cyclic group of the elliptic curve twist.
-type twistSubGroup struct {
-	generator *twistPoint
-}
-
-func newTwistSubGroup(gen *twistPoint) *twistSubGroup {
-	return &twistSubGroup{
-		generator: gen,
-	}
-}

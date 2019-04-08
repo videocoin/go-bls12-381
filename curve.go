@@ -11,19 +11,19 @@ const (
 	pointAtInfinityMask uint8 = 1 << 6
 )
 
-var curveB, _ = FqFromBase10("4")
+var curveB, _ = fqFromBase10("4")
 
 // curvePoint is an elliptic curve point in projective coordinates.
 // The elliptic curve is defined by the following equation y²=x³+3.
 type curvePoint struct {
-	x, y, z Fq
+	x, y, z fq
 }
 
-func newCurvePoint(x, y Fq) *curvePoint {
+func newCurvePoint(x, y fq) *curvePoint {
 	return &curvePoint{
 		x: x,
 		y: y,
-		z: Fq0,
+		z: fq0,
 	}
 }
 
@@ -50,75 +50,75 @@ func curvePointFromHash(hash []byte) *curvePoint {
 
 func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
-	z1z1, z2z2 := new(Fq), new(Fq)
-	FqSqr(z1z1, &a.z)
-	FqSqr(z2z2, &b.z)
+	z1z1, z2z2 := new(fq), new(fq)
+	fqSqr(z1z1, &a.z)
+	fqSqr(z2z2, &b.z)
 
-	u1, u2 := new(Fq), new(Fq)
-	FqMul(u1, &a.x, z2z2)
-	FqMul(u2, &b.x, z1z1)
+	u1, u2 := new(fq), new(fq)
+	fqMul(u1, &a.x, z2z2)
+	fqMul(u2, &b.x, z1z1)
 
-	s1, s2 := new(Fq), new(Fq)
-	FqMul(s1, &a.y, &b.z)
-	FqMul(s1, s1, z2z2)
-	FqMul(s2, &b.y, &a.z)
-	FqMul(s2, s2, z1z1)
+	s1, s2 := new(fq), new(fq)
+	fqMul(s1, &a.y, &b.z)
+	fqMul(s1, s1, z2z2)
+	fqMul(s2, &b.y, &a.z)
+	fqMul(s2, s2, z1z1)
 
-	h, i, j, r, v := new(Fq), new(Fq), new(Fq), new(Fq), new(Fq)
-	FqSub(h, u2, u1)
-	FqDbl(i, h)
-	FqSqr(i, i)
-	FqMul(j, h, i)
-	FqSub(r, s2, s1)
-	FqDbl(r, r)
-	FqMul(v, u1, i)
+	h, i, j, r, v := new(fq), new(fq), new(fq), new(fq), new(fq)
+	fqSub(h, u2, u1)
+	fqDbl(i, h)
+	fqSqr(i, i)
+	fqMul(j, h, i)
+	fqSub(r, s2, s1)
+	fqDbl(r, r)
+	fqMul(v, u1, i)
 
-	t0, t1 := new(Fq), new(Fq)
-	FqDbl(t0, v)
-	FqSqr(&cp.x, r)
-	FqSub(&cp.x, &cp.x, j)
-	FqSub(&cp.x, &cp.x, t0)
-	FqDbl(t0, s1)
-	FqMul(t0, t0, j)
-	FqMul(t1, r, &cp.x)
-	FqMul(&cp.y, r, v)
-	FqSub(&cp.y, &cp.y, t1)
-	FqSub(&cp.y, &cp.y, t0)
-	FqMul(&cp.z, &a.z, &b.z)
-	FqSqr(&cp.z, &cp.z)
-	FqSub(&cp.z, &cp.z, z1z1)
-	FqSub(&cp.z, &cp.z, z2z2)
-	FqMul(&cp.z, &cp.z, h)
+	t0, t1 := new(fq), new(fq)
+	fqDbl(t0, v)
+	fqSqr(&cp.x, r)
+	fqSub(&cp.x, &cp.x, j)
+	fqSub(&cp.x, &cp.x, t0)
+	fqDbl(t0, s1)
+	fqMul(t0, t0, j)
+	fqMul(t1, r, &cp.x)
+	fqMul(&cp.y, r, v)
+	fqSub(&cp.y, &cp.y, t1)
+	fqSub(&cp.y, &cp.y, t0)
+	fqMul(&cp.z, &a.z, &b.z)
+	fqSqr(&cp.z, &cp.z)
+	fqSub(&cp.z, &cp.z, z1z1)
+	fqSub(&cp.z, &cp.z, z2z2)
+	fqMul(&cp.z, &cp.z, h)
 
 	return cp
 }
 
 func (cp *curvePoint) double(p *curvePoint) *curvePoint {
 	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-	a, b, c, d, e, f, t0 := new(Fq), new(Fq), new(Fq), new(Fq), new(Fq), new(Fq), new(Fq)
+	a, b, c, d, e, f, t0 := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
 
-	FqSqr(a, &p.x)
-	FqSqr(b, &p.y)
-	FqSqr(c, b)
-	FqAdd(d, &p.x, b)
-	FqSqr(d, d)
-	FqSub(d, d, a)
-	FqSub(d, d, c)
-	FqDbl(d, d)
-	FqDbl(e, a)
-	FqAdd(e, e, a)
-	FqSqr(f, e)
+	fqSqr(a, &p.x)
+	fqSqr(b, &p.y)
+	fqSqr(c, b)
+	fqAdd(d, &p.x, b)
+	fqSqr(d, d)
+	fqSub(d, d, a)
+	fqSub(d, d, c)
+	fqDbl(d, d)
+	fqDbl(e, a)
+	fqAdd(e, e, a)
+	fqSqr(f, e)
 
-	FqDbl(&cp.x, d)
-	FqSub(&cp.x, f, &cp.x)
-	FqAdd(t0, c, c)
-	FqAdd(t0, t0, t0)
-	FqDbl(t0, t0)
-	FqSub(&cp.y, d, &cp.x)
-	FqMul(&cp.y, e, &cp.y)
-	FqSub(&cp.y, &cp.y, t0)
-	FqMul(&cp.z, &cp.y, &cp.z)
-	FqAdd(&cp.z, &cp.z, &cp.z)
+	fqDbl(&cp.x, d)
+	fqSub(&cp.x, f, &cp.x)
+	fqAdd(t0, c, c)
+	fqAdd(t0, t0, t0)
+	fqDbl(t0, t0)
+	fqSub(&cp.y, d, &cp.x)
+	fqMul(&cp.y, e, &cp.y)
+	fqSub(&cp.y, &cp.y, t0)
+	fqMul(&cp.z, &cp.y, &cp.z)
+	fqAdd(&cp.z, &cp.z, &cp.z)
 
 	return cp
 }
@@ -138,7 +138,7 @@ func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
 
 // isInfinty check if the point is a point at "infinity"
 func (cp *curvePoint) isInfinity() bool {
-	return cp.z == Fq0
+	return cp.z == fq0
 }
 
 func (cp *curvePoint) makeAffine() {
@@ -147,10 +147,10 @@ func (cp *curvePoint) makeAffine() {
 		//  If this bit is set, the remaining bits of the group element's encoding should be set to zero.
 		//pointAtInfinityMask
 	}
-	zInv := new(Fq)
-	FqInv(zInv, &cp.z)
-	FqMul(&cp.x, &cp.x, zInv)
-	FqMul(&cp.y, &cp.y, zInv)
+	zInv := new(fq)
+	fqInv(zInv, &cp.z)
+	fqMul(&cp.x, &cp.x, zInv)
+	fqMul(&cp.y, &cp.y, zInv)
 }
 
 // Marshal converts a point into the compressed form specified in
@@ -161,7 +161,7 @@ func (cp *curvePoint) marshal() []byte {
 	// TODO: https://golang.org/src/crypto/elliptic/elliptic.go?s=8258:8305#L296
 	//cp.MakeAffine()
 
-	var x Fq
+	var x fq
 	montgomeryDecode(&x, &cp.x)
 
 	xBytes := x.Bytes()
@@ -187,7 +187,7 @@ func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 	return &curvePoint{}, nil
 }
 
-func curvePointFromFq(elm Fq) *curvePoint {
+func curvePointFromFq(elm fq) *curvePoint {
 	return newCurvePoint(coordinatesFromFq(elm))
 }
 

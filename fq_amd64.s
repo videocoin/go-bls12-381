@@ -37,7 +37,7 @@
         CMOVQCC b4, a4 \
         CMOVQCC b5, a5
           
-TEXT ·FqAdd(SB),0,$0-24
+TEXT ·fqAdd(SB),0,$0-24
     MOVQ a+8(FP), DI
     MOVQ b+16(FP), SI
     fqLoad(0(DI), R8, R9, R10, R11, R12, R13)
@@ -52,7 +52,7 @@ TEXT ·FqAdd(SB),0,$0-24
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
-TEXT ·FqNeg(SB),0,$0-16
+TEXT ·fqNeg(SB),0,$0-16
     MOVQ ·q64+0(SB), R8
     MOVQ ·q64+8(SB), R9
     MOVQ ·q64+16(SB), R10
@@ -70,7 +70,7 @@ TEXT ·FqNeg(SB),0,$0-16
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
-TEXT ·FqSub(SB),0,$0-24
+TEXT ·fqSub(SB),0,$0-24
     MOVQ ·q64+0(SB), R8
     MOVQ ·q64+8(SB), R9
     MOVQ ·q64+16(SB), R10
@@ -96,21 +96,21 @@ TEXT ·FqSub(SB),0,$0-24
     fqStore(0(DI), R8, R9, R10, R11, R12, R13)
     RET
 
-TEXT ·FqBasicMul(SB),0,$0-24
+TEXT ·fqBasicMul(SB),0,$0-24
     RET
 
-TEXT ·FqExp(SB),0,$0-24
+TEXT ·fqExp(SB),0,$0-24
     RET
 
-TEXT ·FqSqrt(SB),0,$0-24
+TEXT ·fqSqrt(SB),0,$0-24
     RET
 
-TEXT ·FqREDC(SB),0,$0-24
+TEXT ·fqREDC(SB),0,$0-24
     RET
 
-TEXT ·FqCube(SB),0,$0-24
+TEXT ·fqCube(SB),0,$0-24
     RET
 
-TEXT ·FqMul(SB),0,$0-24
+TEXT ·fqMul(SB),0,$0-24
     RET
     
