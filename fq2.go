@@ -37,9 +37,11 @@ func fq2Sub(z, x, y *fq2) {
 	fqSub(&z.c1, &x.c1, &y.c1)
 }
 
+// Karatsuba method
 // note: there's room for optimization (multiplications + reductions).
 func fq2Mul(z, x, y *fq2) {
-	// Karatsuba method
+	mult := new(fq2)
+
 	// v0 = a0b0
 	// v1 = a1b1
 	// c0 = v0 + βv1
@@ -47,7 +49,7 @@ func fq2Mul(z, x, y *fq2) {
 	v0, v1 := new(fq), new(fq)
 	fqMul(v0, &x.c0, &y.c0)
 	fqMul(v1, &x.c1, &y.c1)
-	fqSub(&z.c0, v0, v1)
+	fqSub(&mult.c0, v0, v1)
 
 	// c1 = (a0 + a1)(b0 + b1) − v0 − v1
 	// c1 = (a0 + a1)(b0 + b1) − (v0 + v1)
@@ -55,9 +57,11 @@ func fq2Mul(z, x, y *fq2) {
 	a, b, v := new(fq), new(fq), new(fq)
 	fqAdd(a, &x.c0, &x.c1)
 	fqAdd(b, &y.c0, &y.c1)
-	fqMul(&z.c1, a, b)
+	fqMul(&mult.c1, a, b)
 	fqAdd(v, v0, v1)
-	fqSub(&z.c1, &z.c1, v)
+	fqSub(&mult.c1, &mult.c1, v)
+
+	z.c0, z.c1 = mult.c0, mult.c1
 }
 
 func fq2Sqr(c, a *fq2) {

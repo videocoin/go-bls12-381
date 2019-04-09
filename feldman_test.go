@@ -40,12 +40,9 @@ func TestFeldman(t *testing.T) {
 		t.Errorf("expected: %s, got: %s\n", privKey.Secret, newPrivKey.Secret)
 	}
 
-	if err := VerifyShare(shares[0], verificationVec); err != nil {
-		t.Fatal(err)
-	}
-	/*
-		for _, share := range shares {
-
+	for _, share := range shares[:2] {
+		if err := VerifyShare(share, verificationVec); err != nil {
+			t.Fatal(err)
 		}
-	*/
+	}
 }

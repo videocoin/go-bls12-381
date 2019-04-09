@@ -19,9 +19,7 @@ func newTwistPoint(x, y fq2) *twistPoint {
 }
 
 func (tp *twistPoint) Set(p *twistPoint) *twistPoint {
-	tp.x = p.x
-	tp.y = p.y
-	tp.z = p.z
+	tp.x, tp.y, tp.z = p.x, p.y, p.z
 
 	return tp
 }
@@ -30,17 +28,16 @@ func (tp *twistPoint) Set(p *twistPoint) *twistPoint {
 func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	// TODO is infinity confirm
 	if a.IsInfinity() {
-		tp.Set(b)
-		return tp
+		return tp.Set(b)
 	}
 
 	// TODO is infinity confirm
 	if b.IsInfinity() {
-		tp.Set(a)
-		return tp
+		return tp.Set(a)
 	}
 
 	if a.Equal(b) {
+		// cheaper
 		return tp.Double(a)
 	}
 
@@ -57,39 +54,36 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	fq2Mul(s1, &a.y, &b.z)
 	fq2Mul(s1, s1, z2z2)
 	fq2Mul(s2, &b.y, &a.z)
-	// fix me
-	tmp := *s2
-	fq2Mul(s2, &tmp, z1z1)
+	fq2Mul(s2, s2, z1z1)
 
 	h, i, j, r, v := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
 	fq2Sub(h, u2, u1)
 	fq2Dbl(i, h)
-	tmp2 := *i
-	fq2Sqr(i, &tmp2)
+	fq2Sqr(i, i)
 	fq2Mul(j, h, i)
 	fq2Sub(r, s2, s1)
 	fq2Dbl(r, r)
 	fq2Mul(v, u1, i)
 
-	t0, t1 := new(fq2), new(fq2)
+	x, y, z, t0, t1 := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
 	fq2Dbl(t0, v)
-	fq2Sqr(&tp.x, r)
-	fq2Sub(&tp.x, &tp.x, j)
-	fq2Sub(&tp.x, &tp.x, t0)
+	fq2Add(t0, t0, j)
+	fq2Sqr(x, r)
+	fq2Sub(x, x, t0)
+
 	fq2Dbl(t0, s1)
-	tmp3 := *t0
-	fq2Mul(t0, &tmp3, j)
-	fq2Mul(t1, r, &tp.x)
-	fq2Mul(&tp.y, r, v)
-	fq2Sub(&tp.y, &tp.y, t1)
-	fq2Sub(&tp.y, &tp.y, t0)
-	fq2Add(&tp.z, &a.z, &b.z)
-	tmp4 := tp.z
-	fq2Sqr(&tp.z, &tmp4)
-	fq2Sub(&tp.z, &tp.z, z1z1)
-	fq2Sub(&tp.z, &tp.z, z2z2)
-	tmp5 := tp.z
-	fq2Mul(&tp.z, &tmp5, h)
+	fq2Mul(t0, t0, j)
+	fq2Sub(t1, v, x)
+	fq2Mul(t1, t1, r)
+	fq2Sub(y, t1, t0)
+
+	fq2Add(z, &a.z, &b.z)
+	fq2Sqr(z, z)
+	fq2Add(t0, z1z1, z2z2)
+	fq2Sub(z, z, t0)
+	fq2Mul(z, z, h)
+
+	tp.x, tp.y, tp.z = *x, *y, *z
 
 	return tp
 }
@@ -109,22 +103,19 @@ func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
 	fq2Add(e, e, a)
 	fq2Sqr(f, e)
 
-	fq2Dbl(&tp.x, d)
-	fq2Sub(&tp.x, f, &tp.x)
-
-	t0 := new(fq2)
+	x, y, z, t0 := new(fq2), new(fq2), new(fq2), new(fq2)
+	fq2Dbl(x, d)
+	fq2Sub(x, f, x)
 	fq2Dbl(t0, c)
 	fq2Dbl(t0, t0)
 	fq2Dbl(t0, t0)
-	fq2Sub(&tp.y, d, &tp.x)
-	// fixme: fq2Mul(&tp.y, e, &tp.y) // Error (references)
-	// fixme: fq2Mul(&tp.y, &tp.y, e) // Error (references)
-	t1 := tp.y
-	fq2Mul(&tp.y, e, &t1)
-	fq2Sub(&tp.y, &tp.y, t0)
+	fq2Sub(y, d, x)
+	fq2Mul(y, y, e)
+	fq2Sub(y, y, t0)
+	fq2Mul(z, &p.y, &p.z)
+	fq2Dbl(z, z)
 
-	fq2Mul(&tp.z, &p.y, &p.z)
-	fq2Dbl(&tp.z, &tp.z)
+	tp.x, tp.y, tp.z = *x, *y, *z
 
 	return tp
 }
@@ -136,18 +127,16 @@ func (c *twistPoint) IsInfinity() bool {
 
 func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-	sumX2 := &twistPoint{}
-	// fixme? BitLen or BitLen - 1
+	mult := &twistPoint{}
+	// fixme: BitLen or BitLen - 1
 	for i := scalar.BitLen() - 1; i >= 0; i-- {
-		sumX2.Double(tp)
+		mult.Double(mult)
 		if scalar.Bit(i) == 1 {
-			tp.Add(sumX2, p)
-		} else {
-			tp.Set(sumX2)
+			mult.Add(mult, p)
 		}
 	}
 
-	return tp
+	return tp.Set(mult)
 }
 
 func (tp *twistPoint) Equal(p *twistPoint) bool {

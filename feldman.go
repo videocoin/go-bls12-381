@@ -7,8 +7,7 @@ import (
 )
 
 var (
-	errReqGreaterThanTotal    = errors.New("feldman: minimum required number of shares is greater than the total number of shares")
-	errMissingRequiredSecret  = errors.New("feldman: missing required secret")
+	errInvalidThreshold       = errors.New("feldman: minimum required number of shares is greater than the total number of shares")
 	errInvalidNumCoefficients = errors.New("feldman: polynomial requires at least one coefficient")
 	errEmptyVerificationVec   = errors.New("feldman: empty verification vector")
 	errInvalidShare           = errors.New("feldman: share is not valid")
@@ -67,7 +66,7 @@ func (p *polynomial) evaluate(x uint64) (*PrivateKey, error) {
 // CreateShares divides the secret into parts, giving each participant its own unique part.
 func CreateShares(reader io.Reader, threshold uint64, numShares uint64) ([]*PublicKey, []*Share, *PrivateKey, error) {
 	if threshold > numShares {
-		return nil, nil, nil, errReqGreaterThanTotal
+		return nil, nil, nil, errInvalidThreshold
 	}
 
 	// generate coefficients
@@ -106,63 +105,6 @@ func CreateShares(reader io.Reader, threshold uint64, numShares uint64) ([]*Publ
 	return verification, shares, secrets[0], nil
 }
 
-/*
-// SecretToShares
-func SecretFromShares(reader io.Reader, threshold uint64, numShares uint64, priv *PrivateKey) ([]*Share, *PrivateKey, error) {
-	if priv == nil {
-		return nil, nil, errMissingRequiredSecret
-	}
-
-
-	freeCoeff, err := FqMontgomeryFromBig(priv.Secret)
-	if err != nil {
-		return nil, nil, err
-	}
-	coefficient := freeCoeff
-
-	mul := make([]Fq, numShares) // caches the variable multiplications
-	ids := make([]Fq, numShares) // caches the share index (montgomery form)
-
-	for i := uint64(0); i < threshold; i++ {
-		// generate coefficient
-		if i != 0 {
-			var err error
-			pk, err := GenerateKey(reader)
-			if err != nil {
-				return nil, nil, err
-			}
-			coefficient, err = FqMontgomeryFromBig(pk.Secret)
-			if err != nil {
-				return nil, nil, err
-			}
-		}
-
-		// calculate polynomial term
-		for j := uint64(0); j < numShares; j++ {
-			if i == 0 {
-				index := j + 1
-
-
-				// create share
-				shares = append(shares, &Point{X: x, Y: coefficients[i]})
-
-				mul[j] = FqMont1
-
-				continue
-			}
-
-			// sum term
-			term := new(Fq)
-			FqMul(&mul[j], &mul[j], &shares[j].X)
-			FqMul(term, &coefficients[i], &mul[j])
-			FqAdd(&shares[j].Y, &shares[j].Y, term)
-		}
-	}
-
-	return shares, coefficients, nil
-}
-
-*/
 // PrivKeyFromShares reconstructs the secret using Lagrange polynomials.
 // Passing less shares than the minimum required results in the wrong secret.
 func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
@@ -216,13 +158,12 @@ func newPublicPolynomial(coefficients []*PublicKey) (*publicPolynomial, error) {
 }
 
 func (p *publicPolynomial) evaluate(x uint64) (*PublicKey, error) {
-	sum := newG2Point().Set(p.coefficients[0])
 	bigX := new(big.Int).SetUint64(x)
+	sum := newG2Point().Set(p.coefficients[0])
 	mul := new(big.Int).SetUint64(1)
 	for _, coeff := range p.coefficients[1:] {
 		mul.Mul(mul, bigX)
-		tmp := newG2Point().Add(sum, newG2Point().ScalarMult(coeff, mul))
-		sum = tmp
+		sum.Add(sum, newG2Point().ScalarMult(coeff, mul))
 	}
 
 	return sum, nil
@@ -238,6 +179,7 @@ func VerifyShare(share *Share, verificationVec []*PublicKey) error {
 	expectedPubKey := share.Y.Public()
 	publicPolynomial, err := newPublicPolynomial(verificationVec)
 	pubKey, err := publicPolynomial.evaluate(share.X)
+	//fmt.Printf("Expected: %s, got: %s", expectedPubKey.String(), pubKey.String())
 	if err != nil {
 		return err
 	}
