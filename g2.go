@@ -15,6 +15,10 @@ func newG2Point() *g2Point {
 	return &g2Point{p: new(twistPoint)}
 }
 
+func (z *g2Point) ScalarBaseMult(scalar *big.Int) *g2Point {
+	return z.ScalarMult(g2Gen, scalar)
+}
+
 func (z *g2Point) ScalarMult(x *g2Point, scalar *big.Int) *g2Point {
 	z.p.ScalarMult(x.p, scalar)
 

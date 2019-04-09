@@ -5,28 +5,24 @@ import (
 	"math/big"
 )
 
-// PublicKey represents a BLS12-381 public key.
+// PublicKey represents a BLS public key.
 type PublicKey = g2Point
 
-// PrivateKey represents a BLS12-381 private key.
+// PrivateKey represents a BLS private key.
 type PrivateKey struct {
 	PublicKey
 	Secret *big.Int
 }
 
-type blsSignature = g1Point
+func pubKeyFromScalar(scalar *big.Int) *PublicKey {
+	return newG2Point().ScalarBaseMult(scalar).ToAffine()
+}
 
-// privateKeyFromScalar returns a new private key instance.
 func privKeyFromScalar(scalar *big.Int) *PrivateKey {
 	return &PrivateKey{
 		Secret:    scalar,
 		PublicKey: *pubKeyFromScalar(scalar),
 	}
-}
-
-// pubKeyFromScalar returns a new public key instance.
-func pubKeyFromScalar(scalar *big.Int) *PublicKey {
-	return newG2Point().ScalarMult(g2Gen, scalar).ToAffine()
 }
 
 // GenerateKey generates a public and private key pair.
@@ -47,8 +43,7 @@ func (priv *PrivateKey) Public() PublicKey {
 // Sign signs a hash (which should be the result of hashing a larger message)
 // using the private key, priv.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	return []byte{}
-	//return newG1Point().ScalarMult(g1Gen, priv.Secret).Marshal()
+	return newG1Point().SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
 }
 
 /*
