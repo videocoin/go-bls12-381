@@ -20,8 +20,13 @@ type blsSignature = g1Point
 func privKeyFromScalar(scalar *big.Int) *PrivateKey {
 	return &PrivateKey{
 		Secret:    scalar,
-		PublicKey: *(newG2Point().ScalarMult(g2Gen, scalar).ToAffine()),
+		PublicKey: *pubKeyFromScalar(scalar),
 	}
+}
+
+// pubKeyFromScalar returns a new public key instance.
+func pubKeyFromScalar(scalar *big.Int) *PublicKey {
+	return newG2Point().ScalarMult(g2Gen, scalar).ToAffine()
 }
 
 // GenerateKey generates a public and private key pair.

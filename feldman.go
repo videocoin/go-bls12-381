@@ -179,7 +179,6 @@ func VerifyShare(share *Share, verificationVec []*PublicKey) error {
 	expectedPubKey := share.Y.Public()
 	publicPolynomial, err := newPublicPolynomial(verificationVec)
 	pubKey, err := publicPolynomial.evaluate(share.X)
-	//fmt.Printf("Expected: %s, got: %s", expectedPubKey.String(), pubKey.String())
 	if err != nil {
 		return err
 	}
