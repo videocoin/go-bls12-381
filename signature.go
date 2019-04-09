@@ -20,7 +20,7 @@ type blsSignature = g1Point
 func privKeyFromScalar(scalar *big.Int) *PrivateKey {
 	return &PrivateKey{
 		Secret:    scalar,
-		PublicKey: *newG2Point().ScalarMult(g2Gen, scalar),
+		PublicKey: *(newG2Point().ScalarMult(g2Gen, scalar).ToAffine()),
 	}
 }
 

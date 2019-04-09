@@ -2,6 +2,7 @@ package bls12
 
 import (
 	"crypto/rand"
+	"math/big"
 	"testing"
 )
 
@@ -40,9 +41,18 @@ func TestFeldman(t *testing.T) {
 		t.Errorf("expected: %s, got: %s\n", privKey.Secret, newPrivKey.Secret)
 	}
 
-	for _, share := range shares[:2] {
+	// generated shares must be valid
+	for _, share := range shares {
 		if err := VerifyShare(share, verificationVec); err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	invalidShare := &Share{
+		X: 3,
+		Y: privKeyFromScalar(new(big.Int).SetUint64(6)),
+	}
+	if err := VerifyShare(invalidShare, verificationVec); err == nil {
+		t.Fatal("pub keys must be different")
 	}
 }

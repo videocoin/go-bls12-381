@@ -39,6 +39,12 @@ func (z *g2Point) Set(x *g2Point) *g2Point {
 	return z
 }
 
+func (z *g2Point) ToAffine() *g2Point {
+	z.p.ToAffine()
+
+	return z
+}
+
 func (z *g2Point) String() string {
 	return fmt.Sprintf("%v", z.p)
 }

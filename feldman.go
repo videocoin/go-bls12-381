@@ -166,7 +166,7 @@ func (p *publicPolynomial) evaluate(x uint64) (*PublicKey, error) {
 		sum.Add(sum, newG2Point().ScalarMult(coeff, mul))
 	}
 
-	return sum, nil
+	return sum.ToAffine(), nil
 }
 
 // VerifyShare verifies that a received secret key share is actually the result

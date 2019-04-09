@@ -152,9 +152,19 @@ func (tp *twistPoint) String() string {
 }
 */
 
-func (tp *twistPoint) MakeAffine() {
+func (tp *twistPoint) ToAffine() *twistPoint {
+	// See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
 	if tp.z.IsOne() {
-		return
+		return tp
 	}
 
+	zInv, zInvSqr, zInvCube := new(fq2), new(fq2), new(fq2)
+	fq2Inv(zInv, &tp.z)
+	fq2Mul(zInvSqr, zInv, zInv)
+	fq2Mul(zInvCube, zInvSqr, zInv)
+	fq2Mul(&tp.x, &tp.x, zInvSqr)
+	fq2Mul(&tp.y, &tp.y, zInvCube)
+	tp.z = fq2{fqMont1, fq0}
+
+	return tp
 }

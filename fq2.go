@@ -84,6 +84,19 @@ func fq2Decode(a *fq2) *fq2 {
 	return fq2
 }
 
-func fq2Inv(a, b *fq2) {
-	// TODO
+func fq2Inv(c, a *fq2) {
+	// t0 = a.c0^2
+	// t1 = a.c1^2
+	// t0 = t0 + t1
+	// t0 = 1/t0
+	// c.c0 = a.c0 * t0
+	// c.c1 = - a.c1 * t0
+	t0, t1 := new(fq), new(fq)
+	fqSqr(t0, &a.c0)
+	fqSqr(t1, &a.c1)
+	fqAdd(t0, t0, t1)
+	fqInv(t0, t0)
+	fqMul(&c.c0, &a.c0, t0)
+	fqMul(&c.c1, &a.c1, t0)
+	fqNeg(&c.c1, &c.c1)
 }
