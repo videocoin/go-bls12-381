@@ -6,9 +6,8 @@ import (
 
 var (
 	g1Gen = &g1Point{newCurvePoint(g1X, g1Y)}
-
-	g10 = []byte("G1_0")
-	g11 = []byte("G1_1")
+	g10   = []byte("G1_0")
+	g11   = []byte("G1_1")
 )
 
 type g1Point struct {

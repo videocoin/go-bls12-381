@@ -21,7 +21,6 @@ func (z *g2Point) ScalarBaseMult(scalar *big.Int) *g2Point {
 
 func (z *g2Point) ScalarMult(x *g2Point, scalar *big.Int) *g2Point {
 	z.p.ScalarMult(x.p, scalar)
-
 	return z
 }
 
@@ -31,7 +30,6 @@ func (z *g2Point) Equal(x *g2Point) bool {
 
 func (z *g2Point) Add(x, y *g2Point) *g2Point {
 	z.p.Add(x.p, y.p)
-
 	return z
 }
 
@@ -39,13 +37,11 @@ func (z *g2Point) Set(x *g2Point) *g2Point {
 	if z != x {
 		z.p.Set(x.p)
 	}
-
 	return z
 }
 
 func (z *g2Point) ToAffine() *g2Point {
 	z.p.ToAffine()
-
 	return z
 }
 
