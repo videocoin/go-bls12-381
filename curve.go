@@ -108,6 +108,7 @@ func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
 	return cp
 }
 
+// ScalarMult returns k*(Bx,By) where k is a number in big-endian form.
 func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
 	q := new(curvePoint)
@@ -126,7 +127,7 @@ func (cp *curvePoint) isInfinity() bool {
 	return cp.z == fq0
 }
 
-func (cp *curvePoint) makeAffine() {
+func (cp *curvePoint) ToAffine() {
 	// TODO create new curve point
 	if cp.isInfinity() {
 		//  If this bit is set, the remaining bits of the group element's encoding should be set to zero.
@@ -138,24 +139,48 @@ func (cp *curvePoint) makeAffine() {
 	fqMul(&cp.y, &cp.y, zInv)
 }
 
-// Marshal converts a point into the compressed form specified in
+// CompressedEncode converts a curve point into the compressed form specified in
 // https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
-func (cp *curvePoint) marshal() []byte {
-	cp.makeAffine()
-	// See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization
-	// TODO: https://golang.org/src/crypto/elliptic/elliptic.go?s=8258:8305#L296
-	//cp.MakeAffine()
+func (cp *curvePoint) CompressedEncode() []byte {
+	cp.ToAffine()
+	x := new(fq)
+	montgomeryDecode(x, &cp.x)
 
-	var x fq
-	montgomeryDecode(&x, &cp.x)
+	ret := make([]byte, fqByteLen)
 
 	xBytes := x.Bytes()
-	xBytes[0] &= compressedFormMask
+	copy(ret, xBytes)
 
-	return xBytes
+	ret[0] &= compressedFormMask // compressed point
 
+	return ret
 }
 
+// CompressedEncode converts a curve point into the compressed form specified in
+// https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
+func (cp *curvePoint) UncompressedEncode() []byte {
+	cp.ToAffine()
+	x, y := new(fq), new(fq)
+	montgomeryDecode(x, &cp.x)
+	montgomeryDecode(y, &cp.y)
+
+	ret := make([]byte, fqByteLen*2)
+
+	xBytes := x.Bytes()
+	copy(ret, xBytes)
+	yBytes := y.Bytes()
+	copy(ret[fqByteLen:], yBytes)
+
+	return ret
+}
+
+// Decode decodes a curve point, serialized by CompressedEncode/UncompressedEncode.
+// It is an error if the point is not on the curve.
+func (cp *curvePoint) Decode(buf []byte) error {
+	return nil
+}
+
+/*
 // unmarshalCurvePoint converts a point, serialized by Marshal, into an x, y pair.
 // It is an error if the point is not in compressed form or is not on the curve.
 // On error, x = nil.
@@ -171,44 +196,20 @@ func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 
 	return &curvePoint{}, nil
 }
+*/
 
+// TODO desc
 // The point is not guaranteed to be in a particular subgroup.
 func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
 	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1 - before scaling to co factor
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], g10...))
-	bigG0 := new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q)
+	g10, _ := fqMontgomeryFromBig(new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q))
 	sum = blake2b.Sum512(append(h[:], g11...))
-	bigG1 := new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q)
-	fqG0, _ := fqMontgomeryFromBig(bigG0)
-	fqG1, _ := fqMontgomeryFromBig(bigG1)
+	g11, _ := fqMontgomeryFromBig(new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q))
 
-	return cp.Add(new(curvePoint).SWEncode(&fqG0), new(curvePoint).SWEncode(&fqG1))
+	return cp.Add(new(curvePoint).SWEncode(&g10), new(curvePoint).SWEncode(&g11))
 }
-
-// TODO
-/*
-// curvePointFromHash converts the hash to a curve point.
-// The point is not guaranteed to be in a particular subgroup.
-func curvePointFromHash(hash []byte) *curvePoint {
-	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
-	h256, _ := blake2b.New256(nil)
-	h256.Write(hash)
-	h := h256.Sum(nil)
-
-	h512, _ := blake2b.New512(nil)
-	h512.Write(h)
-	h512.Write([]byte("G1_0"))
-	t0 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
-
-	h512.Reset()
-	h512.Write(h)
-	h512.Write([]byte("G1_1"))
-	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
-
-	return new(curvePoint).Add(t0, t1)
-}
-*/
 
 // SWEncode implements the Shallue and van de Woestijne encoding.
 // The point is not guaranteed to be in a particular subgroup.

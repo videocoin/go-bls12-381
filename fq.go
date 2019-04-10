@@ -11,9 +11,8 @@ import (
 )
 
 const (
-	fqLen            = 6
-	fqCompressedLen  = 48
-	fqUnompressedLen = 96
+	fqLen     = 6
+	fqByteLen = 48
 
 	decimalBase = 10
 )
@@ -60,8 +59,9 @@ func (fq *fq) String() string {
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.
 func (fq *fq) Bytes() (ret []byte) {
-	ret = make([]byte, fqCompressedLen)
+	ret = make([]byte, fqByteLen)
 	for i, fqi := range fq {
+		// TODO big endian
 		binary.LittleEndian.PutUint64(ret[i+i*8:], fqi)
 	}
 
