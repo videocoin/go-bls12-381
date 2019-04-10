@@ -93,7 +93,7 @@ func fqFromBase10(str string) (fq, error) {
 
 // fqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
 func fqMontgomeryFromBase10(str string) (fq, error) {
-	return FqMontgomeryFromBig(bigFromBase10(str))
+	return fqMontgomeryFromBig(bigFromBase10(str))
 }
 
 // fqFromBig converts a big integer to a field element.
@@ -124,8 +124,8 @@ func fqFromFqBig(value *big.Int) fq {
 	return fq
 }
 
-// FqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
-func FqMontgomeryFromBig(value *big.Int) (fq, error) {
+// fqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
+func fqMontgomeryFromBig(value *big.Int) (fq, error) {
 	fieldElement, err := fqFromBig(value)
 	if err != nil {
 		return fq{}, err
@@ -217,46 +217,4 @@ func montgomeryEncode(c, a *fq) {
 func montgomeryDecode(c, a *fq) {
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 	fqMul(c, a, &fq1)
-}
-
-// coordinatesFromFq implements the Shallue and van de Woestijne encoding.
-// The point is not guaranteed to be in a particular subgroup.
-// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf
-func coordinatesFromFq(t fq) (x, y fq) {
-	// w = (t^2 + 4u + 1)^(-1) * sqrt(-3) * t
-	w, inv := new(fq), new(fq)
-	fqMul(w, fqSqrtNeg3, &t)
-	fqMul(inv, &t, &t)
-	fqAdd(inv, inv, &curveB)
-	fqAdd(inv, inv, &fqMont1)
-	fqInv(inv, inv)
-	fqMul(w, w, inv)
-
-	for i := 0; i < 3; i++ {
-		switch i {
-		// x = (sqrt(-3) - 1) / 2 - (w * t)
-		case 0:
-			fqMul(&x, &t, w)
-			fqSub(&x, fqHalfSqrNeg3Minus1, &x)
-		// x = -1 - x
-		case 1:
-			fqSub(&x, fqNeg1, &x)
-		// x = 1/w^2 + 1
-		case 2:
-			fqSqr(&x, w)
-			fqInv(&x, &x)
-			fqAdd(&x, &x, &fq1)
-		}
-
-		// y^2 = x^3 + 4u
-		fqCube(&y, &x)
-		fqAdd(&y, &y, &curveB)
-
-		// y = sqrt(y2)
-		if fqSqrt(&y, &y) {
-			return
-		}
-	}
-
-	return
 }

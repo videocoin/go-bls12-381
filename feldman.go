@@ -36,7 +36,7 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 	}
 
 	for _, priv := range coefficients {
-		coeff, err := FqMontgomeryFromBig(priv.Secret)
+		coeff, err := fqMontgomeryFromBig(priv.Secret)
 		if err != nil {
 			return nil, err
 		}
@@ -47,7 +47,7 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 }
 
 func (p *polynomial) evaluate(x uint64) (*PrivateKey, error) {
-	fqX, err := FqMontgomeryFromBig(new(big.Int).SetUint64(x))
+	fqX, err := fqMontgomeryFromBig(new(big.Int).SetUint64(x))
 	if err != nil {
 		return nil, err
 	}
@@ -112,12 +112,12 @@ func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
 	ids := make([]fq, 0, len(shares))
 	secrets := make([]fq, 0, len(shares))
 	for _, share := range shares {
-		idMont, err := FqMontgomeryFromBig(new(big.Int).SetUint64(share.X))
+		idMont, err := fqMontgomeryFromBig(new(big.Int).SetUint64(share.X))
 		if err != nil {
 			return nil, err
 		}
 		ids = append(ids, idMont)
-		secretMont, err := FqMontgomeryFromBig(share.Y.Secret)
+		secretMont, err := fqMontgomeryFromBig(share.Y.Secret)
 		if err != nil {
 			return nil, err
 		}

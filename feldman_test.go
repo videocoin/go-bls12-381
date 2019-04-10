@@ -7,8 +7,8 @@ import (
 )
 
 func TestFeldman(t *testing.T) {
-	threshold := uint64(2)
-	numShares := uint64(4)
+	threshold := uint64(6)
+	numShares := uint64(20)
 	verificationVec, shares, privKey, err := CreateShares(rand.Reader, threshold, numShares)
 	if err != nil {
 		t.Fatal(err)

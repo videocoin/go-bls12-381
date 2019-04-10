@@ -45,10 +45,10 @@ func curvePointFromHash(hash []byte) *curvePoint {
 	h512.Write([]byte("G1_1"))
 	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
 
-	return new(curvePoint).add(t0, t1)
+	return new(curvePoint).Add(t0, t1)
 }
 
-func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
+func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
 	z1z1, z2z2 := new(fq), new(fq)
 	fqSqr(z1z1, &a.z)
@@ -93,7 +93,7 @@ func (cp *curvePoint) add(a, b *curvePoint) *curvePoint {
 	return cp
 }
 
-func (cp *curvePoint) double(p *curvePoint) *curvePoint {
+func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
 	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
 	a, b, c, d, e, f, t0 := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
 
@@ -127,9 +127,9 @@ func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
 	q := new(curvePoint)
 	for i := scalar.BitLen() - 1; i >= 0; i-- {
-		q.double(q)
+		q.Double(q)
 		if scalar.Bit(i) == 1 {
-			q.add(q, p)
+			q.Add(q, p)
 		}
 	}
 
