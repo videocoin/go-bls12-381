@@ -2,6 +2,8 @@ package bls12
 
 import (
 	"math/big"
+
+	"golang.org/x/crypto/blake2b"
 )
 
 const (
@@ -25,28 +27,11 @@ func newCurvePoint(x, y fq) *curvePoint {
 	}
 }
 
-/*
-// curvePointFromHash converts the hash to a curve point.
-// The point is not guaranteed to be in a particular subgroup.
-func curvePointFromHash(hash []byte) *curvePoint {
-	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
-	h256, _ := blake2b.New256(nil)
-	h256.Write(hash)
-	h := h256.Sum(nil)
+func (cp *curvePoint) Set(p *curvePoint) *curvePoint {
+	cp.x, cp.y, cp.z = p.x, p.y, p.z
 
-	h512, _ := blake2b.New512(nil)
-	h512.Write(h)
-	h512.Write([]byte("G1_0"))
-	t0 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
-
-	h512.Reset()
-	h512.Write(h)
-	h512.Write([]byte("G1_1"))
-	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
-
-	return new(curvePoint).Add(t0, t1)
+	return cp
 }
-*/
 
 func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -133,7 +118,7 @@ func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
 		}
 	}
 
-	return q
+	return cp.Set(q)
 }
 
 // isInfinty check if the point is a point at "infinity"
@@ -187,15 +172,85 @@ func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 	return &curvePoint{}, nil
 }
 
-/*
-func curvePointFromFq(elm fq) *curvePoint {
-	return newCurvePoint(coordinatesFromFq(elm))
+// The point is not guaranteed to be in a particular subgroup.
+func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
+	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1 - before scaling to co factor
+	h := blake2b.Sum256(buf)
+	sum := blake2b.Sum512(append(h[:], g10...))
+	bigG0 := new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q)
+	sum = blake2b.Sum512(append(h[:], g11...))
+	bigG1 := new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q)
+	fqG0, _ := fqMontgomeryFromBig(bigG0)
+	fqG1, _ := fqMontgomeryFromBig(bigG1)
+
+	return cp.Add(new(curvePoint).SWEncode(&fqG0), new(curvePoint).SWEncode(&fqG1))
 }
 
+// TODO
+/*
+// curvePointFromHash converts the hash to a curve point.
+// The point is not guaranteed to be in a particular subgroup.
+func curvePointFromHash(hash []byte) *curvePoint {
+	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
+	h256, _ := blake2b.New256(nil)
+	h256.Write(hash)
+	h := h256.Sum(nil)
 
-// hashToCurveSubGroup hashes the msg to a specific curve subgroup.
-// cofactor https://crypto.stackexchange.com/questions/33028/order-and-cofactor-of-the-base-point
-func hashToCurve(msg []byte, cofactor *big.Int) *curvePoint {
-	return new(curvePoint).mul(curvePointFromHash(msg), cofactor)
+	h512, _ := blake2b.New512(nil)
+	h512.Write(h)
+	h512.Write([]byte("G1_0"))
+	t0 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
+
+	h512.Reset()
+	h512.Write(h)
+	h512.Write([]byte("G1_1"))
+	t1 := curvePointFromFq(fqFromHash(h512.Sum(nil)))
+
+	return new(curvePoint).Add(t0, t1)
 }
 */
+
+// SWEncode implements the Shallue and van de Woestijne encoding.
+// The point is not guaranteed to be in a particular subgroup.
+func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
+	// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf - Algorithm 1
+	// w = (t^2 + 4u + 1)^(-1) * sqrt(-3) * t
+	w, inv := new(fq), new(fq)
+	fqMul(w, fqSqrtNeg3, t)
+	fqMul(inv, t, t)
+	fqAdd(inv, inv, &curveB)
+	fqAdd(inv, inv, &fqMont1)
+	fqInv(inv, inv)
+	fqMul(w, w, inv)
+
+	x, y := new(fq), new(fq)
+	for i := 0; i < 3; i++ {
+		switch i {
+		// x = (sqrt(-3) - 1) / 2 - (w * t)
+		case 0:
+			fqMul(x, t, w)
+			fqSub(x, fqHalfSqrNeg3Minus1, x)
+		// x = -1 - x
+		case 1:
+			fqSub(x, fqNeg1, x)
+		// x = 1/w^2 + 1
+		case 2:
+			fqSqr(x, w)
+			fqInv(x, x)
+			fqAdd(x, x, &fq1)
+		}
+
+		// y^2 = x^3 + 4u
+		fqCube(y, x)
+		fqAdd(y, y, &curveB)
+
+		// y = sqrt(y2)
+		if fqSqrt(y, y) {
+			cp.x = *x
+			cp.x = *y
+			return cp
+		}
+	}
+
+	return cp
+}

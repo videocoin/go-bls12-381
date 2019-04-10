@@ -127,16 +127,16 @@ func (c *twistPoint) IsInfinity() bool {
 
 func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-	mult := &twistPoint{}
+	q := &twistPoint{}
 	// fixme: BitLen or BitLen - 1
 	for i := scalar.BitLen() - 1; i >= 0; i-- {
-		mult.Double(mult)
+		q.Double(q)
 		if scalar.Bit(i) == 1 {
-			mult.Add(mult, p)
+			q.Add(q, p)
 		}
 	}
 
-	return tp.Set(mult)
+	return tp.Set(q)
 }
 
 func (tp *twistPoint) Equal(p *twistPoint) bool {
