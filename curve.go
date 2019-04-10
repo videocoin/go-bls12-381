@@ -2,8 +2,6 @@ package bls12
 
 import (
 	"math/big"
-
-	"golang.org/x/crypto/blake2b"
 )
 
 const (
@@ -27,6 +25,7 @@ func newCurvePoint(x, y fq) *curvePoint {
 	}
 }
 
+/*
 // curvePointFromHash converts the hash to a curve point.
 // The point is not guaranteed to be in a particular subgroup.
 func curvePointFromHash(hash []byte) *curvePoint {
@@ -47,6 +46,7 @@ func curvePointFromHash(hash []byte) *curvePoint {
 
 	return new(curvePoint).Add(t0, t1)
 }
+*/
 
 func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -187,11 +187,12 @@ func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 	return &curvePoint{}, nil
 }
 
+/*
 func curvePointFromFq(elm fq) *curvePoint {
 	return newCurvePoint(coordinatesFromFq(elm))
 }
 
-/*
+
 // hashToCurveSubGroup hashes the msg to a specific curve subgroup.
 // cofactor https://crypto.stackexchange.com/questions/33028/order-and-cofactor-of-the-base-point
 func hashToCurve(msg []byte, cofactor *big.Int) *curvePoint {

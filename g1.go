@@ -36,23 +36,17 @@ func (z *g1Point) Add(x, y *g1Point) *g1Point {
 	return z
 }
 
-func (z *g1Point) SetBytes(buf []byte) (*g1Point, error) {
+func (z *g1Point) SetBytes(buf []byte) *g1Point {
 	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], g10...))
 	bigG0 := new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q)
 	sum = blake2b.Sum512(append(h[:], g11...))
 	bigG1 := new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q)
-	fqG0, err := fqMontgomeryFromBig(bigG0)
-	if err != nil {
-		return nil, err
-	}
-	fqG1, err := fqMontgomeryFromBig(bigG1)
-	if err != nil {
-		return nil, err
-	}
+	fqG0, _ := fqMontgomeryFromBig(bigG0)
+	fqG1, _ := fqMontgomeryFromBig(bigG1)
 
-	return z.Add(g1PointFromFq(&fqG0), g1PointFromFq(&fqG1)).ScalarBaseMult(g1Cofactor), nil
+	return z.Add(g1PointFromFq(&fqG0), g1PointFromFq(&fqG1)).ScalarBaseMult(g1Cofactor)
 }
 
 func (z *g1Point) Marshal() []byte {
