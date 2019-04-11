@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	g1Gen = &g1Point{newCurvePoint(g1X, g1Y)}
+	g1Gen = &g1Point{&curvePoint{g1X, g1Y, fqMont1}}
 	g10   = []byte("G1_0")
 	g11   = []byte("G1_1")
 )
@@ -15,7 +15,7 @@ type g1Point struct {
 }
 
 func newG1Point() *g1Point {
-	return &g1Point{p: new(curvePoint)}
+	return &g1Point{p: newCurvePoint()}
 }
 
 // ScalarBaseMult returns k*G, where G is the base point of the group

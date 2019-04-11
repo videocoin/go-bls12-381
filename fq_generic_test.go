@@ -192,6 +192,7 @@ func TestFqCube(t *testing.T) {
 	}
 }
 
+/*
 func TestFqSqrt(t *testing.T) {
 	testCases := []struct {
 		input, output fq
@@ -211,6 +212,7 @@ func TestFqSqrt(t *testing.T) {
 		})
 	}
 }
+*/
 
 func TestFqInv(t *testing.T) {
 	negFqMont1 := new(fq)

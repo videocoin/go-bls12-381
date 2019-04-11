@@ -1,7 +1,6 @@
 package bls12
 
 import (
-	"fmt"
 	"io"
 	"math/big"
 )
@@ -44,24 +43,25 @@ func (priv *PrivateKey) Public() PublicKey {
 // Sign signs a hash (which should be the result of hashing a larger message)
 // using the private key, priv.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	//return newG1Point().SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
-	fmt.Println(newG1Point().SetBytes(hash))
-	return nil
+	return newG1Point().SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
 }
 
 /*
-// Verify verifies the signature of hash using the public key(s), pub. Its
+// Verify verifies the signature of hash using the public key, pub. Its
 // return value records whether the signature is valid.
-func Verify(hash []byte, sig []byte, pubKey *PublicKey) (bool, error) {
-	sigPoint, err := unmarshalSignature(sig)
-	if err != nil {
+// See https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html -
+// BLS signature aggregation - Verify
+func Verify(hash []byte, rawSig []byte, pub *PublicKey) (bool, error) {
+	sig := newG1Point()
+	if err := sig.Unmarshal(rawSig); err != nil {
 		return false, err
 	}
 
-	return pair(sigPoint, g2Generator).equal(pair(G1.ElementFromHash(hash), pubKey)), nil
+	return pair(sig, g2Gen).equal(pair(newG1Point().SetBytes(hash), pub)), nil
 }
+*/
 
-
+/*
 // Aggregate aggregates the signature(s) into a short convincing aggregate signature.
 func Aggregate(sig ...[]byte) []byte {
 	// TODO

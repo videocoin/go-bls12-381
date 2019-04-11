@@ -16,7 +16,7 @@ var (
 	fqMontCurveBPlus1, _        = fqMontgomeryFromBase10("5")
 	fqMontSqrtNeg3, _           = fqMontgomeryFromBase10("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701")
 	fqMontHalfSqrtNeg3Minus1, _ = fqMontgomeryFromBase10("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350")
-	// URGENT fix me support negative numbers
+	// fixme:  add support negative numbers
 	fqMontNeg1, _ = fqMontgomeryFromBase10("1")
 )
 
@@ -26,12 +26,8 @@ type curvePoint struct {
 	x, y, z fq
 }
 
-func newCurvePoint(x, y fq) *curvePoint {
-	return &curvePoint{
-		x: x,
-		y: y,
-		z: fq0,
-	}
+func newCurvePoint() *curvePoint {
+	return &curvePoint{z: fqMont1}
 }
 
 func (cp *curvePoint) Set(p *curvePoint) *curvePoint {
@@ -241,7 +237,7 @@ func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
 	sum = blake2b.Sum512(append(h[:], g11...))
 	g11, _ := fqMontgomeryFromBig(new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q))
 
-	return cp.Add(new(curvePoint).SWEncode(&g10), new(curvePoint).SWEncode(&g11))
+	return cp.Add(newCurvePoint().SWEncode(&g10), newCurvePoint().SWEncode(&g11))
 }
 
 // SWEncode implements the Shallue and van de Woestijne encoding.
