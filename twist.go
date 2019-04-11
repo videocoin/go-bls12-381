@@ -37,8 +37,7 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	}
 
 	if a.Equal(b) {
-		// cheaper
-		return tp.Double(a)
+		return tp.Double(a) // faster than Add
 	}
 
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -90,8 +89,6 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 
 func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
 	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-	// D=4*X1*B
-
 	a, b, c, d, e, f := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
 	fq2Sqr(a, &p.x)
 	fq2Sqr(b, &p.y)

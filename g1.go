@@ -41,7 +41,10 @@ func (z *g1Point) SetBytes(buf []byte) *g1Point {
 	return z.ScalarMult(z, g1Cofactor) // map to g1
 }
 
-// TODO
 func (z *g1Point) Marshal() []byte {
-	return []byte("")
+	return z.p.Marshal()
+}
+
+func (z *g1Point) Unmarshal(data []byte) error {
+	return z.p.Unmarshal(data)
 }

@@ -33,7 +33,25 @@ func (cp *curvePoint) Set(p *curvePoint) *curvePoint {
 	return cp
 }
 
+func (cp *curvePoint) IsInfinity() bool {
+	return cp.z == fq0
+}
+
 func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
+	// TODO is infinity confirm
+	if a.IsInfinity() {
+		return cp.Set(b)
+	}
+
+	// TODO is infinity confirm
+	if b.IsInfinity() {
+		return cp.Set(a)
+	}
+
+	if a.Equal(b) {
+		return cp.Double(a) // faster than Add
+	}
+
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
 	z1z1, z2z2 := new(fq), new(fq)
 	fqSqr(z1z1, &a.z)
@@ -58,52 +76,55 @@ func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	fqDbl(r, r)
 	fqMul(v, u1, i)
 
-	t0, t1 := new(fq), new(fq)
+	x, y, z, t0, t1 := new(fq), new(fq), new(fq), new(fq), new(fq)
 	fqDbl(t0, v)
-	fqSqr(&cp.x, r)
-	fqSub(&cp.x, &cp.x, j)
-	fqSub(&cp.x, &cp.x, t0)
+	fqAdd(t0, t0, j)
+	fqSqr(x, r)
+	fqSub(x, x, t0)
+
 	fqDbl(t0, s1)
 	fqMul(t0, t0, j)
-	fqMul(t1, r, &cp.x)
-	fqMul(&cp.y, r, v)
-	fqSub(&cp.y, &cp.y, t1)
-	fqSub(&cp.y, &cp.y, t0)
-	fqMul(&cp.z, &a.z, &b.z)
-	fqSqr(&cp.z, &cp.z)
-	fqSub(&cp.z, &cp.z, z1z1)
-	fqSub(&cp.z, &cp.z, z2z2)
-	fqMul(&cp.z, &cp.z, h)
+	fqSub(t1, v, x)
+	fqMul(t1, t1, r)
+	fqSub(y, t1, t0)
+
+	fqAdd(z, &a.z, &b.z)
+	fqSqr(z, z)
+	fqAdd(t0, z1z1, z2z2)
+	fqSub(z, z, t0)
+	fqMul(z, z, h)
+
+	cp.x, cp.y, cp.z = *x, *y, *z
 
 	return cp
 }
 
 func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
 	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-	a, b, c, d, e, f, t0 := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
-
+	a, b, c, d, e, f := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
 	fqSqr(a, &p.x)
 	fqSqr(b, &p.y)
 	fqSqr(c, b)
-	fqAdd(d, &p.x, b)
-	fqSqr(d, d)
-	fqSub(d, d, a)
-	fqSub(d, d, c)
+	fqMul(d, &p.x, b)
+	fqDbl(d, d)
 	fqDbl(d, d)
 	fqDbl(e, a)
 	fqAdd(e, e, a)
 	fqSqr(f, e)
 
-	fqDbl(&cp.x, d)
-	fqSub(&cp.x, f, &cp.x)
-	fqAdd(t0, c, c)
-	fqAdd(t0, t0, t0)
+	x, y, z, t0 := new(fq), new(fq), new(fq), new(fq)
+	fqDbl(x, d)
+	fqSub(x, f, x)
+	fqDbl(t0, c)
 	fqDbl(t0, t0)
-	fqSub(&cp.y, d, &cp.x)
-	fqMul(&cp.y, e, &cp.y)
-	fqSub(&cp.y, &cp.y, t0)
-	fqMul(&cp.z, &cp.y, &cp.z)
-	fqAdd(&cp.z, &cp.z, &cp.z)
+	fqDbl(t0, t0)
+	fqSub(y, d, x)
+	fqMul(y, y, e)
+	fqSub(y, y, t0)
+	fqMul(z, &p.y, &p.z)
+	fqDbl(z, z)
+
+	cp.x, cp.y, cp.z = *x, *y, *z
 
 	return cp
 }
@@ -120,6 +141,10 @@ func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
 	}
 
 	return cp.Set(q)
+}
+
+func (cp *curvePoint) Equal(p *curvePoint) bool {
+	return cp.x == p.x && cp.y == p.y && cp.z == p.z
 }
 
 // isInfinty check if the point is a point at "infinity"
@@ -139,26 +164,9 @@ func (cp *curvePoint) ToAffine() {
 	fqMul(&cp.y, &cp.y, zInv)
 }
 
-// CompressedEncode converts a curve point into the compressed form specified in
+// CompressedEncode converts a curve point into the uncompressed form specified in
 // https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
-func (cp *curvePoint) CompressedEncode() []byte {
-	cp.ToAffine()
-	x := new(fq)
-	montgomeryDecode(x, &cp.x)
-
-	ret := make([]byte, fqByteLen)
-
-	xBytes := x.Bytes()
-	copy(ret, xBytes)
-
-	ret[0] &= compressedFormMask // compressed point
-
-	return ret
-}
-
-// CompressedEncode converts a curve point into the compressed form specified in
-// https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
-func (cp *curvePoint) UncompressedEncode() []byte {
+func (cp *curvePoint) Marshal() []byte {
 	cp.ToAffine()
 	x, y := new(fq), new(fq)
 	montgomeryDecode(x, &cp.x)
@@ -174,9 +182,29 @@ func (cp *curvePoint) UncompressedEncode() []byte {
 	return ret
 }
 
-// Decode decodes a curve point, serialized by CompressedEncode/UncompressedEncode.
+// Unmarshal decodes a curve point, serialized by Marshal.
 // It is an error if the point is not on the curve.
-func (cp *curvePoint) Decode(buf []byte) error {
+func (cp *curvePoint) Unmarshal(data []byte) error {
+	if len(data) != 2*fqByteLen {
+		// TODO error
+		return nil
+	}
+
+	if data[0]&compressedFormMask != 0 { // uncompressed form
+		// TODO error
+		return nil
+	}
+
+	var err error
+	cp.x, err = fqMontgomeryFromBig(new(big.Int).SetBytes(data[:fqByteLen]))
+	if err != nil {
+		return err
+	}
+	cp.y, err = fqMontgomeryFromBig(new(big.Int).SetBytes(data[fqByteLen:]))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -185,14 +213,7 @@ func (cp *curvePoint) Decode(buf []byte) error {
 // It is an error if the point is not in compressed form or is not on the curve.
 // On error, x = nil.
 func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
-	if len(data) != fqCompressedLen {
-		// TODO (error)
-		return nil, nil
-	}
-	if data[0]&compressedFormMask == 0 {
-		// TODO (error)
-		return nil, nil
-	}
+
 
 	return &curvePoint{}, nil
 }

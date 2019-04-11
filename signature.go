@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"fmt"
 	"io"
 	"math/big"
 )
@@ -43,7 +44,9 @@ func (priv *PrivateKey) Public() PublicKey {
 // Sign signs a hash (which should be the result of hashing a larger message)
 // using the private key, priv.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	return newG1Point().SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
+	//return newG1Point().SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
+	fmt.Println(newG1Point().SetBytes(hash))
+	return nil
 }
 
 /*
