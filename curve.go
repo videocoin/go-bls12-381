@@ -11,7 +11,14 @@ const (
 	pointAtInfinityMask uint8 = 1 << 6
 )
 
-var curveB, _ = fqFromBase10("4")
+var (
+	fqMontCurveB, _             = fqMontgomeryFromBase10("4")
+	fqMontCurveBPlus1, _        = fqMontgomeryFromBase10("5")
+	fqMontSqrtNeg3, _           = fqMontgomeryFromBase10("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701")
+	fqMontHalfSqrtNeg3Minus1, _ = fqMontgomeryFromBase10("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350")
+	// URGENT fix me support negative numbers
+	fqMontNeg1, _ = fqMontgomeryFromBase10("1")
+)
 
 // curvePoint is an elliptic curve point in projective coordinates.
 // The elliptic curve is defined by the following equation y²=x³+3.
@@ -130,8 +137,8 @@ func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
 }
 
 // ScalarMult returns k*(Bx,By) where k is a number in big-endian form.
+// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
 func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
-	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
 	q := new(curvePoint)
 	for i := scalar.BitLen() - 1; i >= 0; i-- {
 		q.Double(q)
@@ -165,7 +172,7 @@ func (cp *curvePoint) ToAffine() {
 }
 
 // CompressedEncode converts a curve point into the uncompressed form specified in
-// https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
+// See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
 func (cp *curvePoint) Marshal() []byte {
 	cp.ToAffine()
 	x, y := new(fq), new(fq)
@@ -178,6 +185,11 @@ func (cp *curvePoint) Marshal() []byte {
 	copy(ret, xBytes)
 	yBytes := y.Bytes()
 	copy(ret[fqByteLen:], yBytes)
+
+	// TODO review
+	if cp.IsInfinity() {
+		ret[0] |= pointAtInfinityMask
+	}
 
 	return ret
 }
@@ -221,8 +233,8 @@ func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 
 // TODO desc
 // The point is not guaranteed to be in a particular subgroup.
+// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
 func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
-	// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1 - before scaling to co factor
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], g10...))
 	g10, _ := fqMontgomeryFromBig(new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q))
@@ -234,39 +246,32 @@ func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
 
 // SWEncode implements the Shallue and van de Woestijne encoding.
 // The point is not guaranteed to be in a particular subgroup.
+// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf - Algorithm 1
 func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
-	// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf - Algorithm 1
-	// w = (t^2 + 4u + 1)^(-1) * sqrt(-3) * t
 	w, inv := new(fq), new(fq)
-	fqMul(w, fqSqrtNeg3, t)
-	fqMul(inv, t, t)
-	fqAdd(inv, inv, &curveB)
-	fqAdd(inv, inv, &fqMont1)
+	fqMul(w, &fqMontSqrtNeg3, t)
+	fqMul(w, w, t)
+	fqSqr(inv, t)
+	fqAdd(inv, inv, &fqMontCurveBPlus1)
 	fqInv(inv, inv)
 	fqMul(w, w, inv)
 
 	x, y := new(fq), new(fq)
 	for i := 0; i < 3; i++ {
 		switch i {
-		// x = (sqrt(-3) - 1) / 2 - (w * t)
 		case 0:
 			fqMul(x, t, w)
-			fqSub(x, fqHalfSqrNeg3Minus1, x)
-		// x = -1 - x
+			fqSub(x, &fqMontHalfSqrtNeg3Minus1, x)
 		case 1:
-			fqSub(x, fqNeg1, x)
-		// x = 1/w^2 + 1
+			fqSub(x, &fqMontNeg1, x)
 		case 2:
 			fqSqr(x, w)
 			fqInv(x, x)
-			fqAdd(x, x, &fq1)
+			fqAdd(x, x, &fqMont1)
 		}
 
-		// y^2 = x^3 + 4u
 		fqCube(y, x)
-		fqAdd(y, y, &curveB)
-
-		// y = sqrt(y2)
+		fqAdd(y, y, &fqMontCurveB)
 		if fqSqrt(y, y) {
 			cp.x = *x
 			cp.x = *y

@@ -20,25 +20,10 @@ const (
 var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
-	// field elements
-	fq0 = fq{0}
-	fq1 = fq{1}
-
-	// field elements in the Montgomery form
+	fq0        = fq{0}
+	fq1        = fq{1}
 	fqMont1, _ = fqMontgomeryFromBase10("1")
-
-	// swEncode helpers
-	fqNeg1              = new(fq)
-	fqSqrtNeg3          = &fq{}
-	fqHalfSqrNeg3Minus1 = &fq{}
-
-	fqQMinus3Over4 []uint64
 )
-
-func init() {
-	// TODO replace with exact value
-	fqNeg(fqNeg1, &fq1)
-}
 
 type (
 	// fq is an element of the finite field of order q.
