@@ -46,17 +46,15 @@ func Sign(priv *PrivateKey, hash []byte) []byte {
 	return newG1Point().SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
 }
 
-/*
 // Verify verifies the signature of hash using the public key, pub. Its
 // return value records whether the signature is valid.
 // See https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html -
 // BLS signature aggregation - Verify
 func Verify(hash []byte, rawSig []byte, pub *PublicKey) (bool, error) {
-	sig := newG1Point()
+	var sig g1Point
 	if err := sig.Unmarshal(rawSig); err != nil {
 		return false, err
 	}
 
-	return new(gt).Pair(sig, g2Gen).Equal(new(gt).Pair(newG1Point().SetBytes(hash), pub))
+	return Pair(&sig, g2Gen).Equal(Pair(newG1Point().SetBytes(hash), pub)), nil
 }
-*/
