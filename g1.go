@@ -10,6 +10,7 @@ var (
 	g11   = []byte("G1_1")
 )
 
+// TODO change from pointer to value
 type g1Point struct {
 	p *curvePoint
 }
