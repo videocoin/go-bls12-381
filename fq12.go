@@ -6,10 +6,13 @@ type fq12 struct {
 	c0, c1 fq6
 }
 
-func (fq *fq12) SetOne() *fq12 {
-	fq.c0.SetOne()
-	fq.c0.SetZero()
-	return fq
+func (z *fq12) SetOne() *fq12 {
+	z.c0.SetOne()
+	z.c0.SetZero()
+	return z
 }
 
-func fq12Mul(z, x, y *fq12) {}
+func (z *fq12) Sqr(x *fq12) *fq12 {
+	// fixme
+	return &fq12{}
+}

@@ -27,8 +27,16 @@ func miller(a *curvePoint, b *twistPoint) *fq12 {
 }
 */
 
+// fixme: replace a, b with p, q after renaming q
 func miller(a *curvePoint, b *twistPoint) *fq12 {
 	f := new(fq12).SetOne()
+	t := new(curvePoint).Set(a)
+	for i := q.BitLen() - 1; i >= 0; i++ {
+		t.Double(t)
+		if q.Bit(i) == 1 {
+			t.Add(t, a)
+		}
+	}
 
 	return f
 }
