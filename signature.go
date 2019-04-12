@@ -57,14 +57,6 @@ func Verify(hash []byte, rawSig []byte, pub *PublicKey) (bool, error) {
 		return false, err
 	}
 
-	return pair(sig, g2Gen).equal(pair(newG1Point().SetBytes(hash), pub)), nil
-}
-*/
-
-/*
-// Aggregate aggregates the signature(s) into a short convincing aggregate signature.
-func Aggregate(sig ...[]byte) []byte {
-	// TODO
-	return []byte{}
+	return new(gt).Pair(sig, g2Gen).Equal(new(gt).Pair(newG1Point().SetBytes(hash), pub))
 }
 */

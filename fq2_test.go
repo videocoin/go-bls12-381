@@ -26,9 +26,7 @@ func TestFq2Add(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("a: %v, b: %v\n", testCase.a, testCase.b), func(t *testing.T) {
-			var result fq2
-			fq2Add(&result, &testCase.a, &testCase.b)
-			if result != testCase.output {
+			if result := new(fq2).Add(&testCase.a, &testCase.b); *result != testCase.output {
 				t.Errorf("expected %v, got %v\n", testCase.output, result)
 			}
 		})
@@ -56,9 +54,7 @@ func TestFq2Sub(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("a: %v, b: %v\n", testCase.a, testCase.b), func(t *testing.T) {
-			var result fq2
-			fq2Sub(&result, &testCase.a, &testCase.b)
-			if result != testCase.output {
+			if result := new(fq2).Sub(&testCase.a, &testCase.b); *result != testCase.output {
 				t.Errorf("expected %v, got %v\n", testCase.output, result)
 			}
 		})
@@ -100,17 +96,9 @@ func TestFq2Mul(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("A: %v, B: %v\n", testCase.x, testCase.y), func(t *testing.T) {
-			result := new(fq2)
-			fq2Mul(result, &testCase.x, &testCase.y)
-			if *result != testCase.output {
+			if result := new(fq2).Mul(&testCase.x, &testCase.y); *result != testCase.output {
 				t.Errorf("expected %v, got %v\n", testCase.output, *result)
 			}
-			t.Log(*result)
 		})
 	}
 }
-
-/*
-expected {[16633317224619977984 8114711876341744521 5129895554745463763 3028104440572865277 600965037607129992 1357055630732818745] [18288755944664260188 13702877223989609104 2644274195004876278 14707220671708472499 15781311460087461501 229410580688219003]},
-got {[16633317224619977984 8114711876341744521 5129895554745463763 3028104440572865277 600965037607129992 1357055630732818745] [16769752770056333816 9539351424971908300 1361078859430182954 6919544897282332375 8797177321797491027 1057830777381385737]}
-*/

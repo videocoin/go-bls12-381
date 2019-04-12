@@ -21,27 +21,34 @@ func (fq *fq2) IsOne() bool {
 	return fq.c0 == fq2One.c0 && fq.c1 == fq2One.c1
 }
 
-/*
-func (fq2 *fq2) String() string {
-	return fmt.Sprintf("%s + %s*X\n", fq2.c0.String(), fq2.c1.String())
+func (z *fq2) SetOne() *fq2 {
+	z.c0.SetOne()
+	z.c1.SetZero()
+	return z
 }
-*/
 
-func fq2Add(z, x, y *fq2) {
+func (z *fq2) SetZero() *fq2 {
+	z.c0.SetZero()
+	z.c1.SetZero()
+	return z
+}
+
+func (z *fq2) Add(x, y *fq2) *fq2 {
 	fqAdd(&z.c0, &x.c0, &y.c0)
 	fqAdd(&z.c1, &x.c1, &y.c1)
+	return z
 }
 
-func fq2Sub(z, x, y *fq2) {
+func (z *fq2) Sub(x, y *fq2) *fq2 {
 	fqSub(&z.c0, &x.c0, &y.c0)
 	fqSub(&z.c1, &x.c1, &y.c1)
+	return z
 }
 
 // Karatsuba method
 // note: there's room for optimization (multiplications + reductions).
-func fq2Mul(z, x, y *fq2) {
+func (z *fq2) Mul(x, y *fq2) *fq2 {
 	mult := new(fq2)
-
 	// v0 = a0b0
 	// v1 = a1b1
 	// c0 = v0 + βv1
@@ -62,29 +69,24 @@ func fq2Mul(z, x, y *fq2) {
 	fqSub(&mult.c1, &mult.c1, v)
 
 	z.c0, z.c1 = mult.c0, mult.c1
+
+	return z
 }
 
-func fq2Sqr(c, a *fq2) {
-	fq2Mul(c, a, a)
+func (z *fq2) Sqr(x *fq2) *fq2 {
+	return z.Mul(x, x)
 }
 
-func fq2Dbl(c, a *fq2) {
-	fq2Add(c, a, a)
+func (z *fq2) Dbl(x *fq2) *fq2 {
+	return z.Add(x, x)
 }
 
-func fq2Equal(a, b *fq2) bool {
-	return (a.c0 == b.c0) && (a.c1 == b.c1)
+func (x *fq2) Equal(y *fq2) bool {
+	// TODO a.c0.Equal form
+	return (x.c0 == y.c0) && (x.c1 == y.c1)
 }
 
-func fq2Decode(a *fq2) *fq2 {
-	fq2 := new(fq2)
-	montgomeryDecode(&fq2.c0, &a.c0)
-	montgomeryDecode(&fq2.c1, &a.c1)
-
-	return fq2
-}
-
-func fq2Inv(c, a *fq2) {
+func (z *fq2) Inv(x *fq2) *fq2 {
 	// t0 = a.c0^2
 	// t1 = a.c1^2
 	// t0 = t0 + t1
@@ -92,11 +94,13 @@ func fq2Inv(c, a *fq2) {
 	// c.c0 = a.c0 * t0
 	// c.c1 = - a.c1 * t0
 	t0, t1 := new(fq), new(fq)
-	fqSqr(t0, &a.c0)
-	fqSqr(t1, &a.c1)
+	fqSqr(t0, &x.c0)
+	fqSqr(t1, &x.c1)
 	fqAdd(t0, t0, t1)
 	fqInv(t0, t0)
-	fqMul(&c.c0, &a.c0, t0)
-	fqMul(&c.c1, &a.c1, t0)
-	fqNeg(&c.c1, &c.c1)
+	fqMul(&z.c0, &x.c0, t0)
+	fqMul(&z.c1, &x.c1, t0)
+	fqNeg(&z.c1, &z.c1)
+
+	return z
 }

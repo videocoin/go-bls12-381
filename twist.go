@@ -42,45 +42,45 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
 	z1z1, z2z2 := new(fq2), new(fq2)
-	fq2Sqr(z1z1, &a.z)
-	fq2Sqr(z2z2, &b.z)
+	z1z1.Sqr(&a.z)
+	z2z2.Sqr(&b.z)
 
 	u1, u2 := new(fq2), new(fq2)
-	fq2Mul(u1, &a.x, z2z2)
-	fq2Mul(u2, &b.x, z1z1)
+	u1.Mul(&a.x, z2z2)
+	u2.Mul(&b.x, z1z1)
 
 	s1, s2 := new(fq2), new(fq2)
-	fq2Mul(s1, &a.y, &b.z)
-	fq2Mul(s1, s1, z2z2)
-	fq2Mul(s2, &b.y, &a.z)
-	fq2Mul(s2, s2, z1z1)
+	s1.Mul(&a.y, &b.z)
+	s1.Mul(s1, z2z2)
+	s2.Mul(&b.y, &a.z)
+	s2.Mul(s2, z1z1)
 
 	h, i, j, r, v := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
-	fq2Sub(h, u2, u1)
-	fq2Dbl(i, h)
-	fq2Sqr(i, i)
-	fq2Mul(j, h, i)
-	fq2Sub(r, s2, s1)
-	fq2Dbl(r, r)
-	fq2Mul(v, u1, i)
+	h.Sub(u2, u1)
+	i.Dbl(h)
+	i.Sqr(i)
+	j.Mul(h, i)
+	r.Sub(s2, s1)
+	r.Dbl(r)
+	v.Mul(u1, i)
 
 	x, y, z, t0, t1 := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
-	fq2Dbl(t0, v)
-	fq2Add(t0, t0, j)
-	fq2Sqr(x, r)
-	fq2Sub(x, x, t0)
+	t0.Dbl(v)
+	t0.Add(t0, j)
+	x.Sqr(r)
+	x.Sub(x, t0)
 
-	fq2Dbl(t0, s1)
-	fq2Mul(t0, t0, j)
-	fq2Sub(t1, v, x)
-	fq2Mul(t1, t1, r)
-	fq2Sub(y, t1, t0)
+	t0.Dbl(s1)
+	t0.Mul(t0, j)
+	t1.Sub(v, x)
+	t1.Mul(t1, r)
+	y.Sub(t1, t0)
 
-	fq2Add(z, &a.z, &b.z)
-	fq2Sqr(z, z)
-	fq2Add(t0, z1z1, z2z2)
-	fq2Sub(z, z, t0)
-	fq2Mul(z, z, h)
+	z.Add(&a.z, &b.z)
+	z.Sqr(z)
+	t0.Add(z1z1, z2z2)
+	z.Sub(z, t0)
+	z.Mul(z, h)
 
 	tp.x, tp.y, tp.z = *x, *y, *z
 
@@ -90,27 +90,27 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
 	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
 	a, b, c, d, e, f := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
-	fq2Sqr(a, &p.x)
-	fq2Sqr(b, &p.y)
-	fq2Sqr(c, b)
-	fq2Mul(d, &p.x, b)
-	fq2Dbl(d, d)
-	fq2Dbl(d, d)
-	fq2Dbl(e, a)
-	fq2Add(e, e, a)
-	fq2Sqr(f, e)
+	a.Sqr(&p.x)
+	b.Sqr(&p.y)
+	c.Sqr(b)
+	d.Mul(&p.x, b)
+	d.Dbl(d)
+	d.Dbl(d)
+	e.Dbl(a)
+	e.Add(e, a)
+	f.Sqr(e)
 
 	x, y, z, t0 := new(fq2), new(fq2), new(fq2), new(fq2)
-	fq2Dbl(x, d)
-	fq2Sub(x, f, x)
-	fq2Dbl(t0, c)
-	fq2Dbl(t0, t0)
-	fq2Dbl(t0, t0)
-	fq2Sub(y, d, x)
-	fq2Mul(y, y, e)
-	fq2Sub(y, y, t0)
-	fq2Mul(z, &p.y, &p.z)
-	fq2Dbl(z, z)
+	x.Dbl(d)
+	x.Sub(f, x)
+	t0.Dbl(c)
+	t0.Dbl(t0)
+	t0.Dbl(t0)
+	y.Sub(d, x)
+	y.Mul(y, e)
+	y.Sub(y, t0)
+	z.Mul(&p.y, &p.z)
+	z.Dbl(z)
 
 	tp.x, tp.y, tp.z = *x, *y, *z
 
@@ -137,17 +137,8 @@ func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 }
 
 func (tp *twistPoint) Equal(p *twistPoint) bool {
-	return fq2Equal(&tp.x, &p.x) && fq2Equal(&tp.y, &p.y) && fq2Equal(&tp.z, &p.z)
+	return tp.x.Equal(&p.x) && tp.y.Equal(&p.y) && tp.z.Equal(&p.z)
 }
-
-/*
-func (tp *twistPoint) String() string {
-	tp.MakeAffine()
-	x, y := fq2Decode(&tp.x), fq2Decode(&tp.y)
-
-	return fmt.Sprintf("x: %s, y: %s", x.String(), y.String())
-}
-*/
 
 func (tp *twistPoint) ToAffine() *twistPoint {
 	// See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
@@ -156,12 +147,12 @@ func (tp *twistPoint) ToAffine() *twistPoint {
 	}
 
 	zInv, zInvSqr, zInvCube := new(fq2), new(fq2), new(fq2)
-	fq2Inv(zInv, &tp.z)
-	fq2Mul(zInvSqr, zInv, zInv)
-	fq2Mul(zInvCube, zInvSqr, zInv)
-	fq2Mul(&tp.x, &tp.x, zInvSqr)
-	fq2Mul(&tp.y, &tp.y, zInvCube)
-	tp.z = fq2{fqMont1, fq0}
+	zInv.Inv(&tp.z)
+	zInvSqr.Sqr(zInv)
+	zInvCube.Mul(zInvSqr, zInv)
+	tp.x.Mul(&tp.x, zInvSqr)
+	tp.y.Mul(&tp.y, zInvCube)
+	tp.z.SetOne()
 
 	return tp
 }

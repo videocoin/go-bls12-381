@@ -42,6 +42,16 @@ func (fq *fq) String() string {
 	return fq.Hex()
 }
 
+func (fq *fq) SetOne() *fq {
+	*fq = fqMont1
+	return fq
+}
+
+func (fq *fq) SetZero() *fq {
+	*fq = fq0
+	return fq
+}
+
 // Bytes returns the absolute value of fq as a big-endian byte slice.
 func (fq *fq) Bytes() []byte {
 	ret := make([]byte, fqByteLen)
