@@ -8,6 +8,12 @@ package bls12
 // # BLS parameter, used to generate other parameters: x = -0xd201000000010000
 
 const (
+	// uAbsolute is the absolute value of u
+	uAbsolute uint64 = 15132376222941642752
+
+	// log2U is used in the Miller's algorithm
+	log2U uint64 = 63
+
 	// k64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n
 	k64 uint64 = 0x89f3fffcfffcfffd
 
@@ -18,6 +24,7 @@ const (
 )
 
 var (
+
 	// q is a prime number that specifies the number of elements of the finite field
 	q = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787")
 

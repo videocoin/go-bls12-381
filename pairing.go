@@ -1,6 +1,8 @@
 package bls12
 
 /*
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.215.7255&rep=rep1&type=pdf
+
 The first two parts of the exponentiation are “easy” as raising to the power of
 p is an almost free application of the Frobenius operator, as p is the characteristic
 of the extension field. However the first part of the exponentiation is not only
@@ -10,8 +12,8 @@ d − 1 the field element becomes “unitary” [20]. This has important implica
 unitary elements is significantly cheaper than squaring of non-unitary elements,
 and any future inversions can be implemented by simple conjugation [21], [20],
 [12].
-*/
 
+*/
 // k = 12; (p^12 − 1)/r = (p^6 − 1).(p^2 + 1).[(p^4 − p^2 + 1)/r]
 // p^6-power Frobenius automorphism on Fp12 ,a single inversion and a multiplication in Fp12
 func finalExp(p *fq12) *fq12 {
@@ -21,23 +23,20 @@ func finalExp(p *fq12) *fq12 {
 	return &fq12{}
 }
 
-// fixme: replace a, b with p, q after renaming q
-// http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.215.7255&rep=rep1&type=pdf
-//
+// miller implements the Miller’s double-and-add algorithm. Non Adjacent Form
+// does not reduce the number of additions for this specific value of u.
 func miller(p *g1Point, q *g2Point) *fq12 {
 	f := new(fq12).SetOne()
-	/*
-		t := new(g2Point).Set(b).ToAffine()
-		for i := q.BitLen() - 1; i >= 0; i++ {
-			f.Sqr(f)
-			f.Mul(f ltt)
-			t.Add(t, t)
-			if q.Bit(i) == 1 {
-				f.Mul(f ltq)
-				t.Add(t, b)
-			}
+	//t := new(g2Point).Set(q).ToAffine()
+
+	for i := log2U; i < 0; i++ {
+		f.Sqr(f)
+		//f.SparseMult(f, doublingAndLine(t, p))
+		if (uAbsolute & (uint64(1) << i)) == 1 {
+			//f.SparseMult(f, additionAndLine(lrp))
 		}
-	*/
+	}
+
 	return f
 }
 

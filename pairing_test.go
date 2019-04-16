@@ -1,5 +1,7 @@
 package bls12
 
+import "testing"
+
 /*
 func BechmarkPairing(b *testing.B) {
 	for i := 0; i < b.N; i++ {
@@ -7,3 +9,7 @@ func BechmarkPairing(b *testing.B) {
 	}
 }
 */
+
+func TestMiller(t *testing.T) {
+
+}

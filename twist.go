@@ -5,9 +5,11 @@ import (
 )
 
 // twistPoint is a curve point in the elliptic curve's twist
-// over an extension field Fq².
+// over an extension field Fq². T = z1²
+// To obtain the full speed of pairings on Weierstrass curves it is useful
+//to represent a point by (X1 : Y1 : Z1 : T1) with T1 = Z²
 type twistPoint struct {
-	x, y, z fq2
+	x, y, z, t fq2
 }
 
 func newTwistPoint(x, y fq2) *twistPoint {
@@ -41,28 +43,24 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	}
 
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
-	z1z1, z2z2 := new(fq2), new(fq2)
-	z1z1.Sqr(&a.z)
-	z2z2.Sqr(&b.z)
+	z1z1 := new(fq2).Sqr(&a.z)
+	z2z2 := new(fq2).Sqr(&b.z)
 
-	u1, u2 := new(fq2), new(fq2)
-	u1.Mul(&a.x, z2z2)
-	u2.Mul(&b.x, z1z1)
+	u1 := new(fq2).Mul(&a.x, z2z2)
+	u2 := new(fq2).Mul(&b.x, z1z1)
 
-	s1, s2 := new(fq2), new(fq2)
-	s1.Mul(&a.y, &b.z)
+	s1 := new(fq2).Mul(&a.y, &b.z)
 	s1.Mul(s1, z2z2)
-	s2.Mul(&b.y, &a.z)
+	s2 := new(fq2).Mul(&b.y, &a.z)
 	s2.Mul(s2, z1z1)
 
-	h, i, j, r, v := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
-	h.Sub(u2, u1)
-	i.Dbl(h)
+	h := new(fq2).Sub(u2, u1)
+	i := new(fq2).Dbl(h)
 	i.Sqr(i)
-	j.Mul(h, i)
-	r.Sub(s2, s1)
+	j := new(fq2).Mul(h, i)
+	r := new(fq2).Sub(s2, s1)
 	r.Dbl(r)
-	v.Mul(u1, i)
+	v := new(fq2).Mul(u1, i)
 
 	x, y, z, t0, t1 := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
 	t0.Dbl(v)
