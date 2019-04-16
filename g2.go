@@ -52,30 +52,3 @@ func (z *g2Point) ToAffine() *g2Point {
 func (z *g2Point) String() string {
 	return fmt.Sprintf("%v", z.p)
 }
-
-// DoubleLine sets z to the double of x and f to the line function result and returns the pair (z, f).
-// See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves with a4 = 0
-// todo: q must be affine?
-func (z *g2Point) DoubleLine(r *g2Point, q *g1Point, f *fq12) (*g2Point, *fq12) {
-	// R ← [2]R
-	// note: there's a faster way to compute the doubling (2m + 5s instead of 1m +
-	// 7s) but line functions make use of T1 = Z².
-	// todo: benchmark variable allocation
-	ret := new(twistPoint)
-	a := new(fq2).Sqr(&r.p.x)
-	b := new(fq2).Sqr(&r.p.y)
-	c := new(fq2).Sqr(b)
-	d := new(fq2).Dbl(new(fq2).Sub(new(fq2).Sqr(new(fq2).Add(&r.p.x, b)), new(fq2).Add(a, c)))
-	e := new(fq2).Add(new(fq2).Dbl(a), a)
-	g := new(fq2).Sqr(e)
-	ret.x.Sub(g, new(fq2).Dbl(d))
-	ret.y.Sub(new(fq2).Mul(e, new(fq2).Sub(d, &ret.x)), new(fq2).Dbl(new(fq2).Dbl(new(fq2).Dbl(c))))
-	ret.z.Sub(new(fq2).Sqr(new(fq2).Add(&r.p.y, &r.p.z)), new(fq2).Add(b, &r.p.t))
-	ret.t.Sqr(&ret.z)
-
-	return nil, &fq12{}
-}
-
-func (z *g2Point) AddLine(r *g2Point, q *g1Point) (*g2Point, *fq12) {
-	return nil, &fq12{}
-}

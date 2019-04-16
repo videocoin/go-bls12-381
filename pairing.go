@@ -1,5 +1,68 @@
 package bls12
 
+// doublingAndLine sets z to the sum z + t and f to the line function result and returns
+// the pair (z, f). See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves
+// with a4 = 0. TODO: q must be affine?
+func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq12) {
+	// R ← [2]R
+	// note: there's a faster way to compute the doubling (2m + 5s instead of 1m +
+	// 7s) but line functions make use of T1 = Z². TODO: benchmark variable allocation
+	ret := new(twistPoint)
+	a := new(fq2).Sqr(&r.x)
+	b := new(fq2).Sqr(&r.y)
+	c := new(fq2).Sqr(b)
+	d := new(fq2).Dbl(new(fq2).Sub(new(fq2).Sqr(new(fq2).Add(&r.x, b)), new(fq2).Add(a, c)))
+	e := new(fq2).Add(new(fq2).Dbl(a), a)
+	g := new(fq2).Sqr(e)
+	ret.x.Sub(g, new(fq2).Dbl(d))
+	ret.y.Sub(new(fq2).Mul(e, new(fq2).Sub(d, &ret.x)), new(fq2).Dbl(new(fq2).Dbl(new(fq2).Dbl(c))))
+	ret.z.Sub(new(fq2).Sqr(new(fq2).Add(&r.y, &r.z)), new(fq2).Add(b, &r.t))
+	ret.t.Sqr(&ret.z)
+
+	// line function
+	/*
+		l := new(fq12)
+	*/
+
+	return ret, &fq12{}
+}
+
+// mixedAdditionAndLine sets z to the sum z + t and f to the line function result and returns
+// the pair (z, f). See https://arxiv.org/pdf/0904.0854v3.pdf - Mixed Addition.
+// Mixed addition means that the second input point is in affine representation.
+func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) (*twistPoint, *fq12) {
+	// R ← R + P
+	b := new(fq2).Mul(&p.x, &r.t)
+	d := new(fq2).Add(&p.y, &r.z)
+	d.Sub(d.Sqr(d), new(fq2).Add(r2, &r.t))
+	h := new(fq2).Sub(b, &r.x)
+	i := new(fq2).Sqr(h)
+	e := new(fq2).Dbl(i)
+	e.Dbl(e)
+	j := new(fq2).Mul(h, e)
+	l1 := new(fq2).Sub(d, new(fq2).Dbl(&r.y))
+	v := new(fq2).Mul(&r.x, e)
+	ret := new(twistPoint)
+
+	// TODO
+	ret.x = *new(fq2).Sub(new(fq2).Sqr(l1), new(fq2).Add(j, new(fq2).Dbl(v)))
+	// y3 = r · (V − X3) − 2Y1 · J;
+	//ret.y =
+	// Z3 = (Z1 + H)^2 − T1 − I
+	ret.z.Add(&r.z, h).Sqr(&ret.z).Sub(&ret.z, new(fq2).Add(&r.t, i))
+	ret.t.Sqr(&ret.z)
+
+	// line function
+	/*
+		l := new(fq12)
+		a := new(fq2).Dbl(&ret.z)
+		//a.Mul(a, q.)
+		b := new(fq2).Add(r2, &ret.t)
+	*/
+
+	return ret, &fq12{}
+}
+
 /*
 http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.215.7255&rep=rep1&type=pdf
 
