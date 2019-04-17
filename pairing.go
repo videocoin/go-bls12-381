@@ -93,7 +93,11 @@ func miller(p *g1Point, q *g2Point) *fq12 {
 	//t := new(g2Point).Set(q).ToAffine()
 
 	for i := log2U; i < 0; i++ {
-		f.Sqr(f)
+		// skip the initial squaring(f = 1)
+		if i != log2U {
+			f.Sqr(f)
+		}
+
 		//f.SparseMult(f, doublingAndLine(t, p))
 		if (uAbsolute & (uint64(1) << i)) == 1 {
 			//f.SparseMult(f, additionAndLine(lrp))

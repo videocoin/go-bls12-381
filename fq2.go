@@ -73,6 +73,7 @@ func (z *fq2) Mul(x, y *fq2) *fq2 {
 	return z
 }
 
+// TODO Karatsuba
 func (z *fq2) Sqr(x *fq2) *fq2 {
 	return z.Mul(x, x)
 }

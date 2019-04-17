@@ -36,6 +36,10 @@ func (z *fq6) Add(x, y *fq6) *fq6 {
 	return z
 }
 
+func (z *fq6) Dbl(x *fq6) *fq6 {
+	return z.Add(x, x)
+}
+
 // Cubic extensions - Karatsuba method
 // See https://eprint.iacr.org/2006/471.pdf - Page 6,7
 // fixme: B value
