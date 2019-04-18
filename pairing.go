@@ -1,37 +1,46 @@
 package bls12
 
-// doublingAndLine sets z to the sum z + t and f to the line function result and returns
-// the pair (z, f). See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves
+// doublingAndLine returns the sum z + t and  line function result.
+// See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves.
 // with a4 = 0. TODO: q must be affine?
-func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq12) {
+func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← [2]R
-	// note: there's a faster way to compute the doubling (2m + 5s instead of 1m +
-	// 7s) but line functions make use of T1 = Z². TODO: benchmark variable allocation
-	ret := new(twistPoint)
+	t0 := new(fq2)
 	a := new(fq2).Sqr(&r.x)
 	b := new(fq2).Sqr(&r.y)
 	c := new(fq2).Sqr(b)
-	d := new(fq2).Dbl(new(fq2).Sub(new(fq2).Sqr(new(fq2).Add(&r.x, b)), new(fq2).Add(a, c)))
-	e := new(fq2).Add(new(fq2).Dbl(a), a)
+	d := new(fq2).Add(&r.x, b)
+	d.Sqr(d).Sub(d, t0.Add(a, c)).Dbl(d)
+	e := new(fq2).Dbl(a)
+	e.Add(e, a)
 	g := new(fq2).Sqr(e)
-	ret.x.Sub(g, new(fq2).Dbl(d))
-	ret.y.Sub(new(fq2).Mul(e, new(fq2).Sub(d, &ret.x)), new(fq2).Dbl(new(fq2).Dbl(new(fq2).Dbl(c))))
-	ret.z.Sub(new(fq2).Sqr(new(fq2).Add(&r.y, &r.z)), new(fq2).Add(b, &r.t))
-	ret.t.Sqr(&ret.z)
+	sum := new(twistPoint)
+	sum.x.Sub(g, t0.Dbl(d))
+	sum.y.Sub(d, &sum.x).Mul(&sum.y, e).Sub(&sum.y, t0.Dbl(t0.Dbl(t0.Dbl(c))))
+	sum.z.Add(&r.y, &r.z).Sqr(&sum.z).Sub(&sum.z, t0.Add(b, &r.t))
+	sum.t.Sqr(&sum.z)
 
-	// line function
-	/*
-		l := new(fq12)
-	*/
+	// line
+	c0 := new(fq2).Mul(&r.x, e)
+	c0.Sqr(c0).Sub(c0, t0.Dbl(b).Dbl(t0).Add(t0, a).Add(t0, g))
+	c1 := new(fq2).Dbl(e)
+	c1.Mul(c1, &r.t).Neg(c1)
+	fqMul(&c1.c0, &c1.c0, &q.x)
+	fqMul(&c1.c1, &c1.c1, &q.x)
+	c2 := new(fq2).Mul(&sum.z, &r.t)
+	c2.Dbl(c2)
+	fqMul(&c2.c0, &c2.c0, &q.y)
+	fqMul(&c2.c1, &c2.c1, &q.y)
 
-	return ret, &fq12{}
+	return sum, c0, c1, c2
 }
 
 // mixedAdditionAndLine sets z to the sum z + t and f to the line function result and returns
 // the pair (z, f). See https://arxiv.org/pdf/0904.0854v3.pdf - Mixed Addition.
 // Mixed addition means that the second input point is in affine representation.
-func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) (*twistPoint, *fq12) {
+func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← R + P
+	t0 := new(fq2)
 	b := new(fq2).Mul(&p.x, &r.t)
 	d := new(fq2).Add(&p.y, &r.z)
 	d.Sub(d.Sqr(d), new(fq2).Add(r2, &r.t))
@@ -42,25 +51,25 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 	j := new(fq2).Mul(h, e)
 	l1 := new(fq2).Sub(d, new(fq2).Dbl(&r.y))
 	v := new(fq2).Mul(&r.x, e)
-	ret := new(twistPoint)
+	sum := new(twistPoint)
+	sum.x.Sqr(l1).Sub(&sum.x, t0.Dbl(v).Add(t0, j))
+	sum.y.Sub(v, &sum.x).Mul(&sum.y, l1).Sub(&sum.y, t0.Dbl(&r.y).Mul(t0, j)) // TODO confirm l1 here
+	sum.z.Add(&r.z, h).Sqr(&sum.z).Sub(&sum.z, t0.Add(&r.t, i))
+	sum.t.Sqr(&sum.z)
 
-	// TODO
-	ret.x = *new(fq2).Sub(new(fq2).Sqr(l1), new(fq2).Add(j, new(fq2).Dbl(v)))
-	// y3 = r · (V − X3) − 2Y1 · J;
-	//ret.y =
-	// Z3 = (Z1 + H)^2 − T1 − I
-	ret.z.Add(&r.z, h).Sqr(&ret.z).Sub(&ret.z, new(fq2).Add(&r.t, i))
-	ret.t.Sqr(&ret.z)
+	// line
+	t1 := new(fq2).Dbl(l1)
+	t1.Neg(t1) // caches -2L1
+	c0 := new(fq2).Add(r2, &sum.t)
+	c0.Sub(c0, t0.Mul(t1, &p.x))
+	c1 := new(fq2)
+	fqMul(&c1.c0, &t1.c0, &q.x)
+	fqMul(&c1.c1, &t1.c1, &q.x)
+	c2 := new(fq2).Dbl(&sum.z)
+	fqMul(&c2.c0, &c2.c0, &q.y)
+	fqMul(&c2.c1, &c2.c1, &q.y)
 
-	// line function
-	/*
-		l := new(fq12)
-		a := new(fq2).Dbl(&ret.z)
-		//a.Mul(a, q.)
-		b := new(fq2).Add(r2, &ret.t)
-	*/
-
-	return ret, &fq12{}
+	return sum, c0, c1, c2
 }
 
 /*
@@ -93,7 +102,7 @@ func miller(p *g1Point, q *g2Point) *fq12 {
 	//t := new(g2Point).Set(q).ToAffine()
 
 	for i := log2U; i < 0; i++ {
-		// skip the initial squaring(f = 1)
+		// skip the initial squaring(f=1)
 		if i != log2U {
 			f.Sqr(f)
 		}

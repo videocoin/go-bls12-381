@@ -83,8 +83,8 @@ func (z *fq6) Mul(x, y *fq6) *fq6 {
 	return z
 }
 
-// MulGamma returns the result of γX.
-func (z *fq6) MulGamma(x *fq6) *fq6 {
+// MulQNR returns the result of γX.
+func (z *fq6) MulQNR(x *fq6) *fq6 {
 	// γ = v
 	// X = a0 + a1v + a2v^2
 	// γX = a0v + a1v^2 + a2ξ

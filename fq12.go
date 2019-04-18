@@ -25,7 +25,7 @@ func (z *fq12) Sqr(x *fq12) *fq12 {
 	v0 := new(fq6).Mul(&x.c0, &x.c1)
 	// c0 = (a0 + a1)(a0 + γa1) − v0 − γv0
 	c, t0 := new(fq12), new(fq6)
-	c.c0.Add(&x.c0, &x.c1).Mul(&c.c0, t0.MulGamma(&x.c1).Add(t0, &x.c0)).Sub(&c.c0, t0.Add(v0, t0.MulGamma(v0)))
+	c.c0.Add(&x.c0, &x.c1).Mul(&c.c0, t0.MulQNR(&x.c1).Add(t0, &x.c0)).Sub(&c.c0, t0.Add(v0, t0.MulQNR(v0)))
 	// c1 = 2v0
 	c.c1.Dbl(v0)
 
@@ -56,39 +56,17 @@ func (z *fq12) SparseMult(x *fq12, y *fq12) *fq12 {
 	s0 := new(fq2).Add(&y.c1.c1, &y.c1.c2)
 	// c5 ← t2 × S0 − (c4 + t1)
 	c.c1.c2.Mul(t2, s0).Sub(&c.c1.c2, new(fq2).Add(&c.c1.c1, t1))
-	// t2 ← a2 × b5
-	t2.Mul(&x.c1.c2, &y.c1.c2)
-	// t2 ← t2 × (α + 1) TODO
-	// t2.Mul(t2, )
-	// c4 ← c4 + t2,
-	c.c1.c1.Add(&c.c1.c1, t2)
 	// t0 ← a2 × b4
 	t0 := new(fq2).Mul(&x.c1.c2, &y.c1.c1)
 	// t0 ← t0 + t1
 	t0.Add(t0, t1)
-	// c3 ← t0 × (α + 1) TODO
-	//c.c1.c0.Mul(t0, )
 	// t0 ← a3 × b4
 	t0.Mul(&x.c1.c0, &y.c1.c1)
 	// t1 ← a4 × b5
 	t1.Mul(&x.c1.c1, &y.c1.c2)
 	// t2 ← a3 + a4
 	t2.Add(&x.c1.c0, &y.c1.c1)
-	// t2 ← t2 × S0 − (t0 + t1)
-	t2.Mul(t2, s0).Sub(t2, new(fq2).Add(t0, t1))
-	// c0 ← t2 × (α + 1) TODO
-	// c.c0.c0.
-	// t2 ← a5 × b4
-	t2.Mul(&x.c1.c2, &y.c1.c1)
-	// t2 ← t1 + t2
-	t2.Add(t1, t2)
-	// c1 ← t2 × (α + 1) TODO
-	//
-	// t1 ← a5 × b5
-	t1.Mul(&x.c1.c2, &y.c1.c2)
-	// t1 ← t1 × (α + 1) TODO
-	//
-	// c2 ← t0 + t1
+	// c2 ← t0
 	c.c0.c2.Add(t0, t1)
 	// c ← c + a
 	c.Add(c, x)

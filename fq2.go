@@ -52,6 +52,12 @@ func (z *fq2) Sub(x, y *fq2) *fq2 {
 	return z
 }
 
+func (z *fq2) Neg(x *fq2) *fq2 {
+	fqNeg(&z.c0, &x.c0)
+	fqNeg(&z.c1, &x.c1)
+	return z
+}
+
 // Karatsuba method
 // note: there's room for optimization (multiplications + reductions).
 func (z *fq2) Mul(x, y *fq2) *fq2 {
