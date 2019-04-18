@@ -8,6 +8,14 @@ type fq6 struct {
 	c0, c1, c2 fq2
 }
 
+func (z *fq6) Set(x *fq6) *fq6 {
+	z.c0.Set(&x.c0)
+	z.c1.Set(&x.c1)
+	z.c2.Set(&x.c2)
+
+	return z
+}
+
 func (x *fq6) SetOne() *fq6 {
 	x.c0.SetOne()
 	x.c1.SetZero()
@@ -55,16 +63,13 @@ func (z *fq6) Mul(x, y *fq6) *fq6 {
 	t0.Mul(t0, t1)
 	t1.Add(v1, v2)
 	t0.Sub(t0, t1)
-	//fq2Mul(c0, )
-	c0.Add(c0, v0)
+	c0.MulXi(t0).Add(c0, v0)
 
-	t0.Add(&x.c0, &x.c1)
 	t1.Add(&y.c0, &y.c1)
-	t0.Mul(t0, t1)
+	t0.Add(&x.c0, &x.c1).Mul(t0, t1)
 	t1.Add(v0, v1)
 	t0.Sub(t0, t1)
-	//fq2Mul()
-	c1.Add(t0, t1)
+	c1.MulXi(v2).Add(c1, t0)
 
 	t0.Add(&x.c0, &x.c2)
 	t1.Add(&y.c0, &y.c2)
@@ -76,4 +81,17 @@ func (z *fq6) Mul(x, y *fq6) *fq6 {
 	z.c0, z.c1, z.c2 = *c0, *c1, *c2
 
 	return z
+}
+
+// MulGamma returns the result of γX.
+func (z *fq6) MulGamma(x *fq6) *fq6 {
+	// γ = v
+	// X = a0 + a1v + a2v^2
+	// γX = a0v + a1v^2 + a2ξ
+	ret := new(fq6)
+	ret.c0.MulXi(&x.c2)
+	ret.c1.Set(&x.c0)
+	ret.c2.Set(&x.c1)
+
+	return z.Set(ret)
 }

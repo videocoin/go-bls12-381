@@ -37,9 +37,9 @@ func (fq *fq) Hex() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fq[5], fq[4], fq[3], fq[2], fq[1], fq[0])
 }
 
-// String satisfies the Stringer interface.
-func (fq *fq) String() string {
-	return fq.Hex()
+func (z *fq) Set(x *fq) *fq {
+	*z = *x
+	return z
 }
 
 func (fq *fq) SetOne() *fq {
@@ -50,6 +50,11 @@ func (fq *fq) SetOne() *fq {
 func (fq *fq) SetZero() *fq {
 	*fq = fq0
 	return fq
+}
+
+// String satisfies the Stringer interface.
+func (fq *fq) String() string {
+	return fq.Hex()
 }
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.

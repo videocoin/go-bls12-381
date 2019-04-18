@@ -23,11 +23,9 @@ func (z *fq12) Add(x, y *fq12) *fq12 {
 func (z *fq12) Sqr(x *fq12) *fq12 {
 	// v0 = a0a1
 	v0 := new(fq6).Mul(&x.c0, &x.c1)
-	// c0 = (a0 + a1)(a0 + βa1) − v0 − βv0
-	c := new(fq12)
-	//t0 := new(fq6)
-	// TODO mult quadratic non residue
-	//c.c0.Add(&x.c0, &x.c1).Mul(&c.c0, t0.Mul(&x.c1, nil).Add(t0, &x.c0)).Sub(&c.c0, t0.Add(v0, t0.Mul(v0)))
+	// c0 = (a0 + a1)(a0 + γa1) − v0 − γv0
+	c, t0 := new(fq12), new(fq6)
+	c.c0.Add(&x.c0, &x.c1).Mul(&c.c0, t0.MulGamma(&x.c1).Add(t0, &x.c0)).Sub(&c.c0, t0.Add(v0, t0.MulGamma(v0)))
 	// c1 = 2v0
 	c.c1.Dbl(v0)
 

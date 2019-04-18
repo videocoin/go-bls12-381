@@ -21,6 +21,13 @@ func (fq *fq2) IsOne() bool {
 	return fq.c0 == fq2One.c0 && fq.c1 == fq2One.c1
 }
 
+func (z *fq2) Set(x *fq2) *fq2 {
+	z.c0.Set(&x.c0)
+	z.c1.Set(&x.c1)
+
+	return z
+}
+
 func (z *fq2) SetOne() *fq2 {
 	z.c0.SetOne()
 	z.c1.SetZero()
@@ -71,6 +78,21 @@ func (z *fq2) Mul(x, y *fq2) *fq2 {
 	z.c0, z.c1 = mult.c0, mult.c1
 
 	return z
+}
+
+// MulXi returns the result of ξX.
+func (z *fq2) MulXi(x *fq2) *fq2 {
+	// ξ = u + 1
+	// X = x + yu
+	// ξX = (1 + u)(x + yu)
+	// ξX = x + yu + xu + yu^2
+	// ξX = x + yu + xu - y
+	// ξX = x - y + u(x + y)
+	ret := new(fq2)
+	fqSub(&ret.c0, &x.c0, &x.c1)
+	fqAdd(&ret.c1, &x.c0, &x.c1)
+
+	return z.Set(ret)
 }
 
 // TODO Karatsuba
