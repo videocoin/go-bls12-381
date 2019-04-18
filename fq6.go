@@ -44,6 +44,13 @@ func (z *fq6) Add(x, y *fq6) *fq6 {
 	return z
 }
 
+func (z *fq6) Neg(x *fq6) *fq6 {
+	z.c0.Neg(&x.c0)
+	z.c1.Neg(&x.c1)
+	z.c2.Neg(&x.c2)
+	return z
+}
+
 func (z *fq6) Dbl(x *fq6) *fq6 {
 	return z.Add(x, x)
 }
@@ -94,4 +101,14 @@ func (z *fq6) MulQNR(x *fq6) *fq6 {
 	ret.c2.Set(&x.c1)
 
 	return z.Set(ret)
+}
+
+func (z *fq6) Sqr(x *fq6) *fq6 {
+	// TODO
+	return &fq6{}
+}
+
+func (z *fq6) Inv(x *fq6) *fq6 {
+	// TODO
+	return &fq6{}
 }

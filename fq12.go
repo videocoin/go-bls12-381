@@ -42,6 +42,11 @@ func (x *fq12) Set(y *fq12) *fq12 {
 	return x
 }
 
+func (z *fq12) Mul(x, y *fq12) *fq12 {
+	// TODO
+	return &fq12{}
+}
+
 // SparseMult implements the 8-sparse multiplication.
 // See https://eprint.iacr.org/2017/1174.pdf - Algorithm 2.
 func (z *fq12) SparseMult(x *fq12, y *fq12) *fq12 {
@@ -72,4 +77,14 @@ func (z *fq12) SparseMult(x *fq12, y *fq12) *fq12 {
 	c.Add(c, x)
 
 	return z.Set(c)
+}
+
+// Inv
+// See "Implementing cryptographic pairings", M. Scott - section 3.2.
+func (z *fq12) Inv(x *fq12) *fq12 {
+	t0, t1 := new(fq6).Sqr(&x.c0), new(fq6).Sqr(&x.c1)
+	t1.MulQNR(t1).Sub(t0, t1).Inv(t1)
+	z.c0.Mul(&x.c0, t1)
+	z.c1.Mul(&x.c1, t1)
+	return z
 }

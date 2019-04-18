@@ -86,12 +86,19 @@ and any future inversions can be implemented by simple conjugation [21], [20],
 [12].
 
 */
-// k = 12; (p^12 − 1)/r = (p^6 − 1).(p^2 + 1).[(p^4 − p^2 + 1)/r]
-// p^6-power Frobenius automorphism on Fp12 ,a single inversion and a multiplication in Fp12
+
+// See https://alicebob.cryptoland.net/the-frobenius-endomorphism-with-finite-fields/ -
+// The Frobenius endomorphism with finite fields.
 func finalExp(p *fq12) *fq12 {
-	// raising to the power of p - frobenius operator
-	// It can be done by applying the p^6 -power Frobenius automorphism on fq12
-	// The automorphism maps every element to its p-th power
+	// first exp
+	exp := new(fq12)
+	exp.c0.Set(&p.c0)
+	exp.c1.Neg(&p.c1)
+	pInv := new(fq12).Inv(p)
+	exp.Mul(exp, pInv)
+
+	// second exp
+
 	return &fq12{}
 }
 
