@@ -1,5 +1,12 @@
 package bls12
 
+import "math/big"
+
+var (
+	bigU     = new(big.Int).SetUint64(uAbsolute)
+	bigHalfU = new(big.Int).SetUint64(uAbsolute >> 1)
+)
+
 // doublingAndLine returns the sum z + t and  line function result.
 // See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves.
 // with a4 = 0. TODO: q must be affine?
@@ -72,35 +79,45 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 	return sum, c0, c1, c2
 }
 
-/*
-http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.215.7255&rep=rep1&type=pdf
-
-The first two parts of the exponentiation are “easy” as raising to the power of
-p is an almost free application of the Frobenius operator, as p is the characteristic
-of the extension field. However the first part of the exponentiation is not only
-cheap (although it does require an extension field division), it also simplifies the
-rest of the final exponentiation. After raising to the power of p
-d − 1 the field element becomes “unitary” [20]. This has important implications, as squaring of
-unitary elements is significantly cheaper than squaring of non-unitary elements,
-and any future inversions can be implemented by simple conjugation [21], [20],
-[12].
-
-*/
-
-// See https://alicebob.cryptoland.net/the-frobenius-endomorphism-with-finite-fields/ -
-// The Frobenius endomorphism with finite fields.
+// finalExp implements the final exponentiation step.
 func finalExp(p *fq12) *fq12 {
-	// first exp
-	exp := new(fq12)
-	exp.c0.Set(&p.c0)
-	exp.c1.Neg(&p.c1)
-	pInv := new(fq12).Inv(p)
-	exp.Mul(exp, pInv)
+	f := new(fq12).Conjugate(p)
+	t0 := new(fq12).Inv(p)
+	f.Mul(f, t0).Mul(f, t0.Frobenius(f, 2))
 
-	// second exp
-	// exp.Mul(exp2, exp)
+	// See https://eprint.iacr.org/2016/130.pdf - Algorithm 2
+	t0.Sqr(f)
+	t1 := new(fq12).Exp(t0, bigU)
+	t1.Conjugate(t1)
+	t2 := new(fq12).Exp(t1, bigHalfU)
+	t2.Conjugate(t2)
+	t3 := new(fq12).Conjugate(f)
+	t1.Mul(t3, t1)
 
-	return &fq12{}
+	t1.Conjugate(t1)
+	t1.Mul(t1, t2)
+
+	t2.Exp(t1, bigU)
+	t2.Conjugate(t2)
+
+	t3.Exp(t2, bigU)
+	t3.Conjugate(t3)
+	t1.Conjugate(t1)
+	t3.Mul(t1, t3)
+
+	t1.Conjugate(t1)
+	t1.Frobenius(t1, 3)
+	t2.Frobenius(t2, 2)
+	t1.Mul(t1, t2)
+
+	t2.Exp(t3, bigU)
+	t2.Conjugate(t2)
+	t2.Mul(t2, t0)
+	t2.Mul(t2, f)
+
+	t1.Mul(t1, t2)
+	t2.Frobenius(t3, 1)
+	return t1.Mul(t1, t2)
 }
 
 // miller implements the Miller’s double-and-add algorithm. Non Adjacent Form

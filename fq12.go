@@ -1,5 +1,7 @@
 package bls12
 
+import "math/big"
+
 // fq12 implements the field of size q¹² as a quadratic extension of fq6
 // where γ = v.
 type fq12 struct {
@@ -94,5 +96,37 @@ func (z *fq12) Inv(x *fq12) *fq12 {
 	t1.MulQNR(t1).Sub(t0, t1).Inv(t1)
 	z.c0.Mul(&x.c0, t1)
 	z.c1.Mul(&x.c1, t1)
+	return z
+}
+
+func (z *fq12) Exp(x *fq12, power *big.Int) *fq12 {
+	// TODO
+	return &fq12{}
+}
+
+/*
+func (z *fq12) Exp(x *big.Int) {
+	b := *base
+	*ret = fqMont1
+	for _, word := range exponent {
+		for j := uint(0); j < wordSize; j++ {
+			if (word & (1 << j)) != 0 {
+				fqMul(ret, ret, &b)
+			}
+			fqSqr(&b, &b)
+		}
+	}
+}
+*/
+
+func (z *fq12) Frobenius(x *fq12, power uint64) *fq12 {
+	// TODO
+	return &fq12{}
+}
+
+func (z *fq12) Conjugate(x *fq12) *fq12 {
+	z.c0.Set(&x.c0)
+	z.c1.Neg(&x.c1)
+
 	return z
 }
