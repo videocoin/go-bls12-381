@@ -98,6 +98,7 @@ func finalExp(p *fq12) *fq12 {
 	exp.Mul(exp, pInv)
 
 	// second exp
+	// exp.Mul(exp2, exp)
 
 	return &fq12{}
 }

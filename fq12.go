@@ -42,9 +42,17 @@ func (x *fq12) Set(y *fq12) *fq12 {
 	return x
 }
 
+// karatsuba method
 func (z *fq12) Mul(x, y *fq12) *fq12 {
-	// TODO
-	return &fq12{}
+	elem := new(fq12)
+	v0 := new(fq6).Mul(&x.c0, &y.c0)
+	v1 := new(fq6).Mul(&x.c1, &y.c1)
+	elem.c0.MulQNR(v1).Add(&elem.c0, v1)
+	t0 := new(fq6)
+	elem.c1.Add(&x.c0, &x.c1)
+	elem.c1.Mul(&elem.c1, t0.Add(&y.c0, &y.c1)).Sub(&elem.c1, t0.Add(v0, v1))
+
+	return z.Set(elem)
 }
 
 // SparseMult implements the 8-sparse multiplication.
