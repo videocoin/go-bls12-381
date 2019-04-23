@@ -7,7 +7,7 @@ var (
 	bigHalfU = new(big.Int).SetUint64(uAbsolute >> 1)
 )
 
-// doublingAndLine returns the sum z + t and  line function result.
+// doublingAndLine returns the sum z + t and line function result.
 // See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves.
 // with a4 = 0. TODO: q must be affine?
 func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq2) {
@@ -39,10 +39,10 @@ func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq
 	fqMul(&c2.c0, &c2.c0, &q.y)
 	fqMul(&c2.c1, &c2.c1, &q.y)
 
-	return sum, c0, c1, c2
+	return r.Set(sum), c0, c1, c2
 }
 
-// mixedAdditionAndLine sets z to the sum z + t and f to the line function result and returns
+// mixedAdditionAndLine returns the sum z + t and f to the line function result and returns
 // the pair (z, f). See https://arxiv.org/pdf/0904.0854v3.pdf - Mixed Addition.
 // Mixed addition means that the second input point is in affine representation.
 func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) (*twistPoint, *fq2, *fq2, *fq2) {
@@ -76,45 +76,31 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 	fqMul(&c2.c0, &c2.c0, &q.y)
 	fqMul(&c2.c1, &c2.c1, &q.y)
 
-	return sum, c0, c1, c2
+	return r.Set(sum), c0, c1, c2
 }
 
 // finalExp implements the final exponentiation step.
+// See https://eprint.iacr.org/2016/130.pdf - Algorithm 2
 func finalExp(p *fq12) *fq12 {
 	f := new(fq12).Conjugate(p)
 	t0 := new(fq12).Inv(p)
 	f.Mul(f, t0).Mul(f, t0.Frobenius(f, 2))
 
-	// See https://eprint.iacr.org/2016/130.pdf - Algorithm 2
 	t0.Sqr(f)
 	t1 := new(fq12).Exp(t0, bigU)
 	t1.Conjugate(t1)
 	t2 := new(fq12).Exp(t1, bigHalfU)
 	t2.Conjugate(t2)
 	t3 := new(fq12).Conjugate(f)
-	t1.Mul(t3, t1)
-
-	t1.Conjugate(t1)
-	t1.Mul(t1, t2)
-
-	t2.Exp(t1, bigU)
-	t2.Conjugate(t2)
-
-	t3.Exp(t2, bigU)
-	t3.Conjugate(t3)
+	t1.Mul(t3, t1).Conjugate(t1).Mul(t1, t2)
+	t2.Exp(t1, bigU).Conjugate(t2)
+	t3.Exp(t2, bigU).Conjugate(t3)
 	t1.Conjugate(t1)
 	t3.Mul(t1, t3)
-
-	t1.Conjugate(t1)
-	t1.Frobenius(t1, 3)
+	t1.Conjugate(t1).Frobenius(t1, 3)
 	t2.Frobenius(t2, 2)
 	t1.Mul(t1, t2)
-
-	t2.Exp(t3, bigU)
-	t2.Conjugate(t2)
-	t2.Mul(t2, t0)
-	t2.Mul(t2, f)
-
+	t2.Exp(t3, bigU).Conjugate(t2).Mul(t2, t0).Mul(t2, f)
 	t1.Mul(t1, t2)
 	t2.Frobenius(t3, 1)
 	return t1.Mul(t1, t2)
@@ -122,26 +108,31 @@ func finalExp(p *fq12) *fq12 {
 
 // miller implements the Miller’s double-and-add algorithm. Non Adjacent Form
 // does not reduce the number of additions for this specific value of u.
-func miller(p *g1Point, q *g2Point) *fq12 {
+func miller(p *curvePoint, q *twistPoint) *fq12 {
 	f := new(fq12).SetOne()
-	//t := new(g2Point).Set(q).ToAffine()
+	r := new(twistPoint).Set(q).ToAffine()
 
 	for i := log2U; i < 0; i++ {
-		// skip the initial squaring(f=1)
+		// skip the initial squaring (f = 1)
 		if i != log2U {
 			f.Sqr(f)
 		}
 
-		//f.SparseMult(f, doublingAndLine(t, p))
+		_, a0, a1, a2 := doublingAndLine(r, p)
+		f.SparseMult(f, a0, a1, a2)
+
 		if (uAbsolute & (uint64(1) << i)) == 1 {
-			//f.SparseMult(f, additionAndLine(lrp))
+			_, a0, a1, a2 := mixedAdditionAndLine(r, q, p, new(fq2))
+			f.SparseMult(f, a0, a1, a2)
 		}
 	}
 
-	return f
+	// u is negative
+	return f.Conjugate(f)
 }
 
 // Pair implements the optimal ate pairing algorithm on BLS curves.
-func Pair(p *g1Point, q *g2Point) *fq12 {
-	return finalExp(miller(p, q))
+// See https://eprint.iacr.org/2019/077.pdf - Algorithm 1.
+func Pair(g1 *g1Point, g2 *g2Point) *fq12 {
+	return finalExp(miller(g1.p, g2.p))
 }
