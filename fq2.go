@@ -17,27 +17,33 @@ func newFq2(c0, c1 fq) fq2 {
 	}
 }
 
-func (fq *fq2) IsOne() bool {
-	return fq.c0 == fq2One.c0 && fq.c1 == fq2One.c1
+// IsOne reports whether x is equal to 1.
+// TODO remove?
+func (z *fq2) IsOne() bool {
+	return z.c0 == fq2One.c0 && z.c1 == fq2One.c1
 }
 
+// Equal reports whether x is equal to y.
 func (x *fq2) Equal(y *fq2) bool {
 	// TODO a.c0.Equal form
 	return (x.c0 == y.c0) && (x.c1 == y.c1)
 }
 
+// SetOne sets z to 0 and returns z.
 func (z *fq2) SetZero() *fq2 {
 	z.c0.SetZero()
 	z.c1.SetZero()
 	return z
 }
 
+// SetOne sets z to 1 and returns z.
 func (z *fq2) SetOne() *fq2 {
 	z.c0.SetOne()
 	z.c1.SetZero()
 	return z
 }
 
+// Set sets z to x and returns z.
 func (z *fq2) Set(x *fq2) *fq2 {
 	z.c0.Set(&x.c0)
 	z.c1.Set(&x.c1)
@@ -45,26 +51,29 @@ func (z *fq2) Set(x *fq2) *fq2 {
 	return z
 }
 
+// Neg sets z to -x and returns z.
 func (z *fq2) Neg(x *fq2) *fq2 {
 	fqNeg(&z.c0, &x.c0)
 	fqNeg(&z.c1, &x.c1)
 	return z
 }
 
+// Add sets z to the sum x+y and returns z.
 func (z *fq2) Add(x, y *fq2) *fq2 {
 	fqAdd(&z.c0, &x.c0, &y.c0)
 	fqAdd(&z.c1, &x.c1, &y.c1)
 	return z
 }
 
+// Sub sets z to the difference x-y and returns z.
 func (z *fq2) Sub(x, y *fq2) *fq2 {
 	fqSub(&z.c0, &x.c0, &y.c0)
 	fqSub(&z.c1, &x.c1, &y.c1)
 	return z
 }
 
-// Karatsuba method
-// note: there's room for optimization (multiplications + reductions).
+// Mul sets z to the product x*y and returns z.
+// Mul utilizes Karatsuba's method.
 func (z *fq2) Mul(x, y *fq2) *fq2 {
 	mult := new(fq2)
 	// v0 = a0b0
@@ -106,11 +115,15 @@ func (z *fq2) MulXi(x *fq2) *fq2 {
 	return z.Set(ret)
 }
 
+// Sqr sets z to the product x*x and returns z.
+// Sqr utilizes Karatsuba's method.
 func (z *fq2) Sqr(x *fq2) *fq2 {
-	// TODO Karatsuba
+	// TODO
 	return z.Mul(x, x)
 }
 
+// Inv sets z to 1/x and returns z.
+// TODO desc
 func (z *fq2) Inv(x *fq2) *fq2 {
 	// t0 = a.c0^2
 	// t1 = a.c1^2

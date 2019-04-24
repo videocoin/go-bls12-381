@@ -126,3 +126,7 @@ func TestFq2MulXi(t *testing.T) {
 func TestFq2Sqr(t *testing.T) {
 	// TODO
 }
+
+func TestFq2Inv(t *testing.T) {
+	// TODO
+}
