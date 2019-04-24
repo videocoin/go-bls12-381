@@ -56,3 +56,15 @@ func TestFeldman(t *testing.T) {
 		t.Fatal("pub keys must be different")
 	}
 }
+
+func TestCreateShares(t *testing.T) {
+	// TODO
+}
+
+func TestPrivKeyFromShares(t *testing.T) {
+	// TODO
+}
+
+func TestVerifyShare(t *testing.T) {
+	// TODO
+}
