@@ -41,10 +41,6 @@ func fqAdd(z, x, y *fq) {
 	fqMod(z)
 }
 
-func fqDbl(z, x *fq) {
-	fqAdd(z, x, x)
-}
-
 func fqSub(z, x, y *fq) {
 	negY := new(fq)
 	fqNeg(negY, y)
@@ -142,12 +138,8 @@ func fqMul(z, x, y *fq) {
 	fqREDC(z, large)
 }
 
-func fqSqr(z, x *fq) {
-	fqMul(z, x, x)
-}
-
 func fqCube(z, x *fq) {
-	fqSqr(z, x)
+	fqMul(z, x, x)
 	fqMul(z, z, x)
 }
 
@@ -156,7 +148,7 @@ func fqSqrt(x, a *fq) bool {
 	a1, a0 := new(fq), new(fq)
 	fqExp(a1, a, qMinus3Over4)
 
-	fqSqr(a0, a1)
+	fqMul(a0, a1, a1)
 	fqMul(a0, a0, a)
 
 	if *a0 == fqMontNeg1 {
@@ -177,7 +169,7 @@ func fqExp(ret, base *fq, exponent []uint64) {
 			if (word & (1 << j)) != 0 {
 				fqMul(ret, ret, &b)
 			}
-			fqSqr(&b, &b)
+			fqMul(&b, &b, &b)
 		}
 	}
 }
