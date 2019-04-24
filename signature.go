@@ -48,8 +48,6 @@ func Sign(priv *PrivateKey, hash []byte) []byte {
 
 // Verify verifies the signature of hash using the public key, pub. Its
 // return value records whether the signature is valid.
-// See https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html -
-// BLS signature aggregation - Verify
 func Verify(hash []byte, rawSig []byte, pub *PublicKey) (bool, error) {
 	var sig g1Point
 	if err := sig.Unmarshal(rawSig); err != nil {

@@ -118,6 +118,5 @@ func (z *fq12) Frobenius(x *fq12, power uint64) *fq12 {
 func (z *fq12) Conjugate(x *fq12) *fq12 {
 	z.c0.Set(&x.c0)
 	z.c1.Neg(&x.c1)
-
 	return z
 }

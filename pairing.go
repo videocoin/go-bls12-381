@@ -8,7 +8,7 @@ var (
 	uArr     = []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1}
 )
 
-// doublingAndLine returns the sum z + t and the line function result.
+// doublingAndLine returns the sum r + r and the line function result.
 // See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves.
 func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← [2]R
@@ -42,7 +42,7 @@ func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq
 	return r.Set(sum), c0, c1, c2
 }
 
-// mixedAdditionAndLine returns the sum z + t and the line function result.
+// mixedAdditionAndLine returns the sum r + p and the line function result.
 // See https://arxiv.org/pdf/0904.0854v3.pdf - Mixed Addition.
 func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← R + P
@@ -81,10 +81,12 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 // finalExp implements the final exponentiation step.
 // See https://eprint.iacr.org/2016/130.pdf - Algorithm 2.
 func finalExp(p *fq12) *fq12 {
+	// easy part
 	f := new(fq12).Conjugate(p)
 	t0 := new(fq12).Inv(p)
 	f.Mul(f, t0).Mul(f, t0.Frobenius(f, 2))
 
+	// hard part
 	t0.Sqr(f)
 	t1 := new(fq12).Exp(t0, bigU)
 	t1.Conjugate(t1)

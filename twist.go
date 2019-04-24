@@ -138,8 +138,8 @@ func (tp *twistPoint) Equal(p *twistPoint) bool {
 	return tp.x.Equal(&p.x) && tp.y.Equal(&p.y) && tp.z.Equal(&p.z)
 }
 
+// See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
 func (tp *twistPoint) ToAffine() *twistPoint {
-	// See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
 	if tp.z.IsOne() {
 		return tp
 	}

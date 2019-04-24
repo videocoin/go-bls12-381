@@ -2,14 +2,22 @@ package bls12
 
 import "testing"
 
-/*
-func BechmarkPairing(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		Pair(g1Gen.p, g2Gen.p)
-	}
+func TestDoublingAndLine(t *testing.T) {
+	// TODO
 }
-*/
+
+func TestMixedAdditionAndLine(t *testing.T) {
+	// TODO
+}
+
+func TestFinalExp(t *testing.T) {
+	// TODO
+}
 
 func TestMiller(t *testing.T) {
+	// TODO
+}
 
+func TestPair(t *testing.T) {
+	// TODO
 }
