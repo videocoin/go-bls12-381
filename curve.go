@@ -155,7 +155,7 @@ func (cp *curvePoint) isInfinity() bool {
 	return cp.z == fq0
 }
 
-func (cp *curvePoint) ToAffine() {
+func (cp *curvePoint) ToAffine() *curvePoint {
 	// TODO create new curve point
 	if cp.isInfinity() {
 		//  If this bit is set, the remaining bits of the group element's encoding should be set to zero.
@@ -165,6 +165,8 @@ func (cp *curvePoint) ToAffine() {
 	fqInv(zInv, &cp.z)
 	fqMul(&cp.x, &cp.x, zInv)
 	fqMul(&cp.y, &cp.y, zInv)
+
+	return cp
 }
 
 // CompressedEncode converts a curve point into the uncompressed form specified in

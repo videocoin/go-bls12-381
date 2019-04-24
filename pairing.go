@@ -3,13 +3,13 @@ package bls12
 import "math/big"
 
 var (
-	bigU     = new(big.Int).SetUint64(uAbsolute)
-	bigHalfU = new(big.Int).SetUint64(uAbsolute >> 1)
+	bigU     = new(big.Int).SetUint64(uAbs)
+	bigUDiv2 = new(big.Int).SetUint64(uAbs >> 1)
+	uArr     = []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1}
 )
 
-// doublingAndLine returns the sum z + t and line function result.
+// doublingAndLine returns the sum z + t and the line function result.
 // See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves.
-// with a4 = 0. TODO: q must be affine?
 func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← [2]R
 	t0 := new(fq2)
@@ -27,7 +27,7 @@ func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq
 	sum.z.Add(&r.y, &r.z).Sqr(&sum.z).Sub(&sum.z, t0.Add(b, &r.t))
 	sum.t.Sqr(&sum.z)
 
-	// line
+	// line function
 	c0 := new(fq2).Mul(&r.x, e)
 	c0.Sqr(c0).Sub(c0, t0.Dbl(b).Dbl(t0).Add(t0, a).Add(t0, g))
 	c1 := new(fq2).Dbl(e)
@@ -42,9 +42,8 @@ func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq
 	return r.Set(sum), c0, c1, c2
 }
 
-// mixedAdditionAndLine returns the sum z + t and f to the line function result and returns
-// the pair (z, f). See https://arxiv.org/pdf/0904.0854v3.pdf - Mixed Addition.
-// Mixed addition means that the second input point is in affine representation.
+// mixedAdditionAndLine returns the sum z + t and the line function result.
+// See https://arxiv.org/pdf/0904.0854v3.pdf - Mixed Addition.
 func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← R + P
 	t0 := new(fq2)
@@ -64,7 +63,7 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 	sum.z.Add(&r.z, h).Sqr(&sum.z).Sub(&sum.z, t0.Add(&r.t, i))
 	sum.t.Sqr(&sum.z)
 
-	// line
+	// line function
 	t1 := new(fq2).Dbl(l1)
 	t1.Neg(t1) // caches -2L1
 	c0 := new(fq2).Add(r2, &sum.t)
@@ -80,7 +79,7 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 }
 
 // finalExp implements the final exponentiation step.
-// See https://eprint.iacr.org/2016/130.pdf - Algorithm 2
+// See https://eprint.iacr.org/2016/130.pdf - Algorithm 2.
 func finalExp(p *fq12) *fq12 {
 	f := new(fq12).Conjugate(p)
 	t0 := new(fq12).Inv(p)
@@ -89,7 +88,7 @@ func finalExp(p *fq12) *fq12 {
 	t0.Sqr(f)
 	t1 := new(fq12).Exp(t0, bigU)
 	t1.Conjugate(t1)
-	t2 := new(fq12).Exp(t1, bigHalfU)
+	t2 := new(fq12).Exp(t1, bigUDiv2)
 	t2.Conjugate(t2)
 	t3 := new(fq12).Conjugate(f)
 	t1.Mul(t3, t1).Conjugate(t1).Mul(t1, t2)
@@ -106,23 +105,27 @@ func finalExp(p *fq12) *fq12 {
 	return t1.Mul(t1, t2)
 }
 
-// miller implements the Miller’s double-and-add algorithm. Non Adjacent Form
-// does not reduce the number of additions for this specific value of u.
+// miller implements the Miller’s double-and-add algorithm.
 func miller(p *curvePoint, q *twistPoint) *fq12 {
+	pAffine := new(curvePoint).Set(p).ToAffine()
+	qAffine := new(twistPoint).Set(q).ToAffine()
+	r := new(twistPoint).Set(qAffine)
 	f := new(fq12).SetOne()
-	r := new(twistPoint).Set(q).ToAffine()
 
-	for i := log2U; i < 0; i++ {
+	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
+	r2 := new(fq2).Sqr(&qAffine.y)
+
+	for i := len(uArr) - 1; i < 0; i++ {
 		// skip the initial squaring (f = 1)
-		if i != log2U {
+		if i != (len(uArr) - 1) {
 			f.Sqr(f)
 		}
 
-		_, a0, a1, a2 := doublingAndLine(r, p)
+		_, a0, a1, a2 := doublingAndLine(r, pAffine)
 		f.SparseMult(f, a0, a1, a2)
 
-		if (uAbsolute & (uint64(1) << i)) == 1 {
-			_, a0, a1, a2 := mixedAdditionAndLine(r, q, p, new(fq2))
+		if uArr[i] == 1 {
+			_, a0, a1, a2 := mixedAdditionAndLine(r, qAffine, pAffine, r2)
 			f.SparseMult(f, a0, a1, a2)
 		}
 	}

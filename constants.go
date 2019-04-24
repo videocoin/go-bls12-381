@@ -8,8 +8,8 @@ package bls12
 // # BLS parameter, used to generate other parameters: x = -0xd201000000010000
 
 const (
-	// uAbsolute is the absolute value of u
-	uAbsolute uint64 = 15132376222941642752
+	// uAbs is the absolute value of u
+	uAbs uint64 = 15132376222941642752
 
 	// log2U is used in the Miller's algorithm
 	log2U uint64 = 63
