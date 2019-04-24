@@ -21,10 +21,14 @@ func (fq *fq2) IsOne() bool {
 	return fq.c0 == fq2One.c0 && fq.c1 == fq2One.c1
 }
 
-func (z *fq2) Set(x *fq2) *fq2 {
-	z.c0.Set(&x.c0)
-	z.c1.Set(&x.c1)
+func (x *fq2) Equal(y *fq2) bool {
+	// TODO a.c0.Equal form
+	return (x.c0 == y.c0) && (x.c1 == y.c1)
+}
 
+func (z *fq2) SetZero() *fq2 {
+	z.c0.SetZero()
+	z.c1.SetZero()
 	return z
 }
 
@@ -34,9 +38,16 @@ func (z *fq2) SetOne() *fq2 {
 	return z
 }
 
-func (z *fq2) SetZero() *fq2 {
-	z.c0.SetZero()
-	z.c1.SetZero()
+func (z *fq2) Set(x *fq2) *fq2 {
+	z.c0.Set(&x.c0)
+	z.c1.Set(&x.c1)
+
+	return z
+}
+
+func (z *fq2) Neg(x *fq2) *fq2 {
+	fqNeg(&z.c0, &x.c0)
+	fqNeg(&z.c1, &x.c1)
 	return z
 }
 
@@ -49,12 +60,6 @@ func (z *fq2) Add(x, y *fq2) *fq2 {
 func (z *fq2) Sub(x, y *fq2) *fq2 {
 	fqSub(&z.c0, &x.c0, &y.c0)
 	fqSub(&z.c1, &x.c1, &y.c1)
-	return z
-}
-
-func (z *fq2) Neg(x *fq2) *fq2 {
-	fqNeg(&z.c0, &x.c0)
-	fqNeg(&z.c1, &x.c1)
 	return z
 }
 
@@ -86,7 +91,7 @@ func (z *fq2) Mul(x, y *fq2) *fq2 {
 	return z
 }
 
-// MulXi returns the result of ξX.
+// MulXi sets z to the product ξX and returns z.
 func (z *fq2) MulXi(x *fq2) *fq2 {
 	// ξ = u + 1
 	// X = x + yu
@@ -101,18 +106,9 @@ func (z *fq2) MulXi(x *fq2) *fq2 {
 	return z.Set(ret)
 }
 
-// TODO Karatsuba
 func (z *fq2) Sqr(x *fq2) *fq2 {
+	// TODO Karatsuba
 	return z.Mul(x, x)
-}
-
-func (z *fq2) Dbl(x *fq2) *fq2 {
-	return z.Add(x, x)
-}
-
-func (x *fq2) Equal(y *fq2) bool {
-	// TODO a.c0.Equal form
-	return (x.c0 == y.c0) && (x.c1 == y.c1)
 }
 
 func (z *fq2) Inv(x *fq2) *fq2 {

@@ -28,3 +28,19 @@ func TestFq6Sub(t *testing.T) {
 func TestFq6Mul(t *testing.T) {
 	// TODO
 }
+
+func TestFq6SparseMult(t *testing.T) {
+	// TODO
+}
+
+func TestFq6MulQuadraticNonResidue(t *testing.T) {
+	// TODO
+}
+
+func TestFq6Sqr(t *testing.T) {
+	// TODO
+}
+
+func TestFq6Inv(t *testing.T) {
+	// TODO
+}

@@ -93,6 +93,23 @@ func (z *fq6) Mul(x, y *fq6) *fq6 {
 	return z
 }
 
+// SparseMult sets z to the product of x with a0, a1, a2 and returns z.
+// SparseMult utilizes the sparness property to avoid full Fq6 arithmetic.
+// See https://eprint.iacr.org/2012/408.pdf - Algorithm 6.
+func (z *fq6) SparseMul(x *fq6, a0 *fq2, a1 *fq2) *fq6 {
+	ret, t0 := new(fq6), new(fq2)
+
+	a := new(fq2).Mul(a0, &x.c0)
+	b := new(fq2).Mul(a1, &x.c1)
+	e := new(fq2).Add(a0, a1)
+	e.Mul(e, t0.Add(&x.c0, &x.c1))
+	ret.c0.Add(a, t0.MulXi(&x.c2).Mul(t0, a1))
+	ret.c1.Sub(e, t0.Add(a, b))
+	ret.c2.Mul(a0, &x.c2).Add(&z.c2, b)
+
+	return z.Set(ret)
+}
+
 // MulQuadraticNonResidue sets z to the product γX and returns z.
 func (z *fq6) MulQuadraticNonResidue(x *fq6) *fq6 {
 	// γ = v
@@ -130,19 +147,4 @@ func (z *fq6) Sqr(x *fq6) *fq6 {
 func (z *fq6) Inv(x *fq6) *fq6 {
 	// TODO
 	return &fq6{}
-}
-
-// See https://eprint.iacr.org/2012/408.pdf - Algorithm 6
-func (z *fq6) SparseMul(x *fq6, a0 *fq2, a1 *fq2) *fq6 {
-	ret, t0 := new(fq6), new(fq2)
-
-	a := new(fq2).Mul(a0, &x.c0)
-	b := new(fq2).Mul(a1, &x.c1)
-	e := new(fq2).Add(a0, a1)
-	e.Mul(e, t0.Add(&x.c0, &x.c1))
-	ret.c0.Add(a, t0.MulXi(&x.c2).Mul(t0, a1))
-	ret.c1.Sub(e, t0.Add(a, b))
-	ret.c2.Mul(a0, &x.c2).Add(&z.c2, b)
-
-	return z.Set(ret)
 }

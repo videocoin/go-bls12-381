@@ -5,6 +5,22 @@ import (
 	"testing"
 )
 
+func TestFq2SetZero(t *testing.T) {
+	// TODO
+}
+
+func TestFq2SetOne(t *testing.T) {
+	// TODO
+}
+
+func TestFq2Set(t *testing.T) {
+	// TODO
+}
+
+func TestFq2Neg(t *testing.T) {
+	// TODO
+}
+
 func TestFq2Add(t *testing.T) {
 	testCases := []struct {
 		a, b, output fq2
@@ -101,4 +117,12 @@ func TestFq2Mul(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFq2MulXi(t *testing.T) {
+	// TODO
+}
+
+func TestFq2Sqr(t *testing.T) {
+	// TODO
 }
