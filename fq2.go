@@ -116,10 +116,20 @@ func (z *fq2) MulXi(x *fq2) *fq2 {
 }
 
 // Sqr sets z to the product x*x and returns z.
-// Sqr utilizes Karatsuba's method.
+// Sqr utilizes complex squaring.
 func (z *fq2) Sqr(x *fq2) *fq2 {
-	// TODO
-	return z.Mul(x, x)
+	// v0 = a0a1
+	v0 := new(fq)
+	fqMul(v0, &x.c0, &x.c1)
+	// c0 = (a0 + a1)(a0 - a1)
+	c := new(fq2)
+	fqAdd(&c.c0, &x.c0, &x.c1)
+	fqSub(&c.c1, &x.c0, &x.c1)
+	fqMul(&c.c0, &c.c0, &c.c1)
+	// c1 = 2v0
+	fqAdd(&c.c1, v0, v0)
+
+	return z.Set(c)
 }
 
 // Inv sets z to 1/x and returns z.
@@ -132,8 +142,8 @@ func (z *fq2) Inv(x *fq2) *fq2 {
 	// c.c0 = a.c0 * t0
 	// c.c1 = - a.c1 * t0
 	t0, t1 := new(fq), new(fq)
-	fqSqr(t0, &x.c0)
-	fqSqr(t1, &x.c1)
+	fqMul(t0, &x.c0, &x.c0)
+	fqMul(t1, &x.c1, &x.c1)
 	fqAdd(t0, t0, t1)
 	fqInv(t0, t0)
 	fqMul(&z.c0, &x.c0, t0)
