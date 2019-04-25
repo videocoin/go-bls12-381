@@ -11,7 +11,7 @@ type fq12 struct {
 // SetOne sets z to 1 and returns z.
 func (z *fq12) SetOne() *fq12 {
 	z.c0.SetOne()
-	z.c0.SetZero()
+	z.c1.SetZero()
 	return z
 }
 
@@ -106,21 +106,16 @@ func (z *fq12) Inv(x *fq12) *fq12 {
 
 // Exp sets z=x**y and returns z.
 func (z *fq12) Exp(x *fq12, y *big.Int) *fq12 {
-	// TODO
-	/*
-		b := *x
-		ret := new(fq12).SetOne()
-		for _, word := range y {
-			for j := uint(0); j < wordSize; j++ {
-				if (word & (1 << j)) != 0 {
-					fqMul(ret, ret, &b)
-				}
-				fqSqr(&b, &b)
-			}
+	b := *x
+	ret := new(fq12).SetOne()
+	for i := y.BitLen() - 1; i >= 0; i-- {
+		if y.Bit(i) == 1 {
+			ret.Mul(ret, &b)
 		}
-	*/
+		b.Sqr(&b)
+	}
 
-	return &fq12{}
+	return ret
 }
 
 // Frobenius sets z to the pth-power Frobenius of x and returns z.

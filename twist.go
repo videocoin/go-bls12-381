@@ -17,11 +17,12 @@ func newTwistPoint(x, y fq2) *twistPoint {
 		x: x,
 		y: y,
 		z: *fq2One,
+		t: *fq2One,
 	}
 }
 
 func (tp *twistPoint) Set(p *twistPoint) *twistPoint {
-	tp.x, tp.y, tp.z = p.x, p.y, p.z
+	tp.x, tp.y, tp.z, tp.t = p.x, p.y, p.z, p.t
 
 	return tp
 }

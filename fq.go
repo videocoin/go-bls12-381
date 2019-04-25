@@ -218,3 +218,7 @@ func montgomeryDecode(c, a *fq) {
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 	fqMul(c, a, &fq1)
 }
+
+func (fq *fq) IsOne() bool {
+	return *fq == fqMont1
+}

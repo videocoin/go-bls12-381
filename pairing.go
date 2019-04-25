@@ -1,6 +1,8 @@
 package bls12
 
-import "math/big"
+import (
+	"math/big"
+)
 
 var (
 	bigU     = new(big.Int).SetUint64(uAbs)
@@ -117,7 +119,7 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
 	r2 := new(fq2).Sqr(&qAffine.y)
 
-	for i := len(uArr) - 1; i < 0; i++ {
+	for i := len(uArr) - 1; i > 0; i-- {
 		// skip the initial squaring (f = 1)
 		if i != (len(uArr) - 1) {
 			f.Sqr(f)
@@ -139,5 +141,5 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 // Pair implements the optimal ate pairing algorithm on BLS curves.
 // See https://eprint.iacr.org/2019/077.pdf - Algorithm 1.
 func Pair(g1 *g1Point, g2 *g2Point) *fq12 {
-	return finalExp(miller(g1.p, g2.p))
+	return finalExp(miller(&g1.p, &g2.p))
 }

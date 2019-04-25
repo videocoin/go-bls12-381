@@ -209,7 +209,7 @@ func TestScalarMult(t *testing.T) {
 	}{
 
 		{
-			point:  g2Gen.p,
+			point:  &g2Gen.p,
 			scalar: new(big.Int).SetUint64(1),
 			expectedPoint: &twistPoint{
 				x: fq2{
@@ -227,7 +227,7 @@ func TestScalarMult(t *testing.T) {
 			},
 		},
 		{
-			point:  g2Gen.p,
+			point:  &g2Gen.p,
 			scalar: big.NewInt(3),
 			expectedPoint: &twistPoint{
 				x: fq2{
@@ -245,7 +245,7 @@ func TestScalarMult(t *testing.T) {
 			},
 		},
 		{
-			point:  g2Gen.p,
+			point:  &g2Gen.p,
 			scalar: bigScalar,
 			expectedPoint: &twistPoint{
 				x: fq2{

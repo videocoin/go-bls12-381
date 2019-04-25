@@ -26,13 +26,9 @@ type curvePoint struct {
 	x, y, z fq
 }
 
-func newCurvePoint() *curvePoint {
-	return &curvePoint{z: fqMont1}
-}
-
+// Set sets cp to the value of p and returns cp.
 func (cp *curvePoint) Set(p *curvePoint) *curvePoint {
 	cp.x, cp.y, cp.z = p.x, p.y, p.z
-
 	return cp
 }
 
@@ -40,6 +36,7 @@ func (cp *curvePoint) IsInfinity() bool {
 	return cp.z == fq0
 }
 
+// Add sets cp to the sum a+b and returns cp.
 func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	// TODO is infinity confirm
 	if a.IsInfinity() {
@@ -156,15 +153,21 @@ func (cp *curvePoint) isInfinity() bool {
 }
 
 func (cp *curvePoint) ToAffine() *curvePoint {
+	if cp.z.IsOne() {
+		return cp
+	}
+
 	// TODO create new curve point
 	if cp.isInfinity() {
 		//  If this bit is set, the remaining bits of the group element's encoding should be set to zero.
 		//pointAtInfinityMask
 	}
+
 	zInv := new(fq)
 	fqInv(zInv, &cp.z)
 	fqMul(&cp.x, &cp.x, zInv)
 	fqMul(&cp.y, &cp.y, zInv)
+	cp.z = fqMont1
 
 	return cp
 }
@@ -178,16 +181,13 @@ func (cp *curvePoint) Marshal() []byte {
 	montgomeryDecode(y, &cp.y)
 
 	ret := make([]byte, fqByteLen*2)
-
-	xBytes := x.Bytes()
-	copy(ret, xBytes)
-	yBytes := y.Bytes()
-	copy(ret[fqByteLen:], yBytes)
+	copy(ret, x.Bytes())
+	copy(ret[fqByteLen:], y.Bytes())
 
 	// TODO review
-	if cp.IsInfinity() {
-		ret[0] |= pointAtInfinityMask
-	}
+	//if cp.IsInfinity() {
+	//	ret[0] |= pointAtInfinityMask
+	//}
 
 	return ret
 }
@@ -203,6 +203,12 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 	if data[0]&compressedFormMask != 0 { // uncompressed form
 		// TODO error
 		return nil
+	}
+
+	if data[0]&pointAtInfinityMask == 1 {
+
+	} else {
+		cp.z = fqMont1
 	}
 
 	var err error
@@ -239,7 +245,7 @@ func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
 	sum = blake2b.Sum512(append(h[:], g11...))
 	g11, _ := fqMontgomeryFromBig(new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q))
 
-	return cp.Add(newCurvePoint().SWEncode(&g10), newCurvePoint().SWEncode(&g11))
+	return cp.Add(new(curvePoint).SWEncode(&g10), new(curvePoint).SWEncode(&g11))
 }
 
 // SWEncode implements the Shallue and van de Woestijne encoding.
@@ -271,8 +277,7 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 		fqCube(y, x)
 		fqAdd(y, y, &fqMontCurveB)
 		if fqSqrt(y, y) {
-			cp.x = *x
-			cp.x = *y
+			cp.x, cp.y, cp.z = *x, *y, fqMont1
 			return cp
 		}
 	}

@@ -15,7 +15,7 @@ type PrivateKey struct {
 }
 
 func pubKeyFromScalar(scalar *big.Int) *PublicKey {
-	return newG2Point().ScalarBaseMult(scalar).ToAffine()
+	return new(g2Point).ScalarBaseMult(scalar).ToAffine()
 }
 
 func privKeyFromScalar(scalar *big.Int) *PrivateKey {
@@ -43,7 +43,7 @@ func (priv *PrivateKey) Public() PublicKey {
 // Sign signs a hash (which should be the result of hashing a larger message)
 // using the private key, priv.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	return newG1Point().SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
+	return new(g1Point).SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
 }
 
 // Verify verifies the signature of hash using the public key, pub. Its
@@ -54,5 +54,5 @@ func Verify(hash []byte, rawSig []byte, pub *PublicKey) (bool, error) {
 		return false, err
 	}
 
-	return Pair(&sig, g2Gen).Equal(Pair(newG1Point().SetBytes(hash), pub)), nil
+	return Pair(&sig, g2Gen).Equal(Pair(new(g1Point).SetBytes(hash), pub)), nil
 }

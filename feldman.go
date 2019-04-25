@@ -159,11 +159,11 @@ func newPublicPolynomial(coefficients []*PublicKey) (*publicPolynomial, error) {
 
 func (p *publicPolynomial) evaluate(x uint64) (*PublicKey, error) {
 	bigX := new(big.Int).SetUint64(x)
-	sum := newG2Point().Set(p.coefficients[0])
+	sum := new(g2Point).Set(p.coefficients[0])
 	mul := new(big.Int).SetUint64(1)
 	for _, coeff := range p.coefficients[1:] {
 		mul.Mul(mul, bigX)
-		sum.Add(sum, newG2Point().ScalarMult(coeff, mul))
+		sum.Add(sum, new(g2Point).ScalarMult(coeff, mul))
 	}
 
 	return sum.ToAffine(), nil
