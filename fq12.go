@@ -115,7 +115,7 @@ func (z *fq12) Exp(x *fq12, y *big.Int) *fq12 {
 		b.Sqr(&b)
 	}
 
-	return ret
+	return z.Set(ret)
 }
 
 // Frobenius sets z to the pth-power Frobenius of x and returns z.
