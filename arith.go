@@ -138,11 +138,6 @@ func fqMul(z, x, y *fq) {
 	fqREDC(z, large)
 }
 
-func fqCube(z, x *fq) {
-	fqMul(z, x, x)
-	fqMul(z, z, x)
-}
-
 // See https://eprint.iacr.org/2012/685.pdf - Algorithm 2; q ≡ 3 (mod 4)
 func fqSqrt(x, a *fq) bool {
 	a1, a0 := new(fq), new(fq)

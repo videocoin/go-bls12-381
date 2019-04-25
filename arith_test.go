@@ -172,26 +172,6 @@ func TestFqExp(t *testing.T) {
 	}
 }
 
-func TestFqCube(t *testing.T) {
-	testCases := []struct {
-		input, output fq
-	}{
-		{
-			input:  fqMont1,
-			output: fqMont1,
-		},
-	}
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("input: %s", testCase.input.String()), func(t *testing.T) {
-			var result fq
-			fqCube(&result, &testCase.input)
-			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
-			}
-		})
-	}
-}
-
 /*
 func TestFqSqrt(t *testing.T) {
 	testCases := []struct {

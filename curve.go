@@ -274,7 +274,8 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 			fqAdd(x, x, &fqMont1)
 		}
 
-		fqCube(y, x)
+		fqMul(y, x, x)
+		fqMul(y, y, x)
 		fqAdd(y, y, &fqMontCurveB)
 		if fqSqrt(y, y) {
 			cp.x, cp.y, cp.z = *x, *y, fqMont1
