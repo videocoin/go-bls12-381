@@ -150,10 +150,11 @@ func (z *fq6) Inv(x *fq6) *fq6 {
 }
 
 func (z *fq6) Frobenius(x *fq6, power uint64) *fq6 {
-	//z.c0.Frobenius(&z.c0, power)
-	//z.c1.Frobenius(&z.c1, power)
-	//z.c1.Mul(frobeniusCoeff6c1[power%6])
-	//z.c2.Frobenius(&z.c2, power)
-	//z.c2.Mul(frobeniusCoeff6c2[power%6])
-	return z
+	ret := new(fq6)
+	ret.c0.Frobenius(&x.c0, power)
+	ret.c1.Frobenius(&x.c1, power)
+	ret.c1.Mul(&ret.c1, frobeniusCoeff6c1[power%6])
+	ret.c2.Frobenius(&x.c2, power)
+	ret.c2.Mul(&ret.c2, frobeniusCoeff6c2[power%6])
+	return z.Set(ret)
 }

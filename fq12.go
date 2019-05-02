@@ -118,10 +118,11 @@ func (z *fq12) Exp(x *fq12, y *big.Int) *fq12 {
 
 // Frobenius sets z to the pth-power Frobenius of x and returns z.
 func (z *fq12) Frobenius(x *fq12, power uint64) *fq12 {
-	//z.c0.Frobenius(&x.c0, power)
-	//z.c1.Frobenius(&x.c1, power)
-	//z.c1.c0.Mul(&z.c1.c0, frobeniusCoeff[power%12])
-	//z.c1.c1.Mul(&z.c1.c1, frobeniusCoeff[power%12])
-	//z.c1.c2.Mul(&z.c1.c2, frobeniusCoeff[power%12])
-	return z
+	ret := new(fq12)
+	ret.c0.Frobenius(&x.c0, power)
+	ret.c1.Frobenius(&x.c1, power)
+	ret.c1.c0.Mul(&ret.c1.c0, frobeniusCoeff12c1[power%12])
+	ret.c1.c1.Mul(&ret.c1.c1, frobeniusCoeff12c1[power%12])
+	ret.c1.c2.Mul(&ret.c1.c2, frobeniusCoeff12c1[power%12])
+	return z.Set(ret)
 }
