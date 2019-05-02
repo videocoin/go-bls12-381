@@ -58,4 +58,6 @@ var (
 
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
 	g1Cofactor = bigFromBase10("76329603384216526031706109802092473003")
+
+	frobeniusCoeff = [12]*fq2{}
 )

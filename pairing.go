@@ -84,7 +84,7 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 // See https://eprint.iacr.org/2016/130.pdf - Algorithm 2.
 func finalExp(p *fq12) *fq12 {
 	// easy part
-	f := new(fq12).Frobenius(p, 6)
+	f := new(fq12).Conjugate(p) // frobenius
 	t0 := new(fq12).Inv(p)
 	f.Mul(f, t0).Mul(f, t0.Frobenius(f, 2))
 

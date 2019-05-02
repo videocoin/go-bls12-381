@@ -152,3 +152,9 @@ func (z *fq2) Inv(x *fq2) *fq2 {
 
 	return z
 }
+
+func (z *fq2) Frobenius(x *fq2, power uint64) *fq2 {
+	// TODO
+	//z.c1.Mul()
+	return z
+}

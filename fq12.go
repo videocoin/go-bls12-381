@@ -80,8 +80,6 @@ func (z *fq12) SparseMult(x *fq12, a0 *fq2, a1 *fq2, a2 *fq2) *fq12 {
 
 // Sqr sets z to the product x*x and returns z.
 // Sqr utilizes complex squaring - See https://eprint.iacr.org/2006/471.pdf.
-// TODO
-// https://books.google.pt/books?id=6utNZkI-oGkC&pg=PA193&lpg=PA193&dq=karatsuba+or+complex+for+quadratic+extensions+squaring&source=bl&ots=twAZiIiLPG&sig=ACfU3U25YBNFAhdb0j8iUTVwekou6oMByQ&hl=en&sa=X&ved=2ahUKEwjJ_tT2lNfhAhVSUxoKHQZBBfgQ6AEwAnoECAgQAQ#v=onepage&q=karatsuba%20or%20complex%20for%20quadratic%20extensions%20squaring&f=false
 func (z *fq12) Sqr(x *fq12) *fq12 {
 	// v0 = a0a1
 	v0 := new(fq6).Mul(&x.c0, &x.c1)
@@ -120,10 +118,10 @@ func (z *fq12) Exp(x *fq12, y *big.Int) *fq12 {
 
 // Frobenius sets z to the pth-power Frobenius of x and returns z.
 func (z *fq12) Frobenius(x *fq12, power uint64) *fq12 {
-	// TODO
-	if power == 6 {
-		return z.Conjugate(x)
-	}
-
-	return &fq12{}
+	//z.c0.Frobenius(&x.c0, power)
+	//z.c1.Frobenius(&x.c1, power)
+	//z.c1.c0.Mul(&z.c1.c0, frobeniusCoeff[power%12])
+	//z.c1.c1.Mul(&z.c1.c1, frobeniusCoeff[power%12])
+	//z.c1.c2.Mul(&z.c1.c2, frobeniusCoeff[power%12])
+	return z
 }
