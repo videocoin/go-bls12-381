@@ -1,6 +1,6 @@
 ## go-bls12-381
 
-Package go-bls12-381 implements the BLS12-381 pairing-friendly elliptic curve construction.
+Package go-bls12-381 implements the BLS12 pairing-friendly elliptic curve construction for u = -0xd201000000010000.
 
 ### Benchmarks
 

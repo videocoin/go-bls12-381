@@ -59,11 +59,15 @@ var (
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
 	g1Cofactor = bigFromBase10("76329603384216526031706109802092473003")
 
+	// Fq2(u + 1)**(((p^power) - 1) / 6), power E [0, 11]
 	frobeniusCoeff12c1 = [12]*fq2{}
 
+	// Fq2(u + 1)**(((p^power) - 1) / 3), power E [0, 5]
 	frobeniusCoeff6c1 = [6]*fq2{}
 
+	// Fq2(u + 1)**(((2p^power) - 2) / 3), power E [0, 5]
 	frobeniusCoeff6c2 = [6]*fq2{}
 
+	// Fq(-1)**(((p^power) - 1) / 2), power E [0, 1]
 	frobeniusCoeff2c1 = [2]*fq{}
 )
