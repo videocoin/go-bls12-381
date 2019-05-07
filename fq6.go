@@ -59,38 +59,35 @@ func (z *fq6) Sub(x, y *fq6) *fq6 {
 // Mul sets z to the product x*y and returns z.
 // Mul utilizes Karatsuba's method.
 // See https://eprint.iacr.org/2006/471.pdf page 6-7.
-// TODO
-// fixme: B value
 func (z *fq6) Mul(x, y *fq6) *fq6 {
 	v0, v1, v2 := new(fq2), new(fq2), new(fq2)
 	v0.Mul(&x.c0, &y.c0)
 	v1.Mul(&x.c1, &y.c1)
 	v2.Mul(&x.c2, &y.c2)
 
-	c0, c1, c2, t0, t1 := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
+	ret := new(fq6)
+	t0, t1 := new(fq2), new(fq2)
 	t0.Add(&x.c1, &x.c2)
 	t1.Add(&y.c1, &y.c2)
 	t0.Mul(t0, t1)
 	t1.Add(v1, v2)
 	t0.Sub(t0, t1)
-	c0.MulXi(t0).Add(c0, v0)
+	ret.c0.MulXi(t0).Add(&ret.c0, v0)
 
 	t1.Add(&y.c0, &y.c1)
 	t0.Add(&x.c0, &x.c1).Mul(t0, t1)
 	t1.Add(v0, v1)
 	t0.Sub(t0, t1)
-	c1.MulXi(v2).Add(c1, t0)
+	ret.c1.MulXi(v2).Add(&ret.c1, t0)
 
 	t0.Add(&x.c0, &x.c2)
 	t1.Add(&y.c0, &y.c2)
 	t0.Mul(t0, t1)
-	c2.Add(t0, v1)
+	ret.c2.Add(t0, v1)
 	t1.Add(v0, v2)
-	c2.Sub(c2, t1)
+	ret.c2.Sub(&ret.c2, t1)
 
-	z.c0, z.c1, z.c2 = *c0, *c1, *c2
-
-	return z
+	return z.Set(ret)
 }
 
 // SparseMult sets z to the product of x with a0, a1, a2 and returns z.
@@ -144,17 +141,39 @@ func (z *fq6) Sqr(x *fq6) *fq6 {
 	return z
 }
 
+// Inv sets z to 1/x and returns z.
 func (z *fq6) Inv(x *fq6) *fq6 {
-	// TODO
-	return &fq6{}
+	// v0 = x0^2 - E * x1 * x2
+	// v1 = E * x2^2 - x0 * x1
+	// v2 = x1^2 - x0 * x2
+	// z0 = x0 * v0
+	// z1 = x1 * v2 * E
+	// z2 = x2 * v1 * E
+	// t0 = 1/(z0 + z1 + z2)
+	// z0 = v0 * t0
+	// z1 = v1 * t0
+	// z2 = v2 * t0
+	ret := new(fq6)
+	v0, v1, v2, t0 := new(fq2), new(fq2), new(fq2), new(fq2)
+	v0.Mul(&x.c1, &x.c2).MulXi(v0).Sub(t0.Sqr(&x.c0), v0)
+	v1.Sqr(&x.c2).MulXi(v1).Sub(v1, t0.Mul(&x.c0, &x.c1))
+	v2.Sqr(&x.c1).Sub(v2, t0.Mul(&x.c0, &x.c2))
+	ret.c0.Mul(&x.c0, v0)
+	ret.c1.Mul(&x.c1, v2).MulXi(&ret.c1)
+	ret.c2.Mul(&x.c2, v1).MulXi(&ret.c2)
+	t0.Add(&ret.c0, &ret.c1).Add(t0, &ret.c2).Inv(t0)
+	ret.c0.Mul(v0, t0)
+	ret.c1.Mul(v1, t0)
+	ret.c2.Mul(v2, t0)
+
+	return z.Set(ret)
 }
 
+// Frobenius sets z to frobenius x for a certain power and returns z.
 func (z *fq6) Frobenius(x *fq6, power uint64) *fq6 {
 	ret := new(fq6)
 	ret.c0.Frobenius(&x.c0, power)
-	ret.c1.Frobenius(&x.c1, power)
-	ret.c1.Mul(&ret.c1, frobeniusCoeff6c1[power%6])
-	ret.c2.Frobenius(&x.c2, power)
-	ret.c2.Mul(&ret.c2, frobeniusCoeff6c2[power%6])
+	ret.c1.Frobenius(&x.c1, power).Mul(&ret.c1, frobeniusCoeff6c1[power%6])
+	ret.c2.Frobenius(&x.c2, power).Mul(&ret.c2, frobeniusCoeff6c2[power%6])
 	return z.Set(ret)
 }
