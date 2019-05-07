@@ -81,7 +81,7 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 }
 
 // finalExp implements the final exponentiation step.
-// See https://eprint.iacr.org/2016/130.pdf - Algorithm 2.
+// See https://eprint.iacr.org/2019/077.pdf - Algorithm 1, step 8.
 func finalExp(p *fq12) *fq12 {
 	// easy part
 	f := new(fq12).Conjugate(p) // frobenius
@@ -89,6 +89,8 @@ func finalExp(p *fq12) *fq12 {
 	f.Mul(f, t0).Mul(f, t0.Frobenius(f, 2))
 
 	// hard part
+	// note: u is negative.
+	// See https://eprint.iacr.org/2016/130.pdf - Algorithm 2.
 	t0.Sqr(f)
 	t1 := new(fq12).Exp(t0, bigU)
 	t1.Conjugate(t1)
