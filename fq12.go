@@ -121,8 +121,8 @@ func (z *fq12) Frobenius(x *fq12, power uint64) *fq12 {
 	ret := new(fq12)
 	ret.c0.Frobenius(&x.c0, power)
 	ret.c1.Frobenius(&x.c1, power)
-	ret.c1.c0.Mul(&ret.c1.c0, frobeniusCoeff12c1[power%12])
-	ret.c1.c1.Mul(&ret.c1.c1, frobeniusCoeff12c1[power%12])
-	ret.c1.c2.Mul(&ret.c1.c2, frobeniusCoeff12c1[power%12])
+	ret.c1.c0.Mul(&ret.c1.c0, frob12c1[power%12])
+	ret.c1.c1.Mul(&ret.c1.c1, frob12c1[power%12])
+	ret.c1.c2.Mul(&ret.c1.c2, frob12c1[power%12])
 	return z.Set(ret)
 }

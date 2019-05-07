@@ -173,7 +173,7 @@ func (z *fq6) Inv(x *fq6) *fq6 {
 func (z *fq6) Frobenius(x *fq6, power uint64) *fq6 {
 	ret := new(fq6)
 	ret.c0.Frobenius(&x.c0, power)
-	ret.c1.Frobenius(&x.c1, power).Mul(&ret.c1, frobeniusCoeff6c1[power%6])
-	ret.c2.Frobenius(&x.c2, power).Mul(&ret.c2, frobeniusCoeff6c2[power%6])
+	ret.c1.Frobenius(&x.c1, power).Mul(&ret.c1, frob6c1[power%6])
+	ret.c2.Frobenius(&x.c2, power).Mul(&ret.c2, frob6c2[power%6])
 	return z.Set(ret)
 }

@@ -153,6 +153,6 @@ func (z *fq2) Inv(x *fq2) *fq2 {
 }
 
 func (z *fq2) Frobenius(x *fq2, power uint64) *fq2 {
-	fqMul(&z.c1, &x.c1, frobeniusCoeff2c1[power%2])
+	fqMul(&z.c1, &x.c1, frob2c1[power%2])
 	return z
 }
