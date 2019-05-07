@@ -8,13 +8,6 @@ type fq12 struct {
 	c0, c1 fq6
 }
 
-// SetOne sets z to 1 and returns z.
-func (z *fq12) SetOne() *fq12 {
-	z.c0.SetOne()
-	z.c1.SetZero()
-	return z
-}
-
 // Set sets z to x and returns z.
 func (z *fq12) Set(x *fq12) *fq12 {
 	z.c0 = x.c0
@@ -22,9 +15,17 @@ func (z *fq12) Set(x *fq12) *fq12 {
 	return x
 }
 
+// SetOne sets z to 1 and returns z.
+func (z *fq12) SetOne() *fq12 {
+	z.c0.SetOne()
+	z.c1.SetZero()
+	return z
+}
+
 // Equal reports whether x is equal to y.
 func (x *fq12) Equal(y *fq12) bool {
-	return x.c0 == y.c0 && x.c1 == y.c1
+	return *x == *y
+	//return x.c0 == y.c0 && x.c1 == y.c1
 }
 
 // Conjugate sets z to the conjugate of x and returns z.
