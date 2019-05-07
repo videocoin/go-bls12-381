@@ -9,10 +9,10 @@ func TestFqAdd(t *testing.T) {
 	testCases := []struct {
 		a, b, output fq
 	}{
-		{a: fq0, b: fq0, output: fq0},
-		{a: fq0, b: fq1, output: fq1},
-		{a: fq0, b: fqLastElement, output: fqLastElement},
-		{a: fqLastElement, b: fq1, output: fq0},
+		{a: fqZero, b: fqZero, output: fqZero},
+		{a: fqZero, b: fqOne, output: fqOne},
+		{a: fqZero, b: fqLastElement, output: fqLastElement},
+		{a: fqLastElement, b: fqOne, output: fqZero},
 		{a: fqLastElement, b: fq100, output: fq99},
 	}
 	for _, testCase := range testCases {
@@ -30,8 +30,8 @@ func TestFqNeg(t *testing.T) {
 	testCases := []struct {
 		input, output fq
 	}{
-		{input: fqLastElement, output: fq1},
-		{input: fq1, output: fqLastElement},
+		{input: fqLastElement, output: fqOne},
+		{input: fqOne, output: fqLastElement},
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("input: %s", testCase.input.String()), func(t *testing.T) {
@@ -48,17 +48,17 @@ func TestFqSub(t *testing.T) {
 	// TODO complete
 	two, _ := fqMontgomeryFromBase10("2")
 
-	negFqMont1 := new(fq)
-	fqNeg(negFqMont1, &fqMont1)
+	negFqMontOne := new(fq)
+	fqNeg(negFqMontOne, &fqMontOne)
 
 	testCases := []struct {
 		a, b, output fq
 	}{
-		{a: two, b: fqMont1, output: fqMont1},
-		{a: fqLastElement, b: fqLastElement, output: fq0},
-		{a: fq0, b: fqLastElement, output: fq1},
-		{a: fq100, b: fq99, output: fq1},
-		{a: fqMont1, b: two, output: *negFqMont1},
+		{a: two, b: fqMontOne, output: fqMontOne},
+		{a: fqLastElement, b: fqLastElement, output: fqZero},
+		{a: fqZero, b: fqLastElement, output: fqOne},
+		{a: fq100, b: fq99, output: fqOne},
+		{a: fqMontOne, b: two, output: *negFqMontOne},
 	}
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
@@ -82,17 +82,17 @@ func TestFqBasicMul(t *testing.T) {
 			output: fqLarge{0, 0, 0, 0, 0, 0, 0, 0, 1},
 		},
 		{
-			a:      fq0,
-			b:      fq1,
+			a:      fqZero,
+			b:      fqOne,
 			output: fqLarge{0},
 		},
 		{
 			a:      fq{0, 0, 0, 0, 1},
-			b:      fq1,
+			b:      fqOne,
 			output: fqLarge{0, 0, 0, 0, 1},
 		},
 		{
-			a:      fq1,
+			a:      fqOne,
 			b:      r2,
 			output: fqLarge{r2[0], r2[1], r2[2], r2[3], r2[4], r2[5]},
 		},
@@ -134,9 +134,9 @@ func TestFqMul(t *testing.T) {
 		a, b, output fq
 	}{
 		{
-			a:      fqMont1,
-			b:      fqMont1,
-			output: fqMont1,
+			a:      fqMontOne,
+			b:      fqMontOne,
+			output: fqMontOne,
 		},
 	}
 	for _, testCase := range testCases {
@@ -156,9 +156,9 @@ func TestFqExp(t *testing.T) {
 		exponent     []uint64
 	}{
 		{
-			base:     fqMont1,
+			base:     fqMontOne,
 			exponent: []uint64{3},
-			output:   fqMont1,
+			output:   fqMontOne,
 		},
 	}
 	for _, testCase := range testCases {
@@ -195,8 +195,8 @@ func TestFqSqrt(t *testing.T) {
 */
 
 func TestFqInv(t *testing.T) {
-	negFqMont1 := new(fq)
-	fqNeg(negFqMont1, &fqMont1)
+	negFqMontOne := new(fq)
+	fqNeg(negFqMontOne, &fqMontOne)
 
 	// TODO complete
 	testCases := []struct {
@@ -205,14 +205,14 @@ func TestFqInv(t *testing.T) {
 		output   fq
 	}{
 		{
-			base:     *negFqMont1,
+			base:     *negFqMontOne,
 			exponent: []uint64{123123},
-			output:   *negFqMont1,
+			output:   *negFqMontOne,
 		},
 		{
-			base:     fqMont1,
+			base:     fqMontOne,
 			exponent: []uint64{123123},
-			output:   fqMont1,
+			output:   fqMontOne,
 		},
 	}
 	for _, testCase := range testCases {

@@ -20,9 +20,9 @@ const (
 var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
 
 var (
-	fq0        = fq{0}
-	fq1        = fq{1}
-	fqMont1, _ = fqMontgomeryFromBase10("1")
+	fqZero       = fq{0}
+	fqOne        = fq{1}
+	fqMontOne, _ = fqMontgomeryFromBase10("1")
 )
 
 type (
@@ -43,12 +43,12 @@ func (z *fq) Set(x *fq) *fq {
 }
 
 func (fq *fq) SetOne() *fq {
-	*fq = fqMont1
+	*fq = fqMontOne
 	return fq
 }
 
 func (fq *fq) SetZero() *fq {
-	*fq = fq0
+	*fq = fqZero
 	return fq
 }
 
@@ -216,9 +216,9 @@ func montgomeryEncode(c, a *fq) {
 // the standard form.
 func montgomeryDecode(c, a *fq) {
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
-	fqMul(c, a, &fq1)
+	fqMul(c, a, &fqOne)
 }
 
 func (fq *fq) IsOne() bool {
-	return *fq == fqMont1
+	return *fq == fqMontOne
 }

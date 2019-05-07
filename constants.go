@@ -168,7 +168,7 @@ var (
 
 	// Fq(-1)**(((p^power) - 1) / 2), power E [0, 1]
 	frob2c1 = [2]*fq{
-		&fq1,
+		&fqOne,
 		&fq{0x43f5fffffffcaaae, 0x32b7fff2ed47fffd, 0x7e83a49a2e99d69, 0xeca8f3318332bb7a, 0xef148d1ea0f4c069, 0x40ab3263eff0206},
 	}
 )

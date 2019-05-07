@@ -1,6 +1,6 @@
 package bls12
 
-var fq2One = &fq2{fqMont1, fq0}
+var fq2One = &fq2{fqMontOne, fqZero}
 
 type (
 	// fq2 is an element of Fq² = Fq[X]/(X² − β), where β

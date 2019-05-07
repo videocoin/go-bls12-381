@@ -158,7 +158,7 @@ func fqSqrt(x, a *fq) bool {
 // See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 func fqExp(ret, base *fq, exponent []uint64) {
 	b := *base
-	*ret = fqMont1
+	*ret = fqMontOne
 	for _, word := range exponent {
 		for j := uint(0); j < wordSize; j++ {
 			if (word & (1 << j)) != 0 {

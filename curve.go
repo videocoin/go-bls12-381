@@ -33,7 +33,7 @@ func (cp *curvePoint) Set(p *curvePoint) *curvePoint {
 }
 
 func (cp *curvePoint) IsInfinity() bool {
-	return cp.z == fq0
+	return cp.z == fqZero
 }
 
 // Add sets cp to the sum a+b and returns cp.
@@ -149,7 +149,7 @@ func (cp *curvePoint) Equal(p *curvePoint) bool {
 
 // isInfinty check if the point is a point at "infinity"
 func (cp *curvePoint) isInfinity() bool {
-	return cp.z == fq0
+	return cp.z == fqZero
 }
 
 func (cp *curvePoint) ToAffine() *curvePoint {
@@ -167,7 +167,7 @@ func (cp *curvePoint) ToAffine() *curvePoint {
 	fqInv(zInv, &cp.z)
 	fqMul(&cp.x, &cp.x, zInv)
 	fqMul(&cp.y, &cp.y, zInv)
-	cp.z = fqMont1
+	cp.z = fqMontOne
 
 	return cp
 }
@@ -208,7 +208,7 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 	if data[0]&pointAtInfinityMask == 1 {
 
 	} else {
-		cp.z = fqMont1
+		cp.z = fqMontOne
 	}
 
 	var err error
@@ -271,14 +271,14 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 		case 2:
 			fqMul(x, w, w)
 			fqInv(x, x)
-			fqAdd(x, x, &fqMont1)
+			fqAdd(x, x, &fqMontOne)
 		}
 
 		fqMul(y, x, x)
 		fqMul(y, y, x)
 		fqAdd(y, y, &fqMontCurveB)
 		if fqSqrt(y, y) {
-			cp.x, cp.y, cp.z = *x, *y, fqMont1
+			cp.x, cp.y, cp.z = *x, *y, fqMontOne
 			return cp
 		}
 	}

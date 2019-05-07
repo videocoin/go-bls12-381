@@ -5,9 +5,10 @@ import (
 )
 
 var (
-	bigU     = new(big.Int).SetUint64(uAbs)
-	bigUDiv2 = new(big.Int).SetUint64(uAbs >> 1)
-	uArr     = []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1}
+	bigU       = new(big.Int).SetUint64(uAbs)
+	bigUDivTwo = new(big.Int).SetUint64(uAbs >> 1)
+	uArr       = []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1}
+	uArrLen    = len(uArr)
 )
 
 // doublingAndLine returns the sum r + r and the line function result.
@@ -92,7 +93,7 @@ func finalExp(p *fq12) *fq12 {
 	t0.Sqr(f)
 	t1 := new(fq12).Exp(t0, bigU)
 	t1.Conjugate(t1)
-	t2 := new(fq12).Exp(t1, bigUDiv2)
+	t2 := new(fq12).Exp(t1, bigUDivTwo)
 	t2.Conjugate(t2)
 	t3 := new(fq12).Conjugate(f)
 	t1.Mul(t3, t1).Conjugate(t1).Mul(t1, t2)
@@ -119,9 +120,9 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
 	r2 := new(fq2).Sqr(&qAffine.y)
 
-	for i := len(uArr) - 1; i > 0; i-- {
+	for i := uArrLen - 1; i > 0; i-- {
 		// skip the initial squaring (f = 1)
-		if i != (len(uArr) - 1) {
+		if i != (uArrLen - 1) {
 			f.Sqr(f)
 		}
 

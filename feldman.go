@@ -51,7 +51,7 @@ func (p *polynomial) evaluate(x uint64) (*PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	mul := fqMont1
+	mul := fqMontOne
 	sum := p.coefficients[0]
 	for _, coeff := range p.coefficients[1:] {
 		term := new(fq)
@@ -126,7 +126,7 @@ func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
 
 	sum := new(fq)
 	for i := 0; i < len(shares); i++ {
-		mul := fqMont1
+		mul := fqMontOne
 		for j := 0; j < len(shares); j++ {
 			if j != i {
 				term := new(fq)
