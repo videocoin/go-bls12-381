@@ -5,7 +5,7 @@ import (
 	"math/big"
 )
 
-var g2Gen = &g2Point{*newTwistPoint(newFq2(g2X0, g2X1), newFq2(g2Y0, g2Y1))}
+var g2Gen = &g2Point{*newTwistPoint(*newFq2(g2X0, g2X1), *newFq2(g2Y0, g2Y1))}
 
 type g2Point struct {
 	p twistPoint

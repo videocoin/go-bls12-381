@@ -10,8 +10,8 @@ type (
 	fq2Large [2]fqLarge
 )
 
-func newFq2(c0, c1 fq) fq2 {
-	return fq2{
+func newFq2(c0, c1 fq) *fq2 {
+	return &fq2{
 		c0: c0,
 		c1: c1,
 	}
@@ -133,14 +133,13 @@ func (z *fq2) Sqr(x *fq2) *fq2 {
 }
 
 // Inv sets z to 1/x and returns z.
-// TODO desc
 func (z *fq2) Inv(x *fq2) *fq2 {
-	// t0 = a.c0^2
-	// t1 = a.c1^2
+	// t0 = x0^2
+	// t1 = x1^2
 	// t0 = t0 + t1
 	// t0 = 1/t0
-	// c.c0 = a.c0 * t0
-	// c.c1 = - a.c1 * t0
+	// z0 = x0 * t0
+	// z1 = - x1 * t0
 	t0, t1 := new(fq), new(fq)
 	fqMul(t0, &x.c0, &x.c0)
 	fqMul(t1, &x.c1, &x.c1)
