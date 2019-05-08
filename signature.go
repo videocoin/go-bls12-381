@@ -14,25 +14,21 @@ type PrivateKey struct {
 	Secret *big.Int
 }
 
-func pubKeyFromScalar(scalar *big.Int) *PublicKey {
-	return new(g2Point).ScalarBaseMult(scalar).ToAffine()
-}
-
-func privKeyFromScalar(scalar *big.Int) *PrivateKey {
-	return &PrivateKey{
-		Secret:    scalar,
-		PublicKey: *pubKeyFromScalar(scalar),
-	}
+func privKeyFromScalar(k *big.Int) *PrivateKey {
+	priv := new(PrivateKey)
+	priv.Secret = k
+	priv.PublicKey = *new(g2Point).ScalarBaseMult(k).ToAffine()
+	return priv
 }
 
 // GenerateKey generates a public and private key pair.
 func GenerateKey(reader io.Reader) (*PrivateKey, error) {
-	elem, err := randFieldElement(reader)
+	k, err := randFieldElement(reader)
 	if err != nil {
 		return nil, err
 	}
 
-	return privKeyFromScalar(elem), nil
+	return privKeyFromScalar(k), nil
 }
 
 // Public returns the public key corresponding to priv.
