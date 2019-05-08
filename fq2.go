@@ -2,13 +2,12 @@ package bls12
 
 var fq2One = &fq2{fqMontOne, fqZero}
 
-type (
-	// fq2 is an element of Fq² = Fq[X]/(X² − β), where β
-	// is a quadratic non-residue in Fq with a value of -1.
-	// See http://eprint.iacr.org/2006/471.pdf - Quadratic extensions.
-	fq2      struct{ c0, c1 fq }
-	fq2Large [2]fqLarge
-)
+// fq2 is an element of Fq² = Fq[X]/(X² − β), where β is a quadratic
+// non-residue in Fq with a value of -1.
+// See http://eprint.iacr.org/2006/471.pdf for arithmetic.
+type fq2 struct {
+	c0, c1 fq
+}
 
 func newFq2(c0, c1 fq) *fq2 {
 	return &fq2{

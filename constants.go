@@ -7,6 +7,7 @@ package bls12
 // See https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates.
 // # BLS parameter, used to generate other parameters: x = -0xd201000000010000
 // TODO replace fq2One
+// TODO Benchmark sets and no sets, calls to lower levels that are not necessary
 
 const (
 	// uAbs is the absolute value of u

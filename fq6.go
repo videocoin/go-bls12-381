@@ -1,11 +1,18 @@
 package bls12
 
-// fq6 is an element of Fq6 = Fq²[Y]/(Y³ − γ), where γ
-// is a quadratic non-residue in Fq and γ = √β is a
-// cubic non-residue in Fq² with a value of X + 1.
-// See https://eprint.iacr.org/2006/471.pdf - "6.2 Cubic over quadratic"
+// fq6 is an element of Fq6 = Fq²[Y]/(Y³ − γ), where γ is a quadratic
+// non-residue in Fq and γ = √β is a cubic non-residue in Fq² with a value
+// of X + 1. See https://eprint.iacr.org/2006/471.pdf for arithmetic.
 type fq6 struct {
 	c0, c1, c2 fq2
+}
+
+// Set sets z to x and returns z.
+func (z *fq6) Set(x *fq6) *fq6 {
+	z.c0.Set(&x.c0)
+	z.c1.Set(&x.c1)
+	z.c2.Set(&x.c2)
+	return z
 }
 
 // SetOne sets z to 0 and returns z.
@@ -21,14 +28,6 @@ func (z *fq6) SetOne() *fq6 {
 	z.c0.SetOne()
 	z.c1.SetZero()
 	z.c2.SetZero()
-	return z
-}
-
-// Set sets z to x and returns z.
-func (z *fq6) Set(x *fq6) *fq6 {
-	z.c0.Set(&x.c0)
-	z.c1.Set(&x.c1)
-	z.c2.Set(&x.c2)
 	return z
 }
 
@@ -56,36 +55,34 @@ func (z *fq6) Sub(x, y *fq6) *fq6 {
 	return z
 }
 
+// TODO review
 // Mul sets z to the product x*y and returns z.
 // Mul utilizes Karatsuba's method.
-// See https://eprint.iacr.org/2006/471.pdf page 6-7.
 func (z *fq6) Mul(x, y *fq6) *fq6 {
-	v0, v1, v2 := new(fq2), new(fq2), new(fq2)
+	v0, v1, v2, ret, tmp0, tmp1 := new(fq2), new(fq2), new(fq2), new(fq6), new(fq2), new(fq2)
 	v0.Mul(&x.c0, &y.c0)
 	v1.Mul(&x.c1, &y.c1)
 	v2.Mul(&x.c2, &y.c2)
 
-	ret := new(fq6)
-	t0, t1 := new(fq2), new(fq2)
-	t0.Add(&x.c1, &x.c2)
-	t1.Add(&y.c1, &y.c2)
-	t0.Mul(t0, t1)
-	t1.Add(v1, v2)
-	t0.Sub(t0, t1)
-	ret.c0.MulXi(t0).Add(&ret.c0, v0)
+	tmp0.Add(&x.c1, &x.c2)
+	tmp1.Add(&y.c1, &y.c2)
+	tmp0.Mul(tmp0, tmp1)
+	tmp1.Add(v1, v2)
+	tmp0.Sub(tmp0, tmp1)
+	ret.c0.MulXi(tmp0).Add(&ret.c0, v0)
 
-	t1.Add(&y.c0, &y.c1)
-	t0.Add(&x.c0, &x.c1).Mul(t0, t1)
-	t1.Add(v0, v1)
-	t0.Sub(t0, t1)
-	ret.c1.MulXi(v2).Add(&ret.c1, t0)
+	tmp1.Add(&y.c0, &y.c1)
+	tmp0.Add(&x.c0, &x.c1).Mul(tmp0, tmp1)
+	tmp1.Add(v0, v1)
+	tmp0.Sub(tmp0, tmp1)
+	ret.c1.MulXi(v2).Add(&ret.c1, tmp0)
 
-	t0.Add(&x.c0, &x.c2)
-	t1.Add(&y.c0, &y.c2)
-	t0.Mul(t0, t1)
-	ret.c2.Add(t0, v1)
-	t1.Add(v0, v2)
-	ret.c2.Sub(&ret.c2, t1)
+	tmp0.Add(&x.c0, &x.c2)
+	tmp1.Add(&y.c0, &y.c2)
+	tmp0.Mul(tmp0, tmp1)
+	ret.c2.Add(tmp0, v1)
+	tmp1.Add(v0, v2)
+	ret.c2.Sub(&ret.c2, tmp1)
 
 	return z.Set(ret)
 }
@@ -94,14 +91,14 @@ func (z *fq6) Mul(x, y *fq6) *fq6 {
 // SparseMult utilizes the sparness property to avoid full Fq6 arithmetic.
 // See https://eprint.iacr.org/2012/408.pdf - Algorithm 6.
 func (z *fq6) SparseMul(x *fq6, a0 *fq2, a1 *fq2) *fq6 {
-	ret, t0 := new(fq6), new(fq2)
+	ret, tmp := new(fq6), new(fq2)
 
 	a := new(fq2).Mul(a0, &x.c0)
 	b := new(fq2).Mul(a1, &x.c1)
 	e := new(fq2).Add(a0, a1)
-	e.Mul(e, t0.Add(&x.c0, &x.c1))
-	ret.c0.Add(a, t0.MulXi(&x.c2).Mul(t0, a1))
-	ret.c1.Sub(e, t0.Add(a, b))
+	e.Mul(e, tmp.Add(&x.c0, &x.c1))
+	ret.c0.Add(a, tmp.MulXi(&x.c2).Mul(tmp, a1))
+	ret.c1.Sub(e, tmp.Add(a, b))
 	ret.c2.Mul(a0, &x.c2).Add(&z.c2, b)
 
 	return z.Set(ret)
@@ -175,5 +172,6 @@ func (z *fq6) Frobenius(x *fq6, power uint64) *fq6 {
 	ret.c0.Frobenius(&x.c0, power)
 	ret.c1.Frobenius(&x.c1, power).Mul(&ret.c1, frob6c1[power%6])
 	ret.c2.Frobenius(&x.c2, power).Mul(&ret.c2, frob6c2[power%6])
+
 	return z.Set(ret)
 }

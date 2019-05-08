@@ -3,16 +3,15 @@ package bls12
 import "math/big"
 
 // fq12 implements the field of size q¹² as a quadratic extension of fq6 where
-// y = v. See https://eprint.iacr.org/2006/471.pdf for arithmetic -
-// multiplication, squaring.
+// y = v. See https://eprint.iacr.org/2006/471.pdf for arithmetic.
 type fq12 struct {
 	c0, c1 fq6
 }
 
 // Set sets z to x and returns z.
 func (z *fq12) Set(x *fq12) *fq12 {
-	z.c0, z.c1 = x.c0, x.c1
-
+	z.c0.Set(&x.c0)
+	z.c1.Set(&x.c1)
 	return z
 }
 
@@ -20,7 +19,6 @@ func (z *fq12) Set(x *fq12) *fq12 {
 func (z *fq12) SetOne() *fq12 {
 	z.c0.SetOne()
 	z.c1.SetZero()
-
 	return z
 }
 
@@ -33,7 +31,6 @@ func (x *fq12) Equal(y *fq12) bool {
 func (z *fq12) Conjugate(x *fq12) *fq12 {
 	z.c0.Set(&x.c0)
 	z.c1.Neg(&x.c1)
-
 	return z
 }
 
