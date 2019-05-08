@@ -55,51 +55,46 @@ func (z *fq6) Sub(x, y *fq6) *fq6 {
 	return z
 }
 
-// TODO review
 // Mul sets z to the product x*y and returns z.
 // Mul utilizes Karatsuba's method.
 func (z *fq6) Mul(x, y *fq6) *fq6 {
-	v0, v1, v2, ret, tmp0, tmp1 := new(fq2), new(fq2), new(fq2), new(fq6), new(fq2), new(fq2)
-	v0.Mul(&x.c0, &y.c0)
-	v1.Mul(&x.c1, &y.c1)
-	v2.Mul(&x.c2, &y.c2)
-
-	tmp0.Add(&x.c1, &x.c2)
-	tmp1.Add(&y.c1, &y.c2)
-	tmp0.Mul(tmp0, tmp1)
-	tmp1.Add(v1, v2)
-	tmp0.Sub(tmp0, tmp1)
-	ret.c0.MulXi(tmp0).Add(&ret.c0, v0)
-
-	tmp1.Add(&y.c0, &y.c1)
-	tmp0.Add(&x.c0, &x.c1).Mul(tmp0, tmp1)
-	tmp1.Add(v0, v1)
-	tmp0.Sub(tmp0, tmp1)
-	ret.c1.MulXi(v2).Add(&ret.c1, tmp0)
-
-	tmp0.Add(&x.c0, &x.c2)
-	tmp1.Add(&y.c0, &y.c2)
-	tmp0.Mul(tmp0, tmp1)
-	ret.c2.Add(tmp0, v1)
-	tmp1.Add(v0, v2)
-	ret.c2.Sub(&ret.c2, tmp1)
+	ret, t0, t1 := new(fq6), new(fq2), new(fq2)
+	v0 := new(fq2).Mul(&x.c0, &y.c0)
+	v1 := new(fq2).Mul(&x.c1, &y.c1)
+	v2 := new(fq2).Mul(&x.c2, &y.c2)
+	// c0
+	t1.Add(&y.c1, &y.c2)
+	t0.Add(&x.c1, &x.c2).Mul(t0, t1)
+	t1.Add(v1, v2)
+	t0.Sub(t0, t1)
+	ret.c0.MulXi(t0).Add(&ret.c0, v0)
+	// c1
+	t1.Add(&y.c0, &y.c1)
+	t0.Add(&x.c0, &x.c1).Mul(t0, t1)
+	t1.Add(v0, v1)
+	t0.Sub(t0, t1)
+	ret.c1.MulXi(v2).Add(&ret.c1, t0)
+	// c2
+	t1.Add(&y.c0, &y.c2)
+	t0.Add(&x.c0, &x.c2).Mul(t0, t1)
+	t1.Add(v0, v2)
+	ret.c2.Add(t0, v1).Sub(&ret.c2, t1)
 
 	return z.Set(ret)
 }
 
 // SparseMult sets z to the product of x with a0, a1, a2 and returns z.
-// SparseMult utilizes the sparness property to avoid full Fq6 arithmetic.
+// SparseMult utilizes the sparness property to avoid full fq6 arithmetic.
 // See https://eprint.iacr.org/2012/408.pdf - Algorithm 6.
 func (z *fq6) SparseMul(x *fq6, a0 *fq2, a1 *fq2) *fq6 {
-	ret, tmp := new(fq6), new(fq2)
-
+	ret, t0 := new(fq6), new(fq2)
 	a := new(fq2).Mul(a0, &x.c0)
 	b := new(fq2).Mul(a1, &x.c1)
 	e := new(fq2).Add(a0, a1)
-	e.Mul(e, tmp.Add(&x.c0, &x.c1))
-	ret.c0.Add(a, tmp.MulXi(&x.c2).Mul(tmp, a1))
-	ret.c1.Sub(e, tmp.Add(a, b))
-	ret.c2.Mul(a0, &x.c2).Add(&z.c2, b)
+	e.Mul(e, t0.Add(&x.c0, &x.c1))
+	ret.c0.Add(a, t0.MulXi(&x.c2).Mul(t0, a1)) // d
+	ret.c1.Sub(e, t0.Add(a, b))                // g
+	ret.c2.Mul(a0, &x.c2).Add(&z.c2, b)        // i
 
 	return z.Set(ret)
 }
@@ -119,8 +114,8 @@ func (z *fq6) MulQuadraticNonResidue(x *fq6) *fq6 {
 
 // Sqr sets z to the product x*x and returns z.
 // Sqr utilizes the CH-SQR3x method.
-// See https://eprint.iacr.org/2006/471.pdf page 9.
 func (z *fq6) Sqr(x *fq6) *fq6 {
+	t0, t1 := new(fq2), new(fq2)
 	s0 := new(fq2).Sqr(&x.c0)
 	s1 := new(fq2).Add(&x.c0, &x.c1)
 	s1.Add(s1, &x.c2).Sqr(s1)
@@ -129,10 +124,11 @@ func (z *fq6) Sqr(x *fq6) *fq6 {
 	s3 := new(fq2).Mul(&x.c1, &x.c2)
 	s3.Add(s3, s3)
 	s4 := new(fq2).Sqr(&x.c2)
-
-	t0, t1 := new(fq2), new(fq2)
+	// c0
 	z.c0.Add(s0, s0).Add(&z.c0, t0.MulXi(s3).Add(t0, t0))
+	// c1
 	z.c1.Sub(s1, t0.Add(s2, t0.Add(s3, s3))).Add(&z.c1, t0.MulXi(s4).Add(t0, t0))
+	// c2
 	z.c2.Add(s1, s2).Sub(&z.c2, t0.Add(t0.Add(s0, s0), t1.Add(s4, s4)))
 
 	return z
@@ -150,11 +146,13 @@ func (z *fq6) Inv(x *fq6) *fq6 {
 	// z0 = v0 * t0
 	// z1 = v1 * t0
 	// z2 = v2 * t0
-	ret := new(fq6)
-	v0, v1, v2, t0 := new(fq2), new(fq2), new(fq2), new(fq2)
-	v0.Mul(&x.c1, &x.c2).MulXi(v0).Sub(t0.Sqr(&x.c0), v0)
-	v1.Sqr(&x.c2).MulXi(v1).Sub(v1, t0.Mul(&x.c0, &x.c1))
-	v2.Sqr(&x.c1).Sub(v2, t0.Mul(&x.c0, &x.c2))
+	ret, t0 := new(fq6), new(fq2)
+	v0 := new(fq2).Mul(&x.c1, &x.c2)
+	v0.MulXi(v0).Sub(t0.Sqr(&x.c0), v0)
+	v1 := new(fq2).Sqr(&x.c2)
+	v1.MulXi(v1).Sub(v1, t0.Mul(&x.c0, &x.c1))
+	v2 := new(fq2).Sqr(&x.c1)
+	v2.Sub(v2, t0.Mul(&x.c0, &x.c2))
 	ret.c0.Mul(&x.c0, v0)
 	ret.c1.Mul(&x.c1, v2).MulXi(&ret.c1)
 	ret.c2.Mul(&x.c2, v1).MulXi(&ret.c2)

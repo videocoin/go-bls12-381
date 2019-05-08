@@ -74,8 +74,8 @@ func (z *fq12) SparseMult(x *fq12, a0 *fq2, a1 *fq2, a2 *fq2) *fq12 {
 // Sqr sets z to the product x*x and returns z.
 // Sqr utilizes complex squaring.
 func (z *fq12) Sqr(x *fq12) *fq12 {
-	ret, tmp, v0 := new(fq12), new(fq6), new(fq6).Mul(&x.c0, &x.c1)
-	ret.c0.Add(&x.c0, &x.c1).Mul(&ret.c0, tmp.MulQuadraticNonResidue(&x.c1).Add(tmp, &x.c0)).Sub(&ret.c0, tmp.Add(v0, tmp.MulQuadraticNonResidue(v0)))
+	ret, t0, v0 := new(fq12), new(fq6), new(fq6).Mul(&x.c0, &x.c1)
+	ret.c0.Add(&x.c0, &x.c1).Mul(&ret.c0, t0.MulQuadraticNonResidue(&x.c1).Add(t0, &x.c0)).Sub(&ret.c0, t0.Add(v0, t0.MulQuadraticNonResidue(v0)))
 	ret.c1.Add(v0, v0)
 
 	return z.Set(ret)
@@ -84,10 +84,10 @@ func (z *fq12) Sqr(x *fq12) *fq12 {
 // Inv sets z to 1/x and returns z.
 // See "Implementing cryptographic pairings", M. Scott - section 3.2.
 func (z *fq12) Inv(x *fq12) *fq12 {
-	tmp0, tmp1 := new(fq6).Sqr(&x.c0), new(fq6).Sqr(&x.c1)
-	tmp1.MulQuadraticNonResidue(tmp1).Sub(tmp0, tmp1).Inv(tmp1)
-	z.c0.Mul(&x.c0, tmp1)
-	z.c1.Mul(&x.c1, tmp1)
+	t0, t1 := new(fq6).Sqr(&x.c0), new(fq6).Sqr(&x.c1)
+	t1.MulQuadraticNonResidue(t1).Sub(t0, t1).Inv(t1)
+	z.c0.Mul(&x.c0, t1)
+	z.c1.Mul(&x.c1, t1)
 
 	return z
 }

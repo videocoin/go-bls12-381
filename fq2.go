@@ -3,17 +3,10 @@ package bls12
 var fq2One = &fq2{fqMontOne, fqZero}
 
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β is a quadratic
-// non-residue in Fq with a value of -1.
-// See http://eprint.iacr.org/2006/471.pdf for arithmetic.
+// non-residue in Fq with a value of -1. See
+// http://eprint.iacr.org/2006/471.pdf for arithmetic.
 type fq2 struct {
 	c0, c1 fq
-}
-
-func newFq2(c0, c1 fq) *fq2 {
-	return &fq2{
-		c0: c0,
-		c1: c1,
-	}
 }
 
 // IsOne reports whether x is equal to 1.
