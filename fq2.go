@@ -10,12 +10,13 @@ type fq2 struct {
 }
 
 // IsOne reports whether x is equal to 1.
-// TODO remove?
+// TODO review
 func (z *fq2) IsOne() bool {
 	return z.c0 == fq2One.c0 && z.c1 == fq2One.c1
 }
 
 // Equal reports whether x is equal to y.
+// TODO review
 func (x *fq2) Equal(y *fq2) bool {
 	// TODO a.c0.Equal form
 	return (x.c0 == y.c0) && (x.c1 == y.c1)
@@ -39,7 +40,6 @@ func (z *fq2) SetOne() *fq2 {
 func (z *fq2) Set(x *fq2) *fq2 {
 	z.c0.Set(&x.c0)
 	z.c1.Set(&x.c1)
-
 	return z
 }
 
@@ -67,7 +67,7 @@ func (z *fq2) Sub(x, y *fq2) *fq2 {
 // Mul sets z to the product x*y and returns z.
 // Mul utilizes Karatsuba's method.
 func (z *fq2) Mul(x, y *fq2) *fq2 {
-	mult := new(fq2)
+	ret := new(fq2)
 	// v0 = a0b0
 	// v1 = a1b1
 	// c0 = v0 + βv1
@@ -75,21 +75,18 @@ func (z *fq2) Mul(x, y *fq2) *fq2 {
 	v0, v1 := new(fq), new(fq)
 	fqMul(v0, &x.c0, &y.c0)
 	fqMul(v1, &x.c1, &y.c1)
-	fqSub(&mult.c0, v0, v1)
+	fqSub(&ret.c0, v0, v1)
 
 	// c1 = (a0 + a1)(b0 + b1) − v0 − v1
 	// c1 = (a0 + a1)(b0 + b1) − (v0 + v1)
-	// note: c1 = a0b1 + a1b0 = expensive 2M
 	a, b, v := new(fq), new(fq), new(fq)
 	fqAdd(a, &x.c0, &x.c1)
 	fqAdd(b, &y.c0, &y.c1)
-	fqMul(&mult.c1, a, b)
+	fqMul(&ret.c1, a, b)
 	fqAdd(v, v0, v1)
-	fqSub(&mult.c1, &mult.c1, v)
+	fqSub(&ret.c1, &ret.c1, v)
 
-	z.c0, z.c1 = mult.c0, mult.c1
-
-	return z
+	return z.Set(ret)
 }
 
 // MulXi sets z to the product ξX and returns z.
@@ -114,14 +111,14 @@ func (z *fq2) Sqr(x *fq2) *fq2 {
 	v0 := new(fq)
 	fqMul(v0, &x.c0, &x.c1)
 	// c0 = (a0 + a1)(a0 - a1)
-	c := new(fq2)
-	fqAdd(&c.c0, &x.c0, &x.c1)
-	fqSub(&c.c1, &x.c0, &x.c1)
-	fqMul(&c.c0, &c.c0, &c.c1)
+	ret := new(fq2)
+	fqAdd(&ret.c0, &x.c0, &x.c1)
+	fqSub(&ret.c1, &x.c0, &x.c1)
+	fqMul(&ret.c0, &ret.c0, &ret.c1)
 	// c1 = 2v0
-	fqAdd(&c.c1, v0, v0)
+	fqAdd(&ret.c1, v0, v0)
 
-	return z.Set(c)
+	return z.Set(ret)
 }
 
 // Inv sets z to 1/x and returns z.

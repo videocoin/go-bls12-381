@@ -11,9 +11,8 @@ import (
 )
 
 const (
-	fqLen     = 6
-	fqByteLen = 48
-
+	fqLen       = 6
+	fqByteLen   = 48
 	decimalBase = 10
 )
 
@@ -28,7 +27,7 @@ var (
 type (
 	// fq is an element of the finite field of order q.
 	fq [fqLen]uint64
-	// fqLarge is used for storing the basic multiplication result.
+	// fqLarge is used during the multiplication.
 	fqLarge [fqLen * 2]uint64
 )
 
@@ -187,20 +186,6 @@ func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
 		}
 	}
 }
-
-// RandFieldElement returns a random element of the field underlying the given
-// curve.
-/*
-func RandFieldElement(reader io.Reader) (Fq, error) {
-	elem, err := randInt(reader, q)
-	if err != nil {
-		return Fq{}, err
-	}
-
-	// TODO verification is not necessary out of bounds
-	return FqMontgomeryFromBig(elem)
-}
-*/
 
 func randFieldElement(reader io.Reader) (*big.Int, error) {
 	return randInt(reader, q)
