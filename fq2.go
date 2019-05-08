@@ -22,6 +22,13 @@ func (x *fq2) Equal(y *fq2) bool {
 	return (x.c0 == y.c0) && (x.c1 == y.c1)
 }
 
+// Set sets z to x and returns z.
+func (z *fq2) Set(x *fq2) *fq2 {
+	z.c0.Set(&x.c0)
+	z.c1.Set(&x.c1)
+	return z
+}
+
 // SetOne sets z to 0 and returns z.
 func (z *fq2) SetZero() *fq2 {
 	z.c0.SetZero()
@@ -33,13 +40,6 @@ func (z *fq2) SetZero() *fq2 {
 func (z *fq2) SetOne() *fq2 {
 	z.c0.SetOne()
 	z.c1.SetZero()
-	return z
-}
-
-// Set sets z to x and returns z.
-func (z *fq2) Set(x *fq2) *fq2 {
-	z.c0.Set(&x.c0)
-	z.c1.Set(&x.c1)
 	return z
 }
 

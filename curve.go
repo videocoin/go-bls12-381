@@ -176,9 +176,9 @@ func (cp *curvePoint) ToAffine() *curvePoint {
 // See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
 func (cp *curvePoint) Marshal() []byte {
 	cp.ToAffine()
-	x, y := new(fq), new(fq)
-	montgomeryDecode(x, &cp.x)
-	montgomeryDecode(y, &cp.y)
+
+	x := new(fq).MontgomeryDecode(&cp.x)
+	y := new(fq).MontgomeryDecode(&cp.y)
 
 	ret := make([]byte, fqByteLen*2)
 	copy(ret, x.Bytes())

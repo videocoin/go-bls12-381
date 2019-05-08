@@ -3,7 +3,6 @@ package bls12
 import (
 	"crypto/rand"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -16,99 +15,120 @@ const (
 	decimalBase = 10
 )
 
-var errOutOfBounds = errors.New("value is not an element of the finite field of order q")
-
 var (
-	fqZero       = fq{0}
+	fqZero       = fq{}
 	fqOne        = fq{1}
 	fqMontOne, _ = fqMontgomeryFromBase10("1")
 )
 
-type (
-	// fq is an element of the finite field of order q.
-	fq [fqLen]uint64
-	// fqLarge is used during the multiplication.
-	fqLarge [fqLen * 2]uint64
-)
+// fq is an element of the finite field of order q.
+type fq [fqLen]uint64
 
-// Hex returns the field element in the hexadecimal base
-func (fq *fq) Hex() string {
-	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fq[5], fq[4], fq[3], fq[2], fq[1], fq[0])
+// IsOne reports whether x is equal to 1.
+// TODO montgomery form.
+func (x *fq) IsOne() bool {
+	return *x == fqMontOne
 }
 
+// String implements the Stringer interface.
+func (x *fq) String() string {
+	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[5], x[4], x[3], x[2], x[1], x[0])
+}
+
+// Set sets z to x and returns z.
 func (z *fq) Set(x *fq) *fq {
 	*z = *x
 	return z
 }
 
-func (fq *fq) SetOne() *fq {
-	*fq = fqMontOne
-	return fq
+// SetOne sets z to 0 and returns z.
+func (z *fq) SetZero() *fq {
+	*z = fqZero
+	return z
 }
 
-func (fq *fq) SetZero() *fq {
-	*fq = fqZero
-	return fq
+// SetOne sets z to 1 and returns z.
+func (z *fq) SetOne() *fq {
+	*z = fqMontOne
+	return z
 }
 
-// String satisfies the Stringer interface.
-func (fq *fq) String() string {
-	return fq.Hex()
+// MontgomeryEncode converts z to the Montgomery form and returns z.
+// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+func (z *fq) MontgomeryEncode(x *fq) *fq {
+	fqMul(z, x, &r2)
+	return z
+}
+
+// MontgomeryDecode converts z back to the standard form and returns z.
+// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+func (z *fq) MontgomeryDecode(x *fq) *fq {
+	fqMul(z, x, &fqOne)
+	return z
+}
+
+// SetString sets z to the value of s, interpreted in the decimal base, and
+// returns z and a boolean indicating success.
+func (z *fq) SetString(s string) (*fq, bool) {
+	k, valid := bigFromBase10(s)
+	if !valid {
+		return nil, false
+	}
+	return new(fq).SetInt(k)
 }
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.
-func (fq *fq) Bytes() []byte {
+func (x *fq) Bytes() []byte {
 	ret := make([]byte, fqByteLen)
-
-	for i, fqi := range fq {
-		binary.BigEndian.PutUint64(ret[fqByteLen-(i+1)*8:], fqi)
+	for i, xi := range x {
+		binary.BigEndian.PutUint64(ret[fqByteLen-(i+1)*8:], xi)
 	}
-
 	return ret
 }
 
-func (fl *fqLarge) Hex() string {
-	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", fl[11], fl[10], fl[9], fl[8], fl[7], fl[6], fl[5], fl[4], fl[3], fl[2], fl[1], fl[0])
+// Int returns the corresponding big integer.
+func (x *fq) Int() *big.Int {
+	var words []big.Word
+
+	if strconv.IntSize == 64 {
+		words = make([]big.Word, 0, fqLen)
+		for _, word := range x {
+			words = append(words, big.Word(word))
+		}
+	} else {
+		numWords := fqLen * 2
+		words = make([]big.Word, 0, numWords)
+		for i := 0; i < numWords; i++ {
+			words = append(words, big.Word(uint32((x[i/2])>>uint(32*(i%2)))))
+		}
+	}
+
+	return new(big.Int).SetBits(words)
 }
 
-func (fl *fqLarge) String() string {
-	return fl.Hex()
-}
+// fqLarge is used during the multiplication.
+type fqLarge [fqLen * 2]uint64
 
-// IsFieldElement checks if value is within the field bounds.
-func IsFieldElement(value *big.Int) bool {
-	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
-}
-
-func bigFromBase10(str string) *big.Int {
-	n, _ := new(big.Int).SetString(str, decimalBase)
-	return n
-}
-
-// fqFromBase10 converts a base10 value to a field element.
-func fqFromBase10(str string) (fq, error) {
-	return fqFromBig(bigFromBase10(str))
+// String implements the Stringer interface.
+func (x *fqLarge) String() string {
+	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[11], x[10], x[9], x[8], x[7], x[6], x[5], x[4], x[3], x[2], x[1], x[0])
 }
 
 // fqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
-func fqMontgomeryFromBase10(str string) (fq, error) {
-	return fqMontgomeryFromBig(bigFromBase10(str))
-}
+//func fqMontgomeryFromBase10(str string) (fq, error) {
+//	return fqMontgomeryFromBig(bigFromBase10(str))
+//}
 
-// fqFromBig converts a big integer to a field element.
-func fqFromBig(value *big.Int) (fq, error) {
-	if !IsFieldElement(value) {
-		return fq{}, errOutOfBounds
+// SetInt sets z to the value of x and returns z and a boolean indicating
+// success. The integer must be within field bounds for success. If the
+// operation failed, the value of z is undefined but the returned value is nil.
+func (z *fq) SetInt(x *big.Int) (*fq, bool) {
+	if !isFieldElement(x) {
+		return nil, false
 	}
 
-	return fqFromFqBig(value), nil
-}
-
-// fqFromFqBig converts the big integer representing the
-// field element to the field element representation.
-func fqFromFqBig(value *big.Int) fq {
 	fq := fq{0}
-	words := value.Bits()
+	words := x.Bits()
 	numWords := len(words)
 	if strconv.IntSize == 64 {
 		for i := 0; i < numWords; i++ {
@@ -120,7 +140,7 @@ func fqFromFqBig(value *big.Int) fq {
 		}
 	}
 
-	return fq
+	return z.Set(&fq), true
 }
 
 // fqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
@@ -134,47 +154,9 @@ func fqMontgomeryFromBig(value *big.Int) (fq, error) {
 	return fieldElement, nil
 }
 
-// fqFromFqMontgomery decodes a field element in the montgomery form.
-func fqFromFqMontgomery(fq fq) fq {
-	montgomeryDecode(&fq, &fq)
-	return fq
-}
-
-// fqFromHash converts a hash value to a field element.
-// See https://golang.org/src/crypto/ecdsa/ecdsa.go?s=1572:1621#L118
-func fqFromHash(hash []byte) fq {
-	if len(hash) > orderBytes {
-		hash = hash[:orderBytes]
-	}
-	bigInt := new(big.Int).SetBytes(hash)
-	excess := orderBytes*8 - orderBits
-	if excess > 0 {
-		bigInt.Rsh(bigInt, uint(excess))
-	}
-
-	ret, _ := fqFromBig(bigInt)
-
-	return ret
-}
-
-// FqToBig converts a field element to a big integer.
-func fqToBig(fq fq) *big.Int {
-	var words []big.Word
-
-	if strconv.IntSize == 64 {
-		words = make([]big.Word, 0, fqLen)
-		for _, word := range fq {
-			words = append(words, big.Word(word))
-		}
-	} else {
-		numWords := fqLen * 2
-		words = make([]big.Word, 0, numWords)
-		for i := 0; i < numWords; i++ {
-			words = append(words, big.Word(uint32((fq[i/2])>>uint(32*(i%2)))))
-		}
-	}
-
-	return new(big.Int).SetBits(words)
+// isFieldElement reports whether the value is within field bounds.
+func isFieldElement(value *big.Int) bool {
+	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
 }
 
 // randInt returns a random scalar between 0 and max.
@@ -187,23 +169,11 @@ func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
 	}
 }
 
+// randFieldElement returns a random scalar between 0 and q.
 func randFieldElement(reader io.Reader) (*big.Int, error) {
 	return randInt(reader, q)
 }
 
-// montEncode converts the input to Montgomery form.
-func montgomeryEncode(c, a *fq) {
-	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
-	fqMul(c, a, &r2)
-}
-
-// montDecode converts the input in the Montgomery form back to
-// the standard form.
-func montgomeryDecode(c, a *fq) {
-	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
-	fqMul(c, a, &fqOne)
-}
-
-func (fq *fq) IsOne() bool {
-	return *fq == fqMontOne
+func bigFromBase10(str string) (*big.Int, bool) {
+	return new(big.Int).SetString(str, decimalBase)
 }

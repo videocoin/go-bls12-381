@@ -28,7 +28,7 @@ const (
 var (
 
 	// q is a prime number that specifies the number of elements of the finite field
-	q = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787")
+	q, _ = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787")
 
 	// r2 is used as an optimization to enter and leave the Montgomery domain
 	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
@@ -59,7 +59,7 @@ var (
 	g2Y1, _ = fqMontgomeryFromBase10("927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582")
 
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
-	g1Cofactor = bigFromBase10("76329603384216526031706109802092473003")
+	g1Cofactor, _ = bigFromBase10("76329603384216526031706109802092473003")
 
 	// Fq2(u + 1)**(((p^power) - 1) / 6), power E [0, 11]
 	frob12c1 = [12]*fq2{
