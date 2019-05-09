@@ -38,7 +38,7 @@ type fq [fqLen]uint64
 
 // IsOne reports whether x is equal to 1.
 func (x *fq) IsOne() bool {
-	return *x == fqOne
+	return *x == *fqOne
 }
 
 // String implements the Stringer interface.
@@ -60,21 +60,20 @@ func (z *fq) SetZero() *fq {
 
 // SetOne sets z to 1 and returns z.
 func (z *fq) SetOne() *fq {
-	*z = fqMontOne
-	return z
+	return z.Set(fqOne)
 }
 
 // MontgomeryEncode converts z to the Montgomery form and returns z.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func (z *fq) MontgomeryEncode(x *fq) *fq {
-	fqMul(z, x, &r2)
+	fqMul(z, x, r2)
 	return z
 }
 
 // MontgomeryDecode converts z back to the standard form and returns z.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func (z *fq) MontgomeryDecode(x *fq) *fq {
-	fqMul(z, x, &fqOne)
+	fqMul(z, x, &fqOneStandard)
 	return z
 }
 
@@ -86,12 +85,42 @@ func (z *fq) SetString(s string, f Form) (*fq, bool) {
 		return nil, false
 	}
 
+	// TODO passdown the form
 	bigK := new(fq).SetInt(k)
 	if f == Standard {
 		return bigK
 	}
 
 	return bigK.MontgomeryEncode(bigK)
+}
+
+// SetInt sets z to the Mongomery value of x and returns z and a boolean
+// indicating success. The integer must be within field bounds for success. If
+// the operation failed, the value of z is undefined but the returned value is
+// nil.
+func (z *fq) SetInt(x *big.Int) (*fq, bool) {
+	if !isFieldElement(x) {
+		return nil, false
+	}
+
+	fq := fq{0}
+	words := x.Bits()
+	numWords := len(words)
+	if strconv.IntSize == 64 {
+		for i := 0; i < numWords; i++ {
+			fq[i] = uint64(words[i])
+		}
+	} else {
+		for i := 0; i < numWords; i++ {
+			fq[i/2] |= uint64(words[i]) << uint(32*(i%2))
+		}
+	}
+
+	return z.Set(fq.MontgomeryEncode(&fq)), true
+}
+
+func (z *fq) SetUint64(x uint64) *fq {
+	// TODO
 }
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.
@@ -129,31 +158,6 @@ type fqLarge [fqLen * 2]uint64
 // String implements the Stringer interface.
 func (x *fqLarge) String() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[11], x[10], x[9], x[8], x[7], x[6], x[5], x[4], x[3], x[2], x[1], x[0])
-}
-
-// SetInt sets z to the Mongomery value of x and returns z and a boolean
-// indicating success. The integer must be within field bounds for success. If
-// the operation failed, the value of z is undefined but the returned value is
-// nil.
-func (z *fq) SetInt(x *big.Int) (*fq, bool) {
-	if !isFieldElement(x) {
-		return nil, false
-	}
-
-	fq := fq{0}
-	words := x.Bits()
-	numWords := len(words)
-	if strconv.IntSize == 64 {
-		for i := 0; i < numWords; i++ {
-			fq[i] = uint64(words[i])
-		}
-	} else {
-		for i := 0; i < numWords; i++ {
-			fq[i/2] |= uint64(words[i]) << uint(32*(i%2))
-		}
-	}
-
-	return z.Set(fq.MontgomeryEncode(&fq)), true
 }
 
 // isFieldElement reports whether the value is within field bounds.

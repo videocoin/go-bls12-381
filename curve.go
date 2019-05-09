@@ -167,7 +167,7 @@ func (cp *curvePoint) ToAffine() *curvePoint {
 	fqInv(zInv, &cp.z)
 	fqMul(&cp.x, &cp.x, zInv)
 	fqMul(&cp.y, &cp.y, zInv)
-	cp.z = fqOne
+	cp.z = *fqOne
 
 	return cp
 }
@@ -208,18 +208,21 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 	if data[0]&pointAtInfinityMask == 1 {
 
 	} else {
-		cp.z = fqOne
+		cp.z = *fqOne
 	}
 
 	var valid bool
-	cp.x, valid = new(fq).SetInt(new(big.Int).SetBytes(data[:fqByteLen]))
+	fqX, fqY := new(fq), new(fq)
+	_, valid = fqX.SetInt(new(big.Int).SetBytes(data[:fqByteLen]))
 	if !valid {
 		return fmt.Errorf("Failed to parse the field element corresponding to the x coordinate")
 	}
-	cp.x, valid = new(fq).SetInt(new(big.Int).SetBytes(data[fqByteLen:]))
+	cp.x = *fqX
+	_, valid = fqY.SetInt(new(big.Int).SetBytes(data[fqByteLen:]))
 	if !valid {
 		return fmt.Errorf("Failed to parse the field element corresponding to the y coordinate")
 	}
+	cp.y = *fqY
 
 	return nil
 }
@@ -241,11 +244,12 @@ func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], g10...))
-	g10, _ := fqMontgomeryFromBig(new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q))
+	t0 := new(big.Int)
+	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
 	sum = blake2b.Sum512(append(h[:], g11...))
-	g11, _ := fqMontgomeryFromBig(new(big.Int).Mod(new(big.Int).SetBytes(sum[:]), q))
+	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
 
-	return cp.Add(new(curvePoint).SWEncode(&g10), new(curvePoint).SWEncode(&g11))
+	return cp.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
 }
 
 // SWEncode implements the Shallue and van de Woestijne encoding.
@@ -253,10 +257,10 @@ func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
 // See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf - Algorithm 1
 func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 	w, inv := new(fq), new(fq)
-	fqMul(w, &fqMontSqrtNeg3, t)
+	fqMul(w, fqSqrtNegThree, t)
 	fqMul(w, w, t)
 	fqMul(inv, t, t)
-	fqAdd(inv, inv, &fqCurveBPlusOne)
+	fqAdd(inv, inv, fqCurveBPlusOne)
 	fqInv(inv, inv)
 	fqMul(w, w, inv)
 
@@ -265,20 +269,20 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 		switch i {
 		case 0:
 			fqMul(x, t, w)
-			fqSub(x, &fqHalfSqrtNeg3Minus1, x)
+			fqSub(x, fqHalfSqrtNegThreeMinusOne, x)
 		case 1:
-			fqSub(x, &fqMinusOne, x)
+			fqSub(x, fqMinusOne, x)
 		case 2:
 			fqMul(x, w, w)
 			fqInv(x, x)
-			fqAdd(x, x, &fqOne)
+			fqAdd(x, x, fqOne)
 		}
 
 		fqMul(y, x, x)
 		fqMul(y, y, x)
-		fqAdd(y, y, &fqCurveB)
+		fqAdd(y, y, fqCurveB)
 		if fqSqrt(y, y) {
-			cp.x, cp.y, cp.z = *x, *y, fqOne
+			cp.x, cp.y, cp.z = *x, *y, *fqOne
 			return cp
 		}
 	}

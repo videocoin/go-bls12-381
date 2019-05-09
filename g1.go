@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	g1Gen = &g1Point{curvePoint{g1X, g1Y, fqMontOne}}
+	g1Gen = &g1Point{curvePoint{*g1X, *g1Y, *fqOne}}
 	g10   = []byte("G1_0")
 	g11   = []byte("G1_1")
 )

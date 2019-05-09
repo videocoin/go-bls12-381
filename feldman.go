@@ -2,6 +2,7 @@ package bls12
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"math/big"
 )
@@ -13,6 +14,8 @@ var (
 	errInvalidShare           = errors.New("feldman: share is not valid")
 )
 
+// TODO replace fmt.Errorf with error
+
 // Share represents a unique part of a secret.
 type Share = Point
 
@@ -23,7 +26,7 @@ type Point struct {
 }
 
 type polynomial struct {
-	coefficients []fq
+	coefficients []*fq
 }
 
 func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
@@ -32,13 +35,13 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 	}
 
 	p := &polynomial{
-		coefficients: make([]fq, 0, len(coefficients)),
+		coefficients: make([]*fq, 0, len(coefficients)),
 	}
 
 	for _, priv := range coefficients {
-		coeff, err := fqMontgomeryFromBig(priv.Secret)
-		if err != nil {
-			return nil, err
+		coeff, valid := new(fq).SetInt(priv.Secret)
+		if !valid {
+			return nil, fmt.Errorf("Failed to parse coefficient")
 		}
 		p.coefficients = append(p.coefficients, coeff)
 	}
@@ -46,21 +49,18 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 	return p, nil
 }
 
-func (p *polynomial) evaluate(x uint64) (*PrivateKey, error) {
-	fqX, err := fqMontgomeryFromBig(new(big.Int).SetUint64(x))
-	if err != nil {
-		return nil, err
-	}
-	mul := fqMontOne
+func (p *polynomial) evaluate(x uint64) *PrivateKey {
+	fqX := new(fq).SetUint64(x)
+	mul := new(fq).Set(fqOne)
 	sum := p.coefficients[0]
 	for _, coeff := range p.coefficients[1:] {
 		term := new(fq)
-		fqMul(&mul, &mul, &fqX)
-		fqMul(term, &coeff, &mul)
-		fqAdd(&sum, &sum, term)
+		fqMul(mul, mul, fqX)
+		fqMul(term, coeff, mul)
+		fqAdd(sum, sum, term)
 	}
 
-	return privKeyFromScalar(fqToBig(fqFromFqMontgomery(sum))), nil
+	return privKeyFromScalar(sum.Int())
 }
 
 // CreateShares divides the secret into parts, giving each participant its own unique part.
@@ -92,13 +92,9 @@ func CreateShares(reader io.Reader, threshold uint64, numShares uint64) ([]*Publ
 
 	shares := make([]*Share, 0, numShares)
 	for i := uint64(1); i <= numShares; i++ {
-		secret, err := randPolynomial.evaluate(i)
-		if err != nil {
-			return nil, nil, nil, err
-		}
 		shares = append(shares, &Point{
 			X: i,
-			Y: secret,
+			Y: randPolynomial.evaluate(i),
 		})
 	}
 
@@ -109,38 +105,34 @@ func CreateShares(reader io.Reader, threshold uint64, numShares uint64) ([]*Publ
 // Passing less shares than the minimum required results in the wrong secret.
 func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
 	// See https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing#Computationally_efficient_approach
-	ids := make([]fq, 0, len(shares))
-	secrets := make([]fq, 0, len(shares))
+	ids := make([]*fq, 0, len(shares))
+	secrets := make([]*fq, 0, len(shares))
 	for _, share := range shares {
-		idMont, err := fqMontgomeryFromBig(new(big.Int).SetUint64(share.X))
-		if err != nil {
-			return nil, err
+		ids = append(ids, new(fq).SetUint64(share.X))
+		secret, valid := new(fq).SetInt(share.Y.Secret)
+		if !valid {
+			return nil, fmt.Errorf("Failed to parse secret")
 		}
-		ids = append(ids, idMont)
-		secretMont, err := fqMontgomeryFromBig(share.Y.Secret)
-		if err != nil {
-			return nil, err
-		}
-		secrets = append(secrets, secretMont)
+		secrets = append(secrets, secret)
 	}
 
 	sum := new(fq)
 	for i := 0; i < len(shares); i++ {
-		mul := fqMontOne
+		mul := new(fq).Set(fqOne)
 		for j := 0; j < len(shares); j++ {
 			if j != i {
 				term := new(fq)
-				fqSub(term, &ids[j], &ids[i])
+				fqSub(term, ids[j], ids[i])
 				fqInv(term, term)
-				fqMul(term, term, &ids[j])
-				fqMul(&mul, &mul, term)
+				fqMul(term, term, ids[j])
+				fqMul(mul, mul, term)
 			}
 		}
-		fqMul(&mul, &mul, &secrets[i])
-		fqAdd(sum, sum, &mul)
+		fqMul(mul, mul, secrets[i])
+		fqAdd(sum, sum, mul)
 	}
 
-	return privKeyFromScalar(fqToBig(fqFromFqMontgomery(*sum))), nil
+	return privKeyFromScalar(sum.Int()), nil
 }
 
 type publicPolynomial struct {
