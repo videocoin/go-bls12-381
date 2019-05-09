@@ -17,17 +17,20 @@ const (
 
 var (
 	fqZero       = fq{}
-	fqOne        = fq{1}
-	fqMontOne, _ = fqMontgomeryFromBase10("1")
+	fqOne, _     = new(fq).SetString("1")
+	fqOneDecoded = fq{1}
 )
 
 // fq is an element of the finite field of order q.
+// fq operates in the montgomery form but it's possible to represent the element
+// in its original form using this type. Note that the user is responsible for
+// making sure that the montgomery form is used whenever necessary in case of
+// convertions between forms.
 type fq [fqLen]uint64
 
 // IsOne reports whether x is equal to 1.
-// TODO montgomery form.
 func (x *fq) IsOne() bool {
-	return *x == fqMontOne
+	return *x == fqOne
 }
 
 // String implements the Stringer interface.
@@ -67,8 +70,8 @@ func (z *fq) MontgomeryDecode(x *fq) *fq {
 	return z
 }
 
-// SetString sets z to the value of s, interpreted in the decimal base, and
-// returns z and a boolean indicating success.
+// SetString sets z to the Montgomery value of s, interpreted in the decimal
+// base, and returns z and a boolean indicating success.
 func (z *fq) SetString(s string) (*fq, bool) {
 	k, valid := bigFromBase10(s)
 	if !valid {
@@ -114,14 +117,10 @@ func (x *fqLarge) String() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[11], x[10], x[9], x[8], x[7], x[6], x[5], x[4], x[3], x[2], x[1], x[0])
 }
 
-// fqMontgomeryFromBase10 converts a base10 value to a field element in the Montgomery form.
-//func fqMontgomeryFromBase10(str string) (fq, error) {
-//	return fqMontgomeryFromBig(bigFromBase10(str))
-//}
-
-// SetInt sets z to the value of x and returns z and a boolean indicating
-// success. The integer must be within field bounds for success. If the
-// operation failed, the value of z is undefined but the returned value is nil.
+// SetInt sets z to the Mongomery value of x and returns z and a boolean
+// indicating success. The integer must be within field bounds for success. If
+// the operation failed, the value of z is undefined but the returned value is
+// nil.
 func (z *fq) SetInt(x *big.Int) (*fq, bool) {
 	if !isFieldElement(x) {
 		return nil, false
@@ -140,18 +139,7 @@ func (z *fq) SetInt(x *big.Int) (*fq, bool) {
 		}
 	}
 
-	return z.Set(&fq), true
-}
-
-// fqMontgomeryFromBig converts a big integer to a field element in the Montgomery form.
-func fqMontgomeryFromBig(value *big.Int) (fq, error) {
-	fieldElement, err := fqFromBig(value)
-	if err != nil {
-		return fq{}, err
-	}
-	montgomeryEncode(&fieldElement, &fieldElement)
-
-	return fieldElement, nil
+	return z.Set(fq.MontgomeryEncode(&fq)), true
 }
 
 // isFieldElement reports whether the value is within field bounds.

@@ -1,6 +1,6 @@
 package bls12
 
-var fq2One = &fq2{fqMontOne, fqZero}
+var fq2One = &fq2{c0: *fqOne}
 
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β is a quadratic
 // non-residue in Fq with a value of -1. See

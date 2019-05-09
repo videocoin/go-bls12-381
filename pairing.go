@@ -5,10 +5,10 @@ import (
 )
 
 var (
-	bigU       = new(big.Int).SetUint64(uAbs)
-	bigUDivTwo = new(big.Int).SetUint64(uAbs >> 1)
-	uArr       = []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1}
-	uArrLen    = len(uArr)
+	bigU     = new(big.Int).SetUint64(uAbs)
+	bigHalfU = new(big.Int).SetUint64(uAbs >> 1)
+	uArr     = []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1}
+	uArrLen  = len(uArr)
 )
 
 // doublingAndLine returns the sum r + r and the line function result.
@@ -94,7 +94,7 @@ func finalExp(p *fq12) *fq12 {
 	t0.Sqr(f)
 	t1 := new(fq12).Exp(t0, bigU)
 	t1.Conjugate(t1)
-	t2 := new(fq12).Exp(t1, bigUDivTwo)
+	t2 := new(fq12).Exp(t1, bigHalfU)
 	t2.Conjugate(t2)
 	t3 := new(fq12).Conjugate(f)
 	t1.Mul(t3, t1).Conjugate(t1).Mul(t1, t2)

@@ -12,12 +12,13 @@ const (
 )
 
 var (
-	fqMontCurveB, _             = fqMontgomeryFromBase10("4")
-	fqMontCurveBPlus1, _        = fqMontgomeryFromBase10("5")
-	fqMontSqrtNeg3, _           = fqMontgomeryFromBase10("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701")
-	fqMontHalfSqrtNeg3Minus1, _ = fqMontgomeryFromBase10("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350")
+	fqCurveB, _                   = new(fq).SetString("4")
+	fqCurveBPlusOne, _            = new(fq).SetString("5")
+	fqSqrtNegThree, _             = new(fq).SetString("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701")
+	fqHalfSqrtNegThreeMinusOne, _ = new(fq).SetString("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350")
+
 	// fixme:  add support negative numbers
-	fqMontNeg1, _ = fqMontgomeryFromBase10("1")
+	fqNegOne, _ = fqMontgomeryFromBase10("1")
 )
 
 // curvePoint is an elliptic curve point in projective coordinates.
@@ -256,7 +257,7 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 	fqMul(w, &fqMontSqrtNeg3, t)
 	fqMul(w, w, t)
 	fqMul(inv, t, t)
-	fqAdd(inv, inv, &fqMontCurveBPlus1)
+	fqAdd(inv, inv, &fqCurveBPlusOne)
 	fqInv(inv, inv)
 	fqMul(w, w, inv)
 
@@ -265,20 +266,20 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 		switch i {
 		case 0:
 			fqMul(x, t, w)
-			fqSub(x, &fqMontHalfSqrtNeg3Minus1, x)
+			fqSub(x, &fqHalfSqrtNeg3Minus1, x)
 		case 1:
-			fqSub(x, &fqMontNeg1, x)
+			fqSub(x, &fqNegOne, x)
 		case 2:
 			fqMul(x, w, w)
 			fqInv(x, x)
-			fqAdd(x, x, &fqMontOne)
+			fqAdd(x, x, &fqOne)
 		}
 
 		fqMul(y, x, x)
 		fqMul(y, y, x)
-		fqAdd(y, y, &fqMontCurveB)
+		fqAdd(y, y, &fqCurveB)
 		if fqSqrt(y, y) {
-			cp.x, cp.y, cp.z = *x, *y, fqMontOne
+			cp.x, cp.y, cp.z = *x, *y, fqOne
 			return cp
 		}
 	}
