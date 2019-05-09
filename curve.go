@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"fmt"
 	"math/big"
 
 	"golang.org/x/crypto/blake2b"
@@ -12,13 +13,11 @@ const (
 )
 
 var (
-	fqCurveB, _                   = new(fq).SetString("4")
-	fqCurveBPlusOne, _            = new(fq).SetString("5")
-	fqSqrtNegThree, _             = new(fq).SetString("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701")
-	fqHalfSqrtNegThreeMinusOne, _ = new(fq).SetString("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350")
-
-	// fixme:  add support negative numbers
-	fqNegOne, _ = fqMontgomeryFromBase10("1")
+	fqCurveB, _                   = new(fq).SetString("4", Montgomery)
+	fqCurveBPlusOne, _            = new(fq).SetString("5", Montgomery)
+	fqSqrtNegThree, _             = new(fq).SetString("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701", Montgomery)
+	fqHalfSqrtNegThreeMinusOne, _ = new(fq).SetString("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350", Montgomery)
+	fqMinusOne, _                 = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786", Montgomery)
 )
 
 // curvePoint is an elliptic curve point in projective coordinates.
@@ -168,7 +167,7 @@ func (cp *curvePoint) ToAffine() *curvePoint {
 	fqInv(zInv, &cp.z)
 	fqMul(&cp.x, &cp.x, zInv)
 	fqMul(&cp.y, &cp.y, zInv)
-	cp.z = fqMontOne
+	cp.z = fqOne
 
 	return cp
 }
@@ -209,17 +208,17 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 	if data[0]&pointAtInfinityMask == 1 {
 
 	} else {
-		cp.z = fqMontOne
+		cp.z = fqOne
 	}
 
-	var err error
-	cp.x, err = fqMontgomeryFromBig(new(big.Int).SetBytes(data[:fqByteLen]))
-	if err != nil {
-		return err
+	var valid bool
+	cp.x, valid = new(fq).SetInt(new(big.Int).SetBytes(data[:fqByteLen]))
+	if !valid {
+		return fmt.Errorf("Failed to parse the field element corresponding to the x coordinate")
 	}
-	cp.y, err = fqMontgomeryFromBig(new(big.Int).SetBytes(data[fqByteLen:]))
-	if err != nil {
-		return err
+	cp.x, valid = new(fq).SetInt(new(big.Int).SetBytes(data[fqByteLen:]))
+	if !valid {
+		return fmt.Errorf("Failed to parse the field element corresponding to the y coordinate")
 	}
 
 	return nil
@@ -268,7 +267,7 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 			fqMul(x, t, w)
 			fqSub(x, &fqHalfSqrtNeg3Minus1, x)
 		case 1:
-			fqSub(x, &fqNegOne, x)
+			fqSub(x, &fqMinusOne, x)
 		case 2:
 			fqMul(x, w, w)
 			fqInv(x, x)

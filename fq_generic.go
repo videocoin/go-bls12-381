@@ -8,7 +8,7 @@ const (
 	halfWordMask = (1 << halfWordSize) - 1
 )
 
-var qMinus3Over4 = []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6}
+var qMinusThreeOverFour = []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6}
 
 func fqMod(a *fq) {
 	b := new(fq)
@@ -141,7 +141,7 @@ func fqMul(z, x, y *fq) {
 // See https://eprint.iacr.org/2012/685.pdf - Algorithm 2; q ≡ 3 (mod 4)
 func fqSqrt(x, a *fq) bool {
 	a1, a0 := new(fq), new(fq)
-	fqExp(a1, a, qMinus3Over4)
+	fqExp(a1, a, qMinusThreeOverFour)
 
 	fqMul(a0, a1, a1)
 	fqMul(a0, a0, a)
@@ -170,5 +170,5 @@ func fqExp(ret, base *fq, exponent []uint64) {
 }
 
 func fqInv(c, x *fq) {
-	fqExp(c, x, qMinus2[:])
+	fqExp(c, x, qMinusTwo[:])
 }

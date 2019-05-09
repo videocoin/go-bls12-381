@@ -16,16 +16,24 @@ const (
 )
 
 var (
-	fqZero       = fq{}
-	fqOne, _     = new(fq).SetString("1")
-	fqOneDecoded = fq{1}
+	fqZero        = fq{}
+	fqOne, _      = new(fq).SetString("1", Montgomery)
+	fqOneStandard = fq{1}
+)
+
+// Form represents the way numbers are written.
+type Form uint8
+
+const (
+	Montgomery Form = iota
+	Standard
 )
 
 // fq is an element of the finite field of order q.
 // fq operates in the montgomery form but it's possible to represent the element
-// in its original form using this type. Note that the user is responsible for
-// making sure that the montgomery form is used whenever necessary in case of
-// convertions between forms.
+// in its original form using this type by using the decoding methods available.
+// Note that the user is responsible for making sure that the montgomery form is
+// used whenever necessary in case of convertions between forms.
 type fq [fqLen]uint64
 
 // IsOne reports whether x is equal to 1.
@@ -72,12 +80,18 @@ func (z *fq) MontgomeryDecode(x *fq) *fq {
 
 // SetString sets z to the Montgomery value of s, interpreted in the decimal
 // base, and returns z and a boolean indicating success.
-func (z *fq) SetString(s string) (*fq, bool) {
+func (z *fq) SetString(s string, f Form) (*fq, bool) {
 	k, valid := bigFromBase10(s)
 	if !valid {
 		return nil, false
 	}
-	return new(fq).SetInt(k)
+
+	bigK := new(fq).SetInt(k)
+	if f == Standard {
+		return bigK
+	}
+
+	return bigK.MontgomeryEncode(bigK)
 }
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.

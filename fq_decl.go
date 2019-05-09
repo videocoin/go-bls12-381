@@ -26,7 +26,7 @@ func fqSqrt(z, x *fq) bool
 //go:noescape
 func fqExp(z, x *fq, y []uint64)
 
-func fqInv(c, x *fq) { fqExp(c, x, qMinus2[:]) }
+func fqInv(c, x *fq) { fqExp(c, x, qMinusTwo[:]) }
 
 func fqLargeSub(c, a, b *fqLarge)
 
