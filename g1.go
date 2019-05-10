@@ -5,9 +5,20 @@ import (
 )
 
 var (
+	// g1X is the x-coordinate of G1's generator in the Montgomery form
+	g1X, _ = new(fq).SetString("3685416753713387016781088315183077757961620795782546409894578378688607592378376318836054947676345821548104185464507", Montgomery)
+
+	// g1Y is the y-coordinate of G1's generator in the Montgomery form
+	g1Y, _ = new(fq).SetString("1339506544944476473020471379941921221584933875938349620426543736416511423956333506472724655353366534992391756441569", Montgomery)
+
 	g1Gen = &g1Point{curvePoint{*g1X, *g1Y, *fqOne}}
-	g10   = []byte("G1_0")
-	g11   = []byte("G1_1")
+
+	g10 = []byte("G1_0")
+
+	g11 = []byte("G1_1")
+
+	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
+	g1Cofactor, _ = bigFromBase10("76329603384216526031706109802092473003")
 )
 
 type g1Point struct {

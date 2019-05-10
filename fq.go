@@ -16,10 +16,24 @@ const (
 )
 
 var (
+	// q is a prime number that specifies the number of elements of the finite field.
+	q, _ = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787")
+
 	fqZero        = fq{}
 	fqOne, _      = new(fq).SetString("1", Montgomery)
 	fqOneStandard = fq{1}
+
+	// Since the nonzero elements of GF(pn) form a finite group with respect to multiplication, apn−1 = 1 (for a ≠ 0), thus the inverse of a is a^pn−2.
+	qMinusTwo, _ = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559785", Standard)
+
+	// r2 is used to enter the Montgomery domain.
+	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+	r2 = new(fq)
 )
+
+func init() {
+	r2.SetString("2708263910654730174793787626328176511836455197166317677006154293982164122222515399004018013397331347120527951271750", Standard)
+}
 
 // Form represents the way numbers are written.
 type Form uint8
@@ -30,10 +44,11 @@ const (
 )
 
 // fq is an element of the finite field of order q.
-// fq operates in the montgomery form but it's possible to represent the element
-// in its original form using this type by using the decoding methods available.
-// Note that the user is responsible for making sure that the montgomery form is
-// used whenever necessary in case of convertions between forms.
+// fq operates, internally, on the montgomery form but it's possible to
+// represent the element on the standard form using by selecting the standard
+// form or using the decoding methods available. Note that the user is
+// responsible for making sure that the montgomery form is used whenever
+// required.
 type fq [fqLen]uint64
 
 // IsOne reports whether x is equal to 1.
@@ -85,20 +100,14 @@ func (z *fq) SetString(s string, f Form) (*fq, bool) {
 		return nil, false
 	}
 
-	// TODO passdown the form
-	bigK := new(fq).SetInt(k)
-	if f == Standard {
-		return bigK
-	}
-
-	return bigK.MontgomeryEncode(bigK)
+	return z.SetInt(k, f)
 }
 
 // SetInt sets z to the Mongomery value of x and returns z and a boolean
 // indicating success. The integer must be within field bounds for success. If
 // the operation failed, the value of z is undefined but the returned value is
 // nil.
-func (z *fq) SetInt(x *big.Int) (*fq, bool) {
+func (z *fq) SetInt(x *big.Int, f Form) (*fq, bool) {
 	if !isFieldElement(x) {
 		return nil, false
 	}
@@ -116,11 +125,21 @@ func (z *fq) SetInt(x *big.Int) (*fq, bool) {
 		}
 	}
 
-	return z.Set(fq.MontgomeryEncode(&fq)), true
+	return format(z.Set(&fq), f), true
 }
 
-func (z *fq) SetUint64(x uint64) *fq {
-	// TODO
+// SetUint64 sets z to the value of x and returns z.
+func (z *fq) SetUint64(x uint64, f Form) *fq {
+	z.SetZero()
+	z[0] = x
+	return format(z, f)
+}
+
+func format(x *fq, f Form) *fq {
+	if f == Standard {
+		return x
+	}
+	return x.MontgomeryEncode(x)
 }
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.

@@ -63,7 +63,7 @@ func TestFq2Sub(t *testing.T) {
 				c1: fq100,
 			},
 			output: fq2{
-				c0: fqOne,
+				c0: *fqOne,
 				c1: fqLastElement,
 			},
 		},

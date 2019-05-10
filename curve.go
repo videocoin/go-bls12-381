@@ -13,6 +13,7 @@ const (
 )
 
 var (
+	// TODO confirm if its in the montgomery form
 	fqCurveB, _                   = new(fq).SetString("4", Montgomery)
 	fqCurveBPlusOne, _            = new(fq).SetString("5", Montgomery)
 	fqSqrtNegThree, _             = new(fq).SetString("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701", Montgomery)
@@ -213,12 +214,12 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 
 	var valid bool
 	fqX, fqY := new(fq), new(fq)
-	_, valid = fqX.SetInt(new(big.Int).SetBytes(data[:fqByteLen]))
+	_, valid = fqX.SetInt(new(big.Int).SetBytes(data[:fqByteLen]), Montgomery)
 	if !valid {
 		return fmt.Errorf("Failed to parse the field element corresponding to the x coordinate")
 	}
 	cp.x = *fqX
-	_, valid = fqY.SetInt(new(big.Int).SetBytes(data[fqByteLen:]))
+	_, valid = fqY.SetInt(new(big.Int).SetBytes(data[fqByteLen:]), Montgomery)
 	if !valid {
 		return fmt.Errorf("Failed to parse the field element corresponding to the y coordinate")
 	}
@@ -238,16 +239,16 @@ func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
 }
 */
 
-// TODO desc
+// SetBytes converts a slice of bytes to
 // The point is not guaranteed to be in a particular subgroup.
 // See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
 func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], g10...))
 	t0 := new(big.Int)
-	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
+	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q), Montgomery)
 	sum = blake2b.Sum512(append(h[:], g11...))
-	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
+	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q), Montgomery)
 
 	return cp.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
 }

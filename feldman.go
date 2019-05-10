@@ -39,7 +39,7 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 	}
 
 	for _, priv := range coefficients {
-		coeff, valid := new(fq).SetInt(priv.Secret)
+		coeff, valid := new(fq).SetInt(priv.Secret, Montgomery)
 		if !valid {
 			return nil, fmt.Errorf("Failed to parse coefficient")
 		}
@@ -50,7 +50,7 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 }
 
 func (p *polynomial) evaluate(x uint64) *PrivateKey {
-	fqX := new(fq).SetUint64(x)
+	fqX := new(fq).SetUint64(x, Montgomery)
 	mul := new(fq).Set(fqOne)
 	sum := p.coefficients[0]
 	for _, coeff := range p.coefficients[1:] {
@@ -108,8 +108,8 @@ func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
 	ids := make([]*fq, 0, len(shares))
 	secrets := make([]*fq, 0, len(shares))
 	for _, share := range shares {
-		ids = append(ids, new(fq).SetUint64(share.X))
-		secret, valid := new(fq).SetInt(share.Y.Secret)
+		ids = append(ids, new(fq).SetUint64(share.X, Montgomery))
+		secret, valid := new(fq).SetInt(share.Y.Secret, Montgomery)
 		if !valid {
 			return nil, fmt.Errorf("Failed to parse secret")
 		}

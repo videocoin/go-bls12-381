@@ -1,6 +1,14 @@
 package bls12
 
-var fq2One = &fq2{c0: *fqOne}
+var (
+	fq2One = &fq2{c0: *fqOne}
+
+	// Fq(-1)**(((p^power) - 1) / 2), power E [0, 1]
+	frob2c1 = [2]*fq{
+		fqOne,
+		&fq{0x43f5fffffffcaaae, 0x32b7fff2ed47fffd, 0x7e83a49a2e99d69, 0xeca8f3318332bb7a, 0xef148d1ea0f4c069, 0x40ab3263eff0206},
+	}
+)
 
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β is a quadratic
 // non-residue in Fq with a value of -1. See

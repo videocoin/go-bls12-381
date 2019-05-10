@@ -1,9 +1,7 @@
 package bls12
 
 import (
-	"fmt"
 	"math/big"
-	"testing"
 )
 
 var (
@@ -15,39 +13,39 @@ var (
 	fq99          = fq{99}
 )
 
-func TestFqFromBig(t *testing.T) {
+/*
+func TestFqSetInt(t *testing.T) {
 	testCases := []struct {
-		input       *big.Int
-		output      fq
-		expectedErr error
+		input  *big.Int
+		form   Form
+		output fq
+		valid  bool
 	}{
-		{input: q, output: fq{}, expectedErr: errOutOfBounds},
-		{input: bigZero, output: fqZero, expectedErr: nil},
-		{input: bigOne, output: fqOne, expectedErr: nil},
-		{input: new(big.Int).Sub(q, bigOne), output: fqLastElement, expectedErr: nil},
+		{input: q, output: fq{}, valid: false},
+		{input: bigZero, output: fqZero, valid: true},
+		{input: bigOne, form: Montgomery, output: *fqOne, valid: true},
+		{input: bigOne, form: Standard, output: fqOneStandard, valid: true},
+		{input: new(big.Int).Sub(q, bigOne), output: fqLastElement, valid: true},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
-			result, err := fqFromBig(testCase.input)
-			if err != nil {
-				if err != testCase.expectedErr {
-					t.Errorf("expected %s, got %s\n", testCase.expectedErr, err)
-				}
-				return
+			result, valid := new(fq).SetInt(testCase.input, Montgomery)
+			if valid != testCase.valid {
+				t.Errorf("expected %b, got %b\n", testCase.valid, valid)
 			}
-			if result != testCase.output {
+			if *result != testCase.output {
 				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
 			}
 		})
 	}
 }
 
-func TestFqToBig(t *testing.T) {
+func TestFqInt(t *testing.T) {
 	// TODO complete tests
 }
 
-func TestFqFromBase10(t *testing.T) {
+func TestFqSetString(t *testing.T) {
 	testCases := []struct {
 		input       string
 		output      fq
@@ -61,7 +59,7 @@ func TestFqFromBase10(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
-			result, err := fqFromBase10(testCase.input)
+			result, err := new(fq).SetString(testCase.input)
 			if err != nil {
 				if err != testCase.expectedErr {
 					t.Errorf("expected %s, got %s\n", testCase.expectedErr, err)
@@ -302,7 +300,7 @@ func TestFqExp(t *testing.T) {
 	}
 }
 
-/*
+
 func TestFqSqrt(t *testing.T) {
 	testCases := []struct {
 		input, output fq
@@ -322,7 +320,7 @@ func TestFqSqrt(t *testing.T) {
 		})
 	}
 }
-*/
+
 
 func TestFqInv(t *testing.T) {
 	negFqMontOne := new(fq)
@@ -353,3 +351,4 @@ func TestFqInv(t *testing.T) {
 		}
 	}
 }
+*/
