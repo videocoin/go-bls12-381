@@ -23,10 +23,10 @@ var (
 	// g1Y is the y-coordinate of G1's generator.
 	g1Y, _ = new(fq).SetString("1339506544944476473020471379941921221584933875938349620426543736416511423956333506472724655353366534992391756441569")
 
-	// g10
+	// g10 is used during the convertion of bytes to a point in g1.
 	g10 = []byte("G1_0")
 
-	// g11
+	// g10 is used during the convertion of bytes to a point in g1.
 	g11 = []byte("G1_1")
 
 	// g2X0 is the c0 x-coordinate of G2's generator.
@@ -50,9 +50,8 @@ var (
 		&fq{0x43f5fffffffcaaae, 0x32b7fff2ed47fffd, 0x7e83a49a2e99d69, 0xeca8f3318332bb7a, 0xef148d1ea0f4c069, 0x40ab3263eff0206},
 	}
 
-	// Fq2(u + 1)**(((p^power) - 1) / 3), power E [0, 5]
+	// frobFq6C1 contains the value by which to multiply c1 to calculate the frobenius for a certain power.
 	frobFq6C1 = [6]*fq2{
-		// TODO fqOne?
 		&fq2{
 			fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
 			fq{},
@@ -79,9 +78,8 @@ var (
 		},
 	}
 
-	// Fq2(u + 1)**(((2p^power) - 2) / 3), power E [0, 5]
+	// frobFq6C2 contains the value by which to multiply c2 to calculate the frobenius for a certain power.
 	frobFq6C2 = [6]*fq2{
-		// TODO fqOne?
 		&fq2{
 			fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
 			fq{},
@@ -108,7 +106,7 @@ var (
 		},
 	}
 
-	// Fq2(u + 1)**(((p^power) - 1) / 6), power E [0, 11]
+	// frobFq12C1 contains the value by which to multiply c1 to calculate the frobenius for a certain power.
 	frobFq12C1 = [12]*fq2{
 		fq2One,
 		&fq2{
