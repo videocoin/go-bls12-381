@@ -1,10 +1,6 @@
 package bls12
 
-import (
-	"fmt"
-	"testing"
-)
-
+/*
 func TestFq2SetZero(t *testing.T) {
 	// TODO
 }
@@ -130,3 +126,4 @@ func TestFq2Sqr(t *testing.T) {
 func TestFq2Inv(t *testing.T) {
 	// TODO
 }
+*/

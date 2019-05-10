@@ -31,7 +31,7 @@ func (z *g1Point) Add(x, y *g1Point) *g1Point {
 // SetBytes uses the Shallue and van de Woestijne encoding.
 // The point is guaranteed to be in the subgroup.
 func (z *g1Point) SetBytes(buf []byte) *g1Point {
-	z.p.SetBytes(buf)
+	z.p.SetBytes(buf, g10, g11)
 	return z.ScalarMult(z, g1Cofactor)
 }
 

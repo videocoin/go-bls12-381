@@ -11,33 +11,34 @@ var (
 	// q64 is q as 64 bit words.
 	q64 = [6]uint64{0xB9FEFFFFFFFFAAAB, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 
-	// Since the nonzero elements of GF(pn) form a finite group with respect to multiplication, apn−1 = 1 (for a ≠ 0), thus the inverse of a is a^pn−2.
+	// qMinusTwo is the value by which to exponentiate field elements to calculate their inverse.
 	qMinusTwo = &fq{0xB9FEFFFFFFFFAAA9, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 
-	// r2 is used to enter the Montgomery domain.
-	// See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
+	// r2 is the value by which to multiply field elements to map them to the Montgomery domain.
 	r2 = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}
 
-	// g1X is the x-coordinate of G1's generator
+	// g1X is the x-coordinate of G1's generator.
 	g1X, _ = new(fq).SetString("3685416753713387016781088315183077757961620795782546409894578378688607592378376318836054947676345821548104185464507")
 
-	// g1Y is the y-coordinate of G1's generator
+	// g1Y is the y-coordinate of G1's generator.
 	g1Y, _ = new(fq).SetString("1339506544944476473020471379941921221584933875938349620426543736416511423956333506472724655353366534992391756441569")
 
+	// g10
 	g10 = []byte("G1_0")
 
+	// g11
 	g11 = []byte("G1_1")
 
-	// g2X0 is the c0 x-coordinate of G2's generator in the Montgomery form
+	// g2X0 is the c0 x-coordinate of G2's generator.
 	g2X0, _ = new(fq).SetString("352701069587466618187139116011060144890029952792775240219908644239793785735715026873347600343865175952761926303160")
 
-	// g2X1 is the c1 x-coordinate of G2's generator in the Montgomery form
+	// g2X1 is the c1 x-coordinate of G2's generator.
 	g2X1, _ = new(fq).SetString("3059144344244213709971259814753781636986470325476647558659373206291635324768958432433509563104347017837885763365758")
 
-	// g2Y0 is the c0 y-coordinate of G2's generator in the Montgomery form
+	// g2Y0 is the c0 y-coordinate of G2's generator.
 	g2Y0, _ = new(fq).SetString("1985150602287291935568054521177171638300868978215655730859378665066344726373823718423869104263333984641494340347905")
 
-	// g2Y1 is the c1 y-coordinate of G2's generator in the Montgomery form
+	// g2Y1 is the c1 y-coordinate of G2's generator.
 	g2Y1, _ = new(fq).SetString("927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582")
 
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3

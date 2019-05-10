@@ -37,7 +37,7 @@ func (a *curvePoint) Equal(b *curvePoint) bool {
 	return a.x == b.x && a.y == b.y && a.z == b.z
 }
 
-// IsInfinity reports whether the point is at infinity
+// IsInfinity reports whether the point is at infinity.
 func (a *curvePoint) IsInfinity() bool {
 	return a.z == fqZero
 }
@@ -132,8 +132,8 @@ func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
 	return cp
 }
 
-// ScalarMult returns k*(Bx,By) where k is a number in big-endian form.
-// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+// ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
+// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add.
 func (c *curvePoint) ScalarMult(a *curvePoint, b *big.Int) *curvePoint {
 	ret := new(curvePoint)
 	for i := b.BitLen() - 1; i >= 0; i-- {
@@ -225,12 +225,12 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 // SetBytes sets c to the curve point that results from the given slice of bytes
 // and returns c. The point is not guaranteed to be in a particular subgroup.
 // See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
-func (c *curvePoint) SetBytes(buf []byte) *curvePoint {
+func (c *curvePoint) SetBytes(buf []byte, ref0 []byte, ref1 []byte) *curvePoint {
 	h := blake2b.Sum256(buf)
-	sum := blake2b.Sum512(append(h[:], g10...))
+	sum := blake2b.Sum512(append(h[:], ref0...))
 	t0 := new(big.Int)
 	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
-	sum = blake2b.Sum512(append(h[:], g11...))
+	sum = blake2b.Sum512(append(h[:], ref1...))
 	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
 
 	return c.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))

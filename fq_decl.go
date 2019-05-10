@@ -27,7 +27,3 @@ func fqSqrt(z, x *fq) bool
 func fqExp(z, x *fq, y []uint64)
 
 func fqInv(c, x *fq) { fqExp(c, x, qMinusTwo[:]) }
-
-func fqLargeSub(c, a, b *fqLarge)
-
-func fqLargeAdd(c, a, b *fqLarge)

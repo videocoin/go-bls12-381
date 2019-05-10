@@ -4,10 +4,9 @@ import (
 	"math/big"
 )
 
-// twistPoint is a curve point in the elliptic curve's twist
-// over an extension field Fq². T = z1²
-// To obtain the full speed of pairings on Weierstrass curves it is useful
-//to represent a point by (X1 : Y1 : Z1 : T1) with T1 = Z²
+// twistPoint is a curve point in the elliptic curve's twist over an extension
+// field Fq². T = z1². To obtain the full speed of pairings on Weierstrass
+// curves it is useful to represent a point by (X1 : Y1 : Z1 : T1) with T1 = Z²
 type twistPoint struct {
 	x, y, z, t fq2
 }
@@ -21,11 +20,23 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	}
 }
 
+// Set sets c to the value of a and returns c.
 func (c *twistPoint) Set(a *twistPoint) *twistPoint {
 	c.x, c.y, c.z, c.t = a.x, a.y, a.z, a.t
 	return c
 }
 
+// Equal reports whether a is equal to b.
+func (a *twistPoint) Equal(b *twistPoint) bool {
+	return a.x.Equal(&b.x) && a.y.Equal(&b.y) && a.z.Equal(&b.z)
+}
+
+// IsInfinity reports whether the point is at infinity.
+func (a *twistPoint) IsInfinity() bool {
+	return a.z == fq2{}
+}
+
+// Add sets c to the sum a+b and returns c.
 func (c *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	if a.IsInfinity() {
 		return c.Set(b)
@@ -34,8 +45,9 @@ func (c *twistPoint) Add(a, b *twistPoint) *twistPoint {
 		return c.Set(a)
 	}
 
+	// faster than Add
 	if a.Equal(b) {
-		return c.Double(a) // faster than Add
+		return c.Double(a)
 	}
 
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -109,13 +121,9 @@ func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
 	return tp
 }
 
-// TODO confirm logic behind it
-func (c *twistPoint) IsInfinity() bool {
-	return c.z == fq2{}
-}
-
-func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
-	// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+// ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
+// See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add.
+func (c *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 	q := &twistPoint{}
 	// fixme: BitLen or BitLen - 1
 	for i := scalar.BitLen() - 1; i >= 0; i-- {
@@ -125,11 +133,7 @@ func (tp *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
 		}
 	}
 
-	return tp.Set(q)
-}
-
-func (tp *twistPoint) Equal(p *twistPoint) bool {
-	return tp.x.Equal(&p.x) && tp.y.Equal(&p.y) && tp.z.Equal(&p.z)
+	return c.Set(q)
 }
 
 // See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points

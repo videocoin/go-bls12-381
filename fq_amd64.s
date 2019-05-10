@@ -99,18 +99,14 @@ TEXT ·fqSub(SB),0,$0-24
 TEXT ·fqBasicMul(SB),0,$0-24
     RET
 
+TEXT ·fqREDC(SB),0,$0-24
+    RET
+
+TEXT ·fqMul(SB),0,$0-24
+    RET
+
 TEXT ·fqExp(SB),0,$0-24
     RET
 
 TEXT ·fqSqrt(SB),0,$0-24
     RET
-
-TEXT ·fqREDC(SB),0,$0-24
-    RET
-
-TEXT ·fqCube(SB),0,$0-24
-    RET
-
-TEXT ·fqMul(SB),0,$0-24
-    RET
-    

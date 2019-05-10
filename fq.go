@@ -16,8 +16,10 @@ const (
 )
 
 var (
-	fqZero        = fq{}
-	fqOne, _      = new(fq).SetString("1")
+	fqZero   = fq{}
+	fqOne, _ = new(fq).SetString("1")
+	// fqOneStarndard is the value by which to multiply field elements to map
+	// to the standard form.
 	fqOneStandard = fq{1}
 )
 
@@ -67,6 +69,10 @@ func (z *fq) MontgomeryEncode(x *fq) *fq {
 func (z *fq) MontgomeryDecode(x *fq) *fq {
 	fqMul(z, x, &fqOneStandard)
 	return z
+}
+
+func bigFromBase10(s string) (*big.Int, bool) {
+	return new(big.Int).SetString(s, decimalBase)
 }
 
 // SetString sets z to the Montgomery value of s, interpreted in the decimal
@@ -165,8 +171,4 @@ func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
 // randFieldElement returns a random scalar between 0 and q.
 func randFieldElement(reader io.Reader) (*big.Int, error) {
 	return randInt(reader, q)
-}
-
-func bigFromBase10(s string) (*big.Int, bool) {
-	return new(big.Int).SetString(s, decimalBase)
 }
