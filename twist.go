@@ -21,26 +21,21 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	}
 }
 
-func (tp *twistPoint) Set(p *twistPoint) *twistPoint {
-	tp.x, tp.y, tp.z, tp.t = p.x, p.y, p.z, p.t
-
-	return tp
+func (c *twistPoint) Set(a *twistPoint) *twistPoint {
+	c.x, c.y, c.z, c.t = a.x, a.y, a.z, a.t
+	return c
 }
 
-// note: room for optimization if numbers are equal (cheaper to use double instead of add)
-func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
-	// TODO is infinity confirm
+func (c *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	if a.IsInfinity() {
-		return tp.Set(b)
+		return c.Set(b)
 	}
-
-	// TODO is infinity confirm
 	if b.IsInfinity() {
-		return tp.Set(a)
+		return c.Set(a)
 	}
 
 	if a.Equal(b) {
-		return tp.Double(a) // faster than Add
+		return c.Double(a) // faster than Add
 	}
 
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -63,27 +58,25 @@ func (tp *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	r.Add(r, r)
 	v := new(fq2).Mul(u1, i)
 
-	x, y, z, t0, t1 := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
+	p, t0, t1 := new(twistPoint), new(fq2), new(fq2)
 	t0.Add(v, v)
 	t0.Add(t0, j)
-	x.Sqr(r)
-	x.Sub(x, t0)
+	p.x.Sqr(r)
+	p.x.Sub(&p.x, t0)
 
 	t0.Add(s1, s1)
 	t0.Mul(t0, j)
-	t1.Sub(v, x)
+	t1.Sub(v, &p.x)
 	t1.Mul(t1, r)
-	y.Sub(t1, t0)
+	p.y.Sub(t1, t0)
 
-	z.Add(&a.z, &b.z)
-	z.Sqr(z)
+	p.z.Add(&a.z, &b.z)
+	p.z.Sqr(&p.z)
 	t0.Add(z1z1, z2z2)
-	z.Sub(z, t0)
-	z.Mul(z, h)
+	p.z.Sub(&p.z, t0)
+	p.z.Mul(&p.z, h)
 
-	tp.x, tp.y, tp.z = *x, *y, *z
-
-	return tp
+	return c.Set(p)
 }
 
 func (tp *twistPoint) Double(p *twistPoint) *twistPoint {

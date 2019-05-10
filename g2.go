@@ -5,21 +5,7 @@ import (
 	"math/big"
 )
 
-var (
-	// g2X0 is the c0 x-coordinate of G2's generator in the Montgomery form
-	g2X0, _ = new(fq).SetString("352701069587466618187139116011060144890029952792775240219908644239793785735715026873347600343865175952761926303160", Montgomery)
-
-	// g2X1 is the c1 x-coordinate of G2's generator in the Montgomery form
-	g2X1, _ = new(fq).SetString("3059144344244213709971259814753781636986470325476647558659373206291635324768958432433509563104347017837885763365758", Montgomery)
-
-	// g2Y0 is the c0 y-coordinate of G2's generator in the Montgomery form
-	g2Y0, _ = new(fq).SetString("1985150602287291935568054521177171638300868978215655730859378665066344726373823718423869104263333984641494340347905", Montgomery)
-
-	// g2Y1 is the c1 y-coordinate of G2's generator in the Montgomery form
-	g2Y1, _ = new(fq).SetString("927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582", Montgomery)
-
-	g2Gen = &g2Point{*newTwistPoint(fq2{*g2X0, *g2X1}, fq2{*g2Y0, *g2Y1})}
-)
+var g2Gen = &g2Point{*newTwistPoint(fq2{*g2X0, *g2X1}, fq2{*g2Y0, *g2Y1})}
 
 type g2Point struct {
 	p twistPoint

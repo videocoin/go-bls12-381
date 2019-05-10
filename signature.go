@@ -1,7 +1,3 @@
-// Package bls12 implements bls12-381 pairing-friendly elliptic curve
-// construction. This package operates, internally, on projective coordinates.
-// For a given (x, y) position on the curve, the Jacobian coordinates are
-// (x1, y1, z1) where x = x1/z1² and y = y1/z1³.
 package bls12
 
 import (

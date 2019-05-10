@@ -9,12 +9,11 @@ const (
 
 	// k64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n
 	k64 uint64 = 0x89f3fffcfffcfffd
-
-	// q64 is q as 64 bit words.
-	q64 = [6]uint64{0xB9FEFFFFFFFFAAAB, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 )
 
-var qMinusThreeOverFour = []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6}
+var (
+	qMinusThreeOverFour = []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6}
+)
 
 func fqMod(a *fq) {
 	b := new(fq)

@@ -3,6 +3,7 @@ module github.com/VideoCoin/go-bls12-381
 go 1.12
 
 require (
+	github.com/cespare/cp v1.1.1
 	github.com/google/pprof v0.0.0-20190502144155-8358a9778bd1 // indirect
 	github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6 // indirect
 	golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c // indirect

@@ -13,44 +13,47 @@ const (
 )
 
 var (
-	// TODO confirm if its in the montgomery form
-	fqCurveB, _                   = new(fq).SetString("4", Montgomery)
-	fqCurveBPlusOne, _            = new(fq).SetString("5", Montgomery)
-	fqSqrtNegThree, _             = new(fq).SetString("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701", Montgomery)
-	fqHalfSqrtNegThreeMinusOne, _ = new(fq).SetString("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350", Montgomery)
-	fqMinusOne, _                 = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786", Montgomery)
+	fqCurveB, _                   = new(fq).SetString("4")
+	fqCurveBPlusOne, _            = new(fq).SetString("5")
+	fqSqrtNegThree, _             = new(fq).SetString("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701")
+	fqHalfSqrtNegThreeMinusOne, _ = new(fq).SetString("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350")
+	fqMinusOne, _                 = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786")
 )
 
-// curvePoint is an elliptic curve point in projective coordinates.
-// The elliptic curve is defined by the following equation y²=x³+3.
+// curvePoint is an elliptic curve point in projective coordinates. The elliptic
+// curve is defined by the following equation y²=x³+3.
 type curvePoint struct {
 	x, y, z fq
 }
 
-// Set sets cp to the value of p and returns cp.
-func (cp *curvePoint) Set(p *curvePoint) *curvePoint {
-	cp.x, cp.y, cp.z = p.x, p.y, p.z
-	return cp
+// Set sets c to the value of a and returns c.
+func (c *curvePoint) Set(a *curvePoint) *curvePoint {
+	c.x, c.y, c.z = a.x, a.y, a.z
+	return c
 }
 
-func (cp *curvePoint) IsInfinity() bool {
-	return cp.z == fqZero
+// Equal reports whether a is equal to b.
+func (a *curvePoint) Equal(b *curvePoint) bool {
+	return a.x == b.x && a.y == b.y && a.z == b.z
 }
 
-// Add sets cp to the sum a+b and returns cp.
-func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
-	// TODO is infinity confirm
+// IsInfinity reports whether the point is at infinity
+func (a *curvePoint) IsInfinity() bool {
+	return a.z == fqZero
+}
+
+// Add sets c to the sum a+b and returns c.
+func (c *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	if a.IsInfinity() {
-		return cp.Set(b)
+		return c.Set(b)
 	}
-
-	// TODO is infinity confirm
 	if b.IsInfinity() {
-		return cp.Set(a)
+		return c.Set(a)
 	}
 
+	// faster than Add
 	if a.Equal(b) {
-		return cp.Double(a) // faster than Add
+		return c.Double(a)
 	}
 
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
@@ -77,29 +80,28 @@ func (cp *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	fqAdd(r, r, r)
 	fqMul(v, u1, i)
 
-	x, y, z, t0, t1 := new(fq), new(fq), new(fq), new(fq), new(fq)
+	p, t0, t1 := new(curvePoint), new(fq), new(fq)
 	fqAdd(t0, v, v)
 	fqAdd(t0, t0, j)
-	fqMul(x, r, r)
-	fqSub(x, x, t0)
+	fqMul(&p.x, r, r)
+	fqSub(&p.x, &p.x, t0)
 
 	fqAdd(t0, s1, s1)
 	fqMul(t0, t0, j)
-	fqSub(t1, v, x)
+	fqSub(t1, v, &p.x)
 	fqMul(t1, t1, r)
-	fqSub(y, t1, t0)
+	fqSub(&p.y, t1, t0)
 
-	fqAdd(z, &a.z, &b.z)
-	fqMul(z, z, z)
+	fqAdd(&p.z, &a.z, &b.z)
+	fqMul(&p.z, &p.z, &p.z)
 	fqAdd(t0, z1z1, z2z2)
-	fqSub(z, z, t0)
-	fqMul(z, z, h)
+	fqSub(&p.z, &p.z, t0)
+	fqMul(&p.z, &p.z, h)
 
-	cp.x, cp.y, cp.z = *x, *y, *z
-
-	return cp
+	return c.Set(p)
 }
 
+// Double sets c to the sum a+a and returns c.
 // See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
 func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
 	a, b, c, d, e, f := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
@@ -132,54 +134,46 @@ func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
 
 // ScalarMult returns k*(Bx,By) where k is a number in big-endian form.
 // See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-func (cp *curvePoint) ScalarMult(p *curvePoint, scalar *big.Int) *curvePoint {
-	q := new(curvePoint)
-	for i := scalar.BitLen() - 1; i >= 0; i-- {
-		q.Double(q)
-		if scalar.Bit(i) == 1 {
-			q.Add(q, p)
+func (c *curvePoint) ScalarMult(a *curvePoint, b *big.Int) *curvePoint {
+	ret := new(curvePoint)
+	for i := b.BitLen() - 1; i >= 0; i-- {
+		ret.Double(ret)
+		if b.Bit(i) == 1 {
+			ret.Add(ret, a)
 		}
 	}
 
-	return cp.Set(q)
+	return c.Set(ret)
 }
 
-func (cp *curvePoint) Equal(p *curvePoint) bool {
-	return cp.x == p.x && cp.y == p.y && cp.z == p.z
-}
-
-// isInfinty check if the point is a point at "infinity"
-func (cp *curvePoint) isInfinity() bool {
-	return cp.z == fqZero
-}
-
-func (cp *curvePoint) ToAffine() *curvePoint {
-	if cp.z.IsOne() {
-		return cp
+// ToAffine sets a to its affine value and returns a.
+func (a *curvePoint) ToAffine() *curvePoint {
+	if a.z.IsOne() {
+		return a
 	}
 
 	// TODO create new curve point
-	if cp.isInfinity() {
+	if a.IsInfinity() {
 		//  If this bit is set, the remaining bits of the group element's encoding should be set to zero.
 		//pointAtInfinityMask
 	}
 
 	zInv := new(fq)
-	fqInv(zInv, &cp.z)
-	fqMul(&cp.x, &cp.x, zInv)
-	fqMul(&cp.y, &cp.y, zInv)
-	cp.z = *fqOne
+	fqInv(zInv, &a.z)
+	fqMul(&a.x, &a.x, zInv)
+	fqMul(&a.y, &a.y, zInv)
+	a.z = *fqOne
 
-	return cp
+	return a
 }
 
 // CompressedEncode converts a curve point into the uncompressed form specified in
 // See https://github.com/zkcrypto/pairing/tree/master/src/bls12_381#serialization.
-func (cp *curvePoint) Marshal() []byte {
-	cp.ToAffine()
+func (a *curvePoint) Marshal() []byte {
+	a.ToAffine()
 
-	x := new(fq).MontgomeryDecode(&cp.x)
-	y := new(fq).MontgomeryDecode(&cp.y)
+	x := new(fq).MontgomeryDecode(&a.x)
+	y := new(fq).MontgomeryDecode(&a.y)
 
 	ret := make([]byte, fqByteLen*2)
 	copy(ret, x.Bytes())
@@ -214,12 +208,12 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 
 	var valid bool
 	fqX, fqY := new(fq), new(fq)
-	_, valid = fqX.SetInt(new(big.Int).SetBytes(data[:fqByteLen]), Montgomery)
+	_, valid = fqX.SetInt(new(big.Int).SetBytes(data[:fqByteLen]))
 	if !valid {
 		return fmt.Errorf("Failed to parse the field element corresponding to the x coordinate")
 	}
 	cp.x = *fqX
-	_, valid = fqY.SetInt(new(big.Int).SetBytes(data[fqByteLen:]), Montgomery)
+	_, valid = fqY.SetInt(new(big.Int).SetBytes(data[fqByteLen:]))
 	if !valid {
 		return fmt.Errorf("Failed to parse the field element corresponding to the y coordinate")
 	}
@@ -228,39 +222,28 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 	return nil
 }
 
-/*
-// unmarshalCurvePoint converts a point, serialized by Marshal, into an x, y pair.
-// It is an error if the point is not in compressed form or is not on the curve.
-// On error, x = nil.
-func unmarshalCurvePoint(data []byte) (*curvePoint, error) {
-
-
-	return &curvePoint{}, nil
-}
-*/
-
-// SetBytes converts a slice of bytes to
-// The point is not guaranteed to be in a particular subgroup.
+// SetBytes sets c to the curve point that results from the given slice of bytes
+// and returns c. The point is not guaranteed to be in a particular subgroup.
 // See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
-func (cp *curvePoint) SetBytes(buf []byte) *curvePoint {
+func (c *curvePoint) SetBytes(buf []byte) *curvePoint {
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], g10...))
 	t0 := new(big.Int)
-	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q), Montgomery)
+	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
 	sum = blake2b.Sum512(append(h[:], g11...))
-	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q), Montgomery)
+	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
 
-	return cp.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
+	return c.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
 }
 
 // SWEncode implements the Shallue and van de Woestijne encoding.
 // The point is not guaranteed to be in a particular subgroup.
-// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf - Algorithm 1
-func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
+// See https://www.di.ens.fr/~fouque/pub/latincrypt12.pdf - Algorithm 1.
+func (a *curvePoint) SWEncode(b *fq) *curvePoint {
 	w, inv := new(fq), new(fq)
-	fqMul(w, fqSqrtNegThree, t)
-	fqMul(w, w, t)
-	fqMul(inv, t, t)
+	fqMul(w, fqSqrtNegThree, b)
+	fqMul(w, w, b)
+	fqMul(inv, b, b)
 	fqAdd(inv, inv, fqCurveBPlusOne)
 	fqInv(inv, inv)
 	fqMul(w, w, inv)
@@ -269,7 +252,7 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 	for i := 0; i < 3; i++ {
 		switch i {
 		case 0:
-			fqMul(x, t, w)
+			fqMul(x, b, w)
 			fqSub(x, fqHalfSqrtNegThreeMinusOne, x)
 		case 1:
 			fqSub(x, fqMinusOne, x)
@@ -283,10 +266,10 @@ func (cp *curvePoint) SWEncode(t *fq) *curvePoint {
 		fqMul(y, y, x)
 		fqAdd(y, y, fqCurveB)
 		if fqSqrt(y, y) {
-			cp.x, cp.y, cp.z = *x, *y, *fqOne
-			return cp
+			a.x, a.y, a.z = *x, *y, *fqOne
+			return a
 		}
 	}
 
-	return cp
+	return a
 }

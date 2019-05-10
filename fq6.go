@@ -1,65 +1,5 @@
 package bls12
 
-var (
-	// Fq2(u + 1)**(((p^power) - 1) / 3), power E [0, 5]
-	frob6c1 = [6]*fq2{
-		// TODO fqOne?
-		&fq2{
-			fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
-			fq{},
-		},
-		&fq2{
-			fq{},
-			fq{0xcd03c9e48671f071, 0x5dab22461fcda5d2, 0x587042afd3851b95, 0x8eb60ebe01bacb9e, 0x3f97d6e83d050d2, 0x18f0206554638741},
-		},
-		&fq2{
-			fq{0x30f1361b798a64e8, 0xf3b8ddab7ece5a2a, 0x16a8ca3ac61577f7, 0xc26a2ff874fd029b, 0x3636b76660701c6e, 0x51ba4ab241b6160},
-			fq{},
-		},
-		&fq2{
-			fq{},
-			fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
-		},
-		&fq2{
-			fq{0xcd03c9e48671f071, 0x5dab22461fcda5d2, 0x587042afd3851b95, 0x8eb60ebe01bacb9e, 0x3f97d6e83d050d2, 0x18f0206554638741},
-			fq{},
-		},
-		&fq2{
-			fq{},
-			fq{0x30f1361b798a64e8, 0xf3b8ddab7ece5a2a, 0x16a8ca3ac61577f7, 0xc26a2ff874fd029b, 0x3636b76660701c6e, 0x51ba4ab241b6160},
-		},
-	}
-
-	// Fq2(u + 1)**(((2p^power) - 2) / 3), power E [0, 5]
-	frob6c2 = [6]*fq2{
-		// TODO fqOne?
-		&fq2{
-			fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
-			fq{},
-		},
-		&fq2{
-			fq{0x890dc9e4867545c3, 0x2af322533285a5d5, 0x50880866309b7e2c, 0xa20d1b8c7e881024, 0x14e4f04fe2db9068, 0x14e56d3f1564853a},
-			fq{},
-		},
-		&fq2{
-			fq{0xcd03c9e48671f071, 0x5dab22461fcda5d2, 0x587042afd3851b95, 0x8eb60ebe01bacb9e, 0x3f97d6e83d050d2, 0x18f0206554638741},
-			fq{},
-		},
-		&fq2{
-			fq{0x43f5fffffffcaaae, 0x32b7fff2ed47fffd, 0x7e83a49a2e99d69, 0xeca8f3318332bb7a, 0xef148d1ea0f4c069, 0x40ab3263eff0206},
-			fq{},
-		},
-		&fq2{
-			fq{0x30f1361b798a64e8, 0xf3b8ddab7ece5a2a, 0x16a8ca3ac61577f7, 0xc26a2ff874fd029b, 0x3636b76660701c6e, 0x51ba4ab241b6160},
-			fq{},
-		},
-		&fq2{
-			fq{0xecfb361b798dba3a, 0xc100ddb891865a2c, 0xec08ff1232bda8e, 0xd5c13cc6f1ca4721, 0x47222a47bf7b5c04, 0x110f184e51c5f59},
-			fq{},
-		},
-	}
-)
-
 // fq6 is an element of Fq6 = Fq²[Y]/(Y³ − γ), where γ is a quadratic
 // non-residue in Fq and γ = √β is a cubic non-residue in Fq² with a value
 // of X + 1. See https://eprint.iacr.org/2006/471.pdf for arithmetic.
@@ -228,8 +168,8 @@ func (z *fq6) Inv(x *fq6) *fq6 {
 func (z *fq6) Frobenius(x *fq6, power uint64) *fq6 {
 	ret := new(fq6)
 	ret.c0.Frobenius(&x.c0, power)
-	ret.c1.Frobenius(&x.c1, power).Mul(&ret.c1, frob6c1[power%6])
-	ret.c2.Frobenius(&x.c2, power).Mul(&ret.c2, frob6c2[power%6])
+	ret.c1.Frobenius(&x.c1, power).Mul(&ret.c1, frobFq6C1[power%6])
+	ret.c2.Frobenius(&x.c2, power).Mul(&ret.c2, frobFq6C2[power%6])
 
 	return z.Set(ret)
 }
