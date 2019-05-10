@@ -2,7 +2,6 @@ package bls12
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"math/big"
 )
@@ -39,9 +38,9 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 	}
 
 	for _, priv := range coefficients {
-		coeff, valid := new(fq).SetInt(priv.Secret)
-		if !valid {
-			return nil, fmt.Errorf("Failed to parse coefficient")
+		coeff, err := new(fq).SetInt(priv.Secret)
+		if err != nil {
+			return nil, err
 		}
 		p.coefficients = append(p.coefficients, coeff)
 	}
@@ -109,9 +108,9 @@ func PrivKeyFromShares(shares []*Share) (*PrivateKey, error) {
 	secrets := make([]*fq, 0, len(shares))
 	for _, share := range shares {
 		ids = append(ids, new(fq).SetUint64(share.X))
-		secret, valid := new(fq).SetInt(share.Y.Secret)
-		if !valid {
-			return nil, fmt.Errorf("Failed to parse secret")
+		secret, err := new(fq).SetInt(share.Y.Secret)
+		if err != nil {
+			return nil, err
 		}
 		secrets = append(secrets, secret)
 	}

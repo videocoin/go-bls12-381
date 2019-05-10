@@ -1,7 +1,6 @@
 package bls12
 
 import (
-	"fmt"
 	"math/big"
 
 	"golang.org/x/crypto/blake2b"
@@ -103,47 +102,45 @@ func (c *curvePoint) Add(a, b *curvePoint) *curvePoint {
 
 // Double sets c to the sum a+a and returns c.
 // See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-func (cp *curvePoint) Double(p *curvePoint) *curvePoint {
-	a, b, c, d, e, f := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
-	fqMul(a, &p.x, &p.x)
-	fqMul(b, &p.y, &p.y)
-	fqMul(c, b, b)
-	fqMul(d, &p.x, b)
-	fqAdd(d, d, d)
-	fqAdd(d, d, d)
-	fqAdd(e, a, a)
-	fqAdd(e, e, a)
+func (c *curvePoint) Double(a *curvePoint) *curvePoint {
+	d, e, f, g, h, i := new(fq), new(fq), new(fq), new(fq), new(fq), new(fq)
+	fqMul(d, &a.x, &a.x)
+	fqMul(e, &a.y, &a.y)
 	fqMul(f, e, e)
+	fqMul(g, &a.x, e)
+	fqAdd(g, g, g)
+	fqAdd(g, g, g)
+	fqAdd(h, d, d)
+	fqAdd(h, h, d)
+	fqMul(i, h, h)
 
-	x, y, z, t0 := new(fq), new(fq), new(fq), new(fq)
-	fqAdd(x, d, d)
-	fqSub(x, f, x)
-	fqAdd(t0, c, c)
+	p, t0 := new(curvePoint), new(fq)
+	fqAdd(&p.x, g, g)
+	fqSub(&p.x, i, &p.x)
+	fqAdd(t0, f, f)
 	fqAdd(t0, t0, t0)
 	fqAdd(t0, t0, t0)
-	fqSub(y, d, x)
-	fqMul(y, y, e)
-	fqSub(y, y, t0)
-	fqMul(z, &p.y, &p.z)
-	fqAdd(z, z, z)
+	fqSub(&p.y, g, &p.x)
+	fqMul(&p.y, &p.y, h)
+	fqSub(&p.y, &p.y, t0)
+	fqMul(&p.z, &a.y, &a.z)
+	fqAdd(&p.z, &p.z, &p.z)
 
-	cp.x, cp.y, cp.z = *x, *y, *z
-
-	return cp
+	return c.Set(p)
 }
 
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
 // See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add.
 func (c *curvePoint) ScalarMult(a *curvePoint, b *big.Int) *curvePoint {
-	ret := new(curvePoint)
+	p := new(curvePoint)
 	for i := b.BitLen() - 1; i >= 0; i-- {
-		ret.Double(ret)
+		p.Double(p)
 		if b.Bit(i) == 1 {
-			ret.Add(ret, a)
+			p.Add(p, a)
 		}
 	}
 
-	return c.Set(ret)
+	return c.Set(p)
 }
 
 // ToAffine sets a to its affine value and returns a.
@@ -206,16 +203,16 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 		cp.z = *fqOne
 	}
 
-	var valid bool
+	var err error
 	fqX, fqY := new(fq), new(fq)
-	_, valid = fqX.SetInt(new(big.Int).SetBytes(data[:fqByteLen]))
-	if !valid {
-		return fmt.Errorf("Failed to parse the field element corresponding to the x coordinate")
+	_, err = fqX.SetInt(new(big.Int).SetBytes(data[:fqByteLen]))
+	if err != nil {
+		return err
 	}
 	cp.x = *fqX
-	_, valid = fqY.SetInt(new(big.Int).SetBytes(data[fqByteLen:]))
-	if !valid {
-		return fmt.Errorf("Failed to parse the field element corresponding to the y coordinate")
+	_, err = fqY.SetInt(new(big.Int).SetBytes(data[fqByteLen:]))
+	if err != nil {
+		return err
 	}
 	cp.y = *fqY
 

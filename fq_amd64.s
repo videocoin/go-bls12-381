@@ -110,3 +110,4 @@ TEXT ·fqExp(SB),0,$0-24
 
 TEXT ·fqSqrt(SB),0,$0-24
     RET
+    

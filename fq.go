@@ -3,6 +3,7 @@ package bls12
 import (
 	"crypto/rand"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -14,6 +15,8 @@ const (
 	fqByteLen   = 48
 	decimalBase = 10
 )
+
+var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
 
 var (
 	fqZero   = fq{}
@@ -77,10 +80,10 @@ func bigFromBase10(s string) (*big.Int, bool) {
 
 // SetString sets z to the Montgomery value of s, interpreted in the decimal
 // base, and returns z and a boolean indicating success.
-func (z *fq) SetString(s string) (*fq, bool) {
+func (z *fq) SetString(s string) (*fq, error) {
 	k, valid := bigFromBase10(s)
 	if !valid {
-		return nil, false
+		return nil, nil
 	}
 
 	return z.SetInt(k)
@@ -90,9 +93,9 @@ func (z *fq) SetString(s string) (*fq, bool) {
 // indicating success. The integer must be within field bounds for success. If
 // the operation failed, the value of z is undefined but the returned value is
 // nil.
-func (z *fq) SetInt(x *big.Int) (*fq, bool) {
+func (z *fq) SetInt(x *big.Int) (*fq, error) {
 	if !isFieldElement(x) {
-		return nil, false
+		return nil, errOutOfBounds
 	}
 
 	fq := fq{0}
@@ -108,7 +111,7 @@ func (z *fq) SetInt(x *big.Int) (*fq, bool) {
 		}
 	}
 
-	return z.Set(&fq).MontgomeryEncode(z), true
+	return z.Set(&fq).MontgomeryEncode(z), nil
 }
 
 // SetUint64 sets z to the value of x and returns z.

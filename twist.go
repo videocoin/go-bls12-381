@@ -91,64 +91,62 @@ func (c *twistPoint) Add(a, b *twistPoint) *twistPoint {
 	return c.Set(p)
 }
 
-func (tp *twistPoint) Double(p *twistPoint) *twistPoint {
-	// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-	a, b, c, d, e, f := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
-	a.Sqr(&p.x)
-	b.Sqr(&p.y)
-	c.Sqr(b)
-	d.Mul(&p.x, b)
-	d.Add(d, d)
-	d.Add(d, d)
-	e.Add(a, a)
-	e.Add(e, a)
+// See http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
+func (c *twistPoint) Double(a *twistPoint) *twistPoint {
+	d, e, f, g, h, i := new(fq2), new(fq2), new(fq2), new(fq2), new(fq2), new(fq2)
+	d.Sqr(&a.x)
+	e.Sqr(&a.y)
 	f.Sqr(e)
+	g.Mul(&a.x, e)
+	g.Add(g, g)
+	g.Add(g, g)
+	h.Add(d, d)
+	h.Add(h, d)
+	i.Sqr(h)
 
-	x, y, z, t0 := new(fq2), new(fq2), new(fq2), new(fq2)
-	x.Add(d, d)
-	x.Sub(f, x)
-	t0.Add(c, c)
+	p, t0 := new(twistPoint), new(fq2)
+	p.x.Add(g, g)
+	p.x.Sub(i, &p.x)
+	t0.Add(f, f)
 	t0.Add(t0, t0)
 	t0.Add(t0, t0)
-	y.Sub(d, x)
-	y.Mul(y, e)
-	y.Sub(y, t0)
-	z.Mul(&p.y, &p.z)
-	z.Add(z, z)
+	p.y.Sub(g, &p.x)
+	p.y.Mul(&p.y, h)
+	p.y.Sub(&p.y, t0)
+	p.z.Mul(&a.y, &a.z)
+	p.z.Add(&p.z, &p.z)
 
-	tp.x, tp.y, tp.z = *x, *y, *z
-
-	return tp
+	return c.Set(p)
 }
 
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
 // See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add.
-func (c *twistPoint) ScalarMult(p *twistPoint, scalar *big.Int) *twistPoint {
-	q := &twistPoint{}
-	// fixme: BitLen or BitLen - 1
-	for i := scalar.BitLen() - 1; i >= 0; i-- {
-		q.Double(q)
-		if scalar.Bit(i) == 1 {
-			q.Add(q, p)
+func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
+	p := &twistPoint{}
+	for i := b.BitLen() - 1; i >= 0; i-- {
+		p.Double(p)
+		if b.Bit(i) == 1 {
+			p.Add(p, a)
 		}
 	}
 
-	return c.Set(q)
+	return c.Set(p)
 }
 
+// ToAffine sets a to its affine value and returns a.
 // See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
-func (tp *twistPoint) ToAffine() *twistPoint {
-	if tp.z.IsOne() {
-		return tp
+func (a *twistPoint) ToAffine() *twistPoint {
+	if a.z.IsOne() {
+		return a
 	}
 
 	zInv, zInvSqr, zInvCube := new(fq2), new(fq2), new(fq2)
-	zInv.Inv(&tp.z)
+	zInv.Inv(&a.z)
 	zInvSqr.Sqr(zInv)
 	zInvCube.Mul(zInvSqr, zInv)
-	tp.x.Mul(&tp.x, zInvSqr)
-	tp.y.Mul(&tp.y, zInvCube)
-	tp.z.SetOne()
+	a.x.Mul(&a.x, zInvSqr)
+	a.y.Mul(&a.y, zInvCube)
+	a.z.SetOne()
 
-	return tp
+	return a
 }
