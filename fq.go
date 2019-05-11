@@ -14,16 +14,19 @@ const (
 	fqLen       = 6
 	fqByteLen   = 48
 	decimalBase = 10
+	wordSize    = 64
 )
 
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
 
 var (
-	fqZero   = fq{}
-	fqOne, _ = new(fq).SetString("1")
+	fqZero        = fq{}
+	fqOne, _      = new(fq).SetString("1")
+	fqMinusOne, _ = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786")
 	// fqOneStarndard is the value by which to multiply field elements to map
-	// to the standard form.
-	fqOneStandard = fq{1}
+	// them back to the standard form.
+	fqOneStandard        = fq{1}
+	minusThreeOverFour64 = []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6}
 )
 
 // fq is an element of the finite field of order q.
@@ -58,6 +61,11 @@ func (z *fq) SetZero() *fq {
 // SetOne sets z to 1 and returns z.
 func (z *fq) SetOne() *fq {
 	return z.Set(fqOne)
+}
+
+// Equal reports whether x is equal to y.
+func (x *fq) Equal(y *fq) bool {
+	return *x == *y
 }
 
 // MontgomeryEncode converts z to the Montgomery form and returns z.
@@ -146,6 +154,43 @@ func (x *fq) Int() *big.Int {
 	}
 
 	return new(big.Int).SetBits(words)
+}
+
+func fqInv(z, x *fq) {
+	fqExp(z, x, qMinusTwo[:])
+}
+
+// See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
+func fqExp(z *fq, x *fq, y []uint64) {
+	b := *x
+	ret := new(fq).SetOne()
+	for _, word := range y {
+		for j := uint(0); j < wordSize; j++ {
+			if (word & (1 << j)) != 0 {
+				fqMul(ret, ret, &b)
+			}
+			fqMul(&b, &b, &b)
+		}
+	}
+
+	z.Set(ret)
+}
+
+// See https://eprint.iacr.org/2012/685.pdf - Algorithm 2; q ≡ 3 (mod 4)
+func fqSqrt(x, a *fq) bool {
+	a1, a0 := new(fq), new(fq)
+	fqExp(a1, a, minusThreeOverFour64)
+
+	fqMul(a0, a1, a1)
+	fqMul(a0, a0, a)
+
+	if a0.Equal(fqMinusOne) {
+		return false
+	}
+
+	fqMul(x, a1, a)
+
+	return true
 }
 
 // fqLarge is used during the multiplication.

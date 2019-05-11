@@ -13,8 +13,6 @@ var (
 	errInvalidShare           = errors.New("feldman: share is not valid")
 )
 
-// TODO replace fmt.Errorf with error
-
 // Share represents a unique part of a secret.
 type Share = Point
 

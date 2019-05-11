@@ -12,18 +12,4 @@ func fqNeg(z, x *fq)
 func fqSub(z, x, y *fq)
 
 //go:noescape
-func fqBasicMul(z *fqLarge, x, y *fq)
-
-//go:noescape
-func fqREDC(z *fq, x *fqLarge)
-
-//go:noescape
 func fqMul(z, x, y *fq)
-
-//go:noescape
-func fqSqrt(z, x *fq) bool
-
-//go:noescape
-func fqExp(z, x *fq, y []uint64)
-
-func fqInv(c, x *fq) { fqExp(c, x, qMinusTwo[:]) }

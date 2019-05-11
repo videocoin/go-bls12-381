@@ -1,7 +1,9 @@
 package bls12
 
 import (
+	"fmt"
 	"math/big"
+	"testing"
 )
 
 var (
@@ -13,26 +15,23 @@ var (
 	fq99          = fq{99}
 )
 
-/*
 func TestFqSetInt(t *testing.T) {
 	testCases := []struct {
 		input  *big.Int
-		form   Form
 		output fq
-		valid  bool
+		err    error
 	}{
-		{input: q, output: fq{}, valid: false},
-		{input: bigZero, output: fqZero, valid: true},
-		{input: bigOne, form: Montgomery, output: *fqOne, valid: true},
-		{input: bigOne, form: Standard, output: fqOneStandard, valid: true},
-		{input: new(big.Int).Sub(q, bigOne), output: fqLastElement, valid: true},
+		{input: bigZero, output: fqZero, err: nil},
+		{input: bigOne, output: *fqOne, err: nil},
+		{input: new(big.Int).Sub(q, bigOne), output: fqLastElement, err: nil},
+		{input: q, output: fq{}, err: errOutOfBounds},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
-			result, valid := new(fq).SetInt(testCase.input, Montgomery)
-			if valid != testCase.valid {
-				t.Errorf("expected %b, got %b\n", testCase.valid, valid)
+			result, err := new(fq).SetInt(testCase.input)
+			if err != testCase.err {
+				t.Errorf("expected %v, got %v\n", testCase.err, err)
 			}
 			if *result != testCase.output {
 				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
@@ -40,6 +39,9 @@ func TestFqSetInt(t *testing.T) {
 		})
 	}
 }
+
+/*
+
 
 func TestFqInt(t *testing.T) {
 	// TODO complete tests

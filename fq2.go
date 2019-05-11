@@ -10,7 +10,7 @@ type fq2 struct {
 }
 
 // IsOne reports whether x is equal to 1.
-// TODO review
+// review
 func (z *fq2) IsOne() bool {
 	return z.c0 == fq2One.c0 && z.c1 == fq2One.c1
 }

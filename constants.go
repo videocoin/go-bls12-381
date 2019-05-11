@@ -44,7 +44,7 @@ var (
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
 	g1Cofactor, _ = bigFromBase10("76329603384216526031706109802092473003")
 
-	// Fq(-1)**(((p^power) - 1) / 2), power E [0, 1]
+	// frobFq2C1 contains the value by which to multiply c1 to calculate the frobenius for a certain power.
 	frobFq2C1 = [2]*fq{
 		fqOne,
 		&fq{0x43f5fffffffcaaae, 0x32b7fff2ed47fffd, 0x7e83a49a2e99d69, 0xeca8f3318332bb7a, 0xef148d1ea0f4c069, 0x40ab3263eff0206},
