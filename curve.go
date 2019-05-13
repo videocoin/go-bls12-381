@@ -37,7 +37,7 @@ func (a *curvePoint) Equal(b *curvePoint) bool {
 
 // IsInfinity reports whether the point is at infinity.
 func (a *curvePoint) IsInfinity() bool {
-	return a.z == fqZero
+	return a.z.Equal(fqZero)
 }
 
 // Add sets c to the sum a+b and returns c.

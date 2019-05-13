@@ -104,10 +104,3 @@ TEXT ·fqREDC(SB),0,$0-24
 
 TEXT ·fqMul(SB),0,$0-24
     RET
-
-TEXT ·fqExp(SB),0,$0-24
-    RET
-
-TEXT ·fqSqrt(SB),0,$0-24
-    RET
-    

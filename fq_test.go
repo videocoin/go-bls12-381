@@ -1,188 +1,270 @@
 package bls12
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 )
 
 var (
-	bigZero = new(big.Int).SetUint64(0)
-	bigOne  = new(big.Int).SetUint64(1)
-
-	fqLastElement = fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
-	fq100         = fq{100}
-	fq99          = fq{99}
+	fqOneHardcoded          = &fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}
+	fqLastHardcoded         = &fq{0x43F5FFFFFFFCAAAE, 0x32B7FFF2ED47FFFD, 0x7E83A49A2E99D69, 0xECA8F3318332BB7A, 0xEF148D1EA0F4C069, 0x40AB3263EFF0206}
+	fqLastStandardHardcoded = &fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
+	fqTwoStandard           = &fq{2}
+	bigOne                  = big.NewInt(1)
+	bigZero                 = big.NewInt(0)
+	bigLast, _              = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786")
 )
 
-func TestFqSetInt(t *testing.T) {
-	testCases := []struct {
-		input  *big.Int
-		output fq
-		err    error
+func TestFqIsOne(t *testing.T) {
+	tests := map[string]struct {
+		input *fq
+		want  bool
 	}{
-		{input: bigZero, output: fqZero, err: nil},
-		{input: bigOne, output: *fqOne, err: nil},
-		{input: new(big.Int).Sub(q, bigOne), output: fqLastElement, err: nil},
-		{input: q, output: fq{}, err: errOutOfBounds},
+		"non-one":   {input: fqZero, want: false},
+		"non-one 2": {input: fqLastHardcoded, want: false},
+		"one":       {input: fqOneHardcoded, want: true},
 	}
-
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
-			result, err := new(fq).SetInt(testCase.input)
-			if err != testCase.err {
-				t.Errorf("expected %v, got %v\n", testCase.err, err)
-			}
-			if *result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := tc.input.IsOne()
+			if got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
 		})
 	}
 }
 
-/*
+func TestFqSet(t *testing.T) {
+	tests := map[string]struct {
+		input, want *fq
+	}{
+		"zero":     {input: fqZero, want: fqZero},
+		"non-zero": {input: fqLastHardcoded, want: fqLastHardcoded},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq).Set(tc.input)
+			if *got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
 
+func TestFqSetZero(t *testing.T) {
+	tests := map[string]struct {
+		input *fq
+	}{
+		"zero":     {input: fqZero},
+		"non-zero": {input: fqLastHardcoded},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := *tc.input
+			if *got.SetZero() != *fqZero {
+				t.Fatalf("expected: %v, got: %v", fqZero, got)
+			}
+		})
+	}
+}
 
-func TestFqInt(t *testing.T) {
-	// TODO complete tests
+func TestFqSetOne(t *testing.T) {
+	tests := map[string]struct {
+		input *fq
+	}{
+		"zero":     {input: fqZero},
+		"one":      {input: fqOneHardcoded},
+		"non-zero": {input: fqLastHardcoded},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := *tc.input
+			if *got.SetOne() != *fqOneHardcoded {
+				t.Fatalf("expected: %v, got: %v", fqOneHardcoded, got)
+			}
+		})
+	}
 }
 
 func TestFqSetString(t *testing.T) {
-	testCases := []struct {
-		input       string
-		output      fq
-		expectedErr error
+	tests := map[string]struct {
+		input string
+		want  *fq
+		err   error
 	}{
-		{input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787", output: fq{}, expectedErr: errOutOfBounds},
-		{input: "0", output: fqZero, expectedErr: nil},
-		{input: "1", output: fqOne, expectedErr: nil},
-		{input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786", output: fqLastElement, expectedErr: nil},
+		"zero":               {input: "0", want: fqZero, err: nil},
+		"one":                {input: "1", want: fqOneHardcoded, err: nil},
+		"last field element": {input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786", want: fqLastHardcoded, err: nil},
+		"out of bounds":      {input: "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787", err: errOutOfBounds},
 	}
-
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("big integer: %s\n", testCase.input), func(t *testing.T) {
-			result, err := new(fq).SetString(testCase.input)
-			if err != nil {
-				if err != testCase.expectedErr {
-					t.Errorf("expected %s, got %s\n", testCase.expectedErr, err)
-				}
-				return
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got, err := new(fq).SetString(tc.input)
+			if err != tc.err {
+				t.Fatalf("expected: %v, got: %v", tc.err, err)
 			}
-			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+			if err == nil && *got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
 		})
 	}
 }
 
-func TestFqMontgomeryFromBig(t *testing.T)    {}
-func TestFqMontgomeryFromBase10(t *testing.T) {}
-
-func TestFqHex(t *testing.T) {
-	testCases := []struct {
-		input  fq
-		output string
+func TestFqSetInt(t *testing.T) {
+	tests := map[string]struct {
+		input *big.Int
+		want  *fq
+		err   error
 	}{
-		{fqZero, "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
-		{fqOne, "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"},
-		{fqLastElement, "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaaa"},
+		"zero":               {input: bigZero, want: fqZero, err: nil},
+		"one":                {input: bigOne, want: fqOneHardcoded, err: nil},
+		"last field element": {input: new(big.Int).Sub(q, bigOne), want: fqLastHardcoded, err: nil},
+		"out of bounds":      {input: q, err: errOutOfBounds},
 	}
-
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("fq: %v\n", testCase.input), func(t *testing.T) {
-			if hex := testCase.input.Hex(); hex != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output, hex)
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got, err := new(fq).SetInt(tc.input)
+			if err != tc.err {
+				t.Fatalf("expected: %v, got: %v", tc.err, err)
+			}
+			if err == nil && *got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
 		})
 	}
 }
 
-func TestFqLargeHex(t *testing.T) {}
-
-func TestMontEncode(t *testing.T) {
-	testCases := []struct {
-		input, output fq
+func TestFqSetUint64(t *testing.T) {
+	tests := map[string]struct {
+		input uint64
+		want  *fq
 	}{
-		{
-			input:  fqOne,
-			output: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
-		},
+		"zero":     {input: 0, want: fqZero},
+		"non-zero": {input: 1, want: fqOne},
 	}
-	for _, testCase := range testCases {
-		var result fq
-		montgomeryEncode(&result, &testCase.input)
-		if result != testCase.output {
-			t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
-		}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq).SetUint64(tc.input)
+			if *got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", fqZero, got)
+			}
+		})
 	}
 }
 
-func TestMontDecode(t *testing.T) {
-	testCases := []struct {
-		input, output fq
+func TestFqMontgomeryEncode(t *testing.T) {
+	tests := map[string]struct {
+		input, want *fq
 	}{
-		{
-			input:  fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
-			output: fqOne,
-		},
+		"zero":     {input: fqZero, want: fqZero},
+		"non-zero": {input: fqLastStandardHardcoded, want: fqLastHardcoded},
 	}
-	for _, testCase := range testCases {
-		var result fq
-		montgomeryDecode(&result, &testCase.input)
-		if result != testCase.output {
-			t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
-		}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq).MontgomeryEncode(tc.input)
+			if *got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
 	}
 }
 
+func TestFqMontgomeryDecode(t *testing.T) {
+	tests := map[string]struct {
+		input, want *fq
+	}{
+		"zero":     {input: fqZero, want: fqZero},
+		"non-zero": {input: fqLastHardcoded, want: fqLastStandardHardcoded},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq).MontgomeryDecode(tc.input)
+			if *got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
+
+func TestFqEqual(t *testing.T) {
+	tests := map[string]struct {
+		x, y *fq
+		want bool
+	}{
+		"equal":     {x: fqZero, y: fqZero, want: true},
+		"equal 2":   {x: fqZero, y: &fq{}, want: true},
+		"equal 3":   {x: fqOneStandard, y: &fq{1}, want: true},
+		"not equal": {x: fqOneHardcoded, y: fqLastHardcoded, want: false},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := tc.x.Equal(tc.y)
+			if got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
+
+func TestFqInt(t *testing.T) {
+	tests := map[string]struct {
+		input *fq
+		want  *big.Int
+	}{
+		"zero": {input: fqZero, want: bigZero},
+		"last element (montgomery form)": {input: fqLastHardcoded, want: bigLast},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := tc.input.Int()
+			if got.Cmp(tc.want) != 0 {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
 func TestFqAdd(t *testing.T) {
-	testCases := []struct {
-		a, b, output fq
+	tests := map[string]struct {
+		x, y, want *fq
 	}{
-		{a: fqZero, b: fqZero, output: fqZero},
-		{a: fqZero, b: fqOne, output: fqOne},
-		{a: fqZero, b: fqLastElement, output: fqLastElement},
-		{a: fqLastElement, b: fqOne, output: fqZero},
-		{a: fqLastElement, b: fq100, output: fq99},
+		"0 + 0 = 0":           {x: fqZero, y: fqZero, want: fqZero},
+		"0 + y = y for y < q": {x: fqZero, y: fqLastHardcoded, want: fqLastHardcoded},
+		"last elem + 1 = 0":   {x: fqLastStandardHardcoded, y: fqOneStandard, want: fqZero},
+		"last elem + 2 = 1":   {x: fqLastStandardHardcoded, y: fqTwoStandard, want: fqOneStandard},
 	}
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
-			var result fq
-			fqAdd(&result, &testCase.a, &testCase.b)
-			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			var got fq
+			fqAdd(&got, tc.x, tc.y)
+			if got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
 		})
 	}
 }
 
 func TestFqNeg(t *testing.T) {
-	testCases := []struct {
-		input, output fq
+	tests := map[string]struct {
+		input, want *fq
 	}{
-		{input: fqLastElement, output: fqOne},
-		{input: fqOne, output: fqLastElement},
+		"q - last elem = 1": {input: fqLastStandardHardcoded, want: fqOneStandard},
+		"q - 1 = last elem": {input: fqOneStandard, want: fqLastStandardHardcoded},
 	}
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("input: %s", testCase.input.String()), func(t *testing.T) {
-			var result fq
-			fqNeg(&result, &testCase.input)
-			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			var got fq
+			fqNeg(&got, tc.input)
+			if got != *tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
 		})
 	}
 }
 
+/*
 func TestFqSub(t *testing.T) {
-	// TODO complete
-	two, _ := fqMontgomeryFromBase10("2")
-
-	negFqMontOne := new(fq)
-	fqNeg(negFqMontOne, &fqMontOne)
-
-	testCases := []struct {
-		a, b, output fq
+	tests := []struct {
+		x, y, want *fq
 	}{
 		{a: two, b: fqMontOne, output: fqMontOne},
 		{a: fqLastElement, b: fqLastElement, output: fqZero},
@@ -200,6 +282,9 @@ func TestFqSub(t *testing.T) {
 		})
 	}
 }
+
+/*
+
 
 func TestFqBasicMul(t *testing.T) {
 	testCases := []struct {

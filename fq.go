@@ -20,12 +20,13 @@ const (
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
 
 var (
-	fqZero        = fq{}
+	fqZero        = &fq{}
 	fqOne, _      = new(fq).SetString("1")
 	fqMinusOne, _ = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786")
 	// fqOneStarndard is the value by which to multiply field elements to map
 	// them back to the standard form.
-	fqOneStandard        = fq{1}
+	fqOneStandard = &fq{1}
+
 	minusThreeOverFour64 = []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6}
 )
 
@@ -38,12 +39,7 @@ type fq [fqLen]uint64
 
 // IsOne reports whether x is equal to 1.
 func (x *fq) IsOne() bool {
-	return *x == *fqOne
-}
-
-// String implements the Stringer interface.
-func (x *fq) String() string {
-	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[5], x[4], x[3], x[2], x[1], x[0])
+	return x.Equal(fqOne)
 }
 
 // Set sets z to x and returns z.
@@ -53,14 +49,13 @@ func (z *fq) Set(x *fq) *fq {
 }
 
 // SetOne sets z to 0 and returns z.
-func (z *fq) SetZero() *fq {
-	*z = fqZero
-	return z
+func (x *fq) SetZero() *fq {
+	return x.Set(fqZero)
 }
 
 // SetOne sets z to 1 and returns z.
-func (z *fq) SetOne() *fq {
-	return z.Set(fqOne)
+func (x *fq) SetOne() *fq {
+	return x.Set(fqOne)
 }
 
 // Equal reports whether x is equal to y.
@@ -78,8 +73,13 @@ func (z *fq) MontgomeryEncode(x *fq) *fq {
 // MontgomeryDecode converts z back to the standard form and returns z.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func (z *fq) MontgomeryDecode(x *fq) *fq {
-	fqMul(z, x, &fqOneStandard)
+	fqMul(z, x, fqOneStandard)
 	return z
+}
+
+// String implements the Stringer interface.
+func (x *fq) String() string {
+	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[5], x[4], x[3], x[2], x[1], x[0])
 }
 
 func bigFromBase10(s string) (*big.Int, bool) {
@@ -139,17 +139,18 @@ func (x *fq) Bytes() []byte {
 // Int returns the corresponding big integer.
 func (x *fq) Int() *big.Int {
 	var words []big.Word
+	xDecoded := new(fq).MontgomeryDecode(x)
 
 	if strconv.IntSize == 64 {
 		words = make([]big.Word, 0, fqLen)
-		for _, word := range x {
+		for _, word := range xDecoded {
 			words = append(words, big.Word(word))
 		}
 	} else {
 		numWords := fqLen * 2
 		words = make([]big.Word, 0, numWords)
 		for i := 0; i < numWords; i++ {
-			words = append(words, big.Word(uint32((x[i/2])>>uint(32*(i%2)))))
+			words = append(words, big.Word(uint32((xDecoded[i/2])>>uint(32*(i%2)))))
 		}
 	}
 
@@ -176,19 +177,20 @@ func fqExp(z *fq, x *fq, y []uint64) {
 	z.Set(ret)
 }
 
+// fqSqrt sets z to the square root of x, and returns a boolean.
+// If it exists, x satisfying x 2 = a, false otherwise.
 // See https://eprint.iacr.org/2012/685.pdf - Algorithm 2; q ≡ 3 (mod 4)
-func fqSqrt(x, a *fq) bool {
-	a1, a0 := new(fq), new(fq)
-	fqExp(a1, a, minusThreeOverFour64)
-
-	fqMul(a0, a1, a1)
-	fqMul(a0, a0, a)
-
-	if a0.Equal(fqMinusOne) {
+// TODO replace x, a with z, x
+// TODO desc bool
+func fqSqrt(z, x *fq) bool {
+	x0, x1 := new(fq), new(fq)
+	fqExp(x1, x, minusThreeOverFour64)
+	fqMul(x0, x1, x1)
+	fqMul(x0, x0, x)
+	if x0.Equal(fqMinusOne) {
 		return false
 	}
-
-	fqMul(x, a1, a)
+	fqMul(z, x1, x)
 
 	return true
 }
