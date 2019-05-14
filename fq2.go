@@ -27,17 +27,17 @@ func (z *fq2) SetOne() *fq2 {
 	return z
 }
 
-// Neg sets z to -x and returns z.
-func (z *fq2) Neg(x *fq2) *fq2 {
-	fqNeg(&z.c0, &x.c0)
-	fqNeg(&z.c1, &x.c1)
-	return z
-}
-
 // Add sets z to the sum x+y and returns z.
 func (z *fq2) Add(x, y *fq2) *fq2 {
 	fqAdd(&z.c0, &x.c0, &y.c0)
 	fqAdd(&z.c1, &x.c1, &y.c1)
+	return z
+}
+
+// Neg sets z to -x and returns z.
+func (z *fq2) Neg(x *fq2) *fq2 {
+	fqNeg(&z.c0, &x.c0)
+	fqNeg(&z.c1, &x.c1)
 	return z
 }
 
