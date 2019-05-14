@@ -15,8 +15,8 @@ func newTwistPoint(x, y fq2) *twistPoint {
 	return &twistPoint{
 		x: x,
 		y: y,
-		z: *fq2One,
-		t: *fq2One,
+		z: fq2{c0: *new(fq).SetUint64(1)},
+		t: fq2{c0: *new(fq).SetUint64(1)},
 	}
 }
 

@@ -20,14 +20,7 @@ const (
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
 
 var (
-	fqZero        = &fq{}
-	fqOne, _      = new(fq).SetString("1")
 	fqMinusOne, _ = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786")
-	// fqOneStarndard is the value by which to multiply field elements to map
-	// them back to the standard form.
-	fqOneStandard = &fq{1}
-
-	minusThreeOverFour64 = []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6}
 )
 
 // fq is an element of the finite field of order q.
@@ -39,23 +32,13 @@ type fq [fqLen]uint64
 
 // IsOne reports whether x is equal to 1.
 func (x *fq) IsOne() bool {
-	return x.Equal(fqOne)
+	return *x == *new(fq).SetUint64(1)
 }
 
 // Set sets z to x and returns z.
 func (z *fq) Set(x *fq) *fq {
 	*z = *x
 	return z
-}
-
-// SetOne sets z to 0 and returns z.
-func (x *fq) SetZero() *fq {
-	return x.Set(fqZero)
-}
-
-// SetOne sets z to 1 and returns z.
-func (x *fq) SetOne() *fq {
-	return x.Set(fqOne)
 }
 
 // Equal reports whether x is equal to y.
@@ -73,7 +56,7 @@ func (z *fq) MontgomeryEncode(x *fq) *fq {
 // MontgomeryDecode converts z back to the standard form and returns z.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func (z *fq) MontgomeryDecode(x *fq) *fq {
-	fqMul(z, x, fqOneStandard)
+	fqMul(z, x, &fq{1})
 	return z
 }
 
@@ -119,12 +102,12 @@ func (z *fq) SetInt(x *big.Int) (*fq, error) {
 		}
 	}
 
-	return z.Set(&fq).MontgomeryEncode(z), nil
+	return z.MontgomeryEncode(&fq), nil
 }
 
 // SetUint64 sets z to the value of x and returns z.
 func (z *fq) SetUint64(x uint64) *fq {
-	return z.Set(&fq{x}).MontgomeryEncode(z)
+	return z.MontgomeryEncode(&fq{x})
 }
 
 // Bytes returns the absolute value of fq as a big-endian byte slice.
@@ -164,7 +147,7 @@ func fqInv(z, x *fq) {
 // See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 func fqExp(z *fq, x *fq, y []uint64) {
 	b := *x
-	ret := new(fq).SetOne()
+	ret := new(fq).SetUint64(1)
 	for _, word := range y {
 		for j := uint(0); j < wordSize; j++ {
 			if (word & (1 << j)) != 0 {
@@ -184,10 +167,10 @@ func fqExp(z *fq, x *fq, y []uint64) {
 // TODO desc bool
 func fqSqrt(z, x *fq) bool {
 	x0, x1 := new(fq), new(fq)
-	fqExp(x1, x, minusThreeOverFour64)
+	fqExp(x1, x, []uint64{0xee7fbfffffffeaaa, 0x7aaffffac54ffff, 0xd9cc34a83dac3d89, 0xd91dd2e13ce144af, 0x92c6e9ed90d2eb35, 0x680447a8e5ff9a6})
 	fqMul(x0, x1, x1)
 	fqMul(x0, x0, x)
-	if x0.Equal(fqMinusOne) {
+	if (*x0 == fq{0x43F5FFFFFFFCAAAE, 0x32B7FFF2ED47FFFD, 0x7E83A49A2E99D69, 0xECA8F3318332BB7A, 0xEF148D1EA0F4C069, 0x40AB3263EFF0206}) {
 		return false
 	}
 	fqMul(z, x1, x)

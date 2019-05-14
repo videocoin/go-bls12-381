@@ -37,7 +37,7 @@ func (a *curvePoint) Equal(b *curvePoint) bool {
 
 // IsInfinity reports whether the point is at infinity.
 func (a *curvePoint) IsInfinity() bool {
-	return a.z.Equal(fqZero)
+	return a.z == fq{}
 }
 
 // Add sets c to the sum a+b and returns c.
@@ -158,7 +158,7 @@ func (a *curvePoint) ToAffine() *curvePoint {
 	fqInv(zInv, &a.z)
 	fqMul(&a.x, &a.x, zInv)
 	fqMul(&a.y, &a.y, zInv)
-	a.z = *fqOne
+	a.z = *new(fq).SetUint64(1)
 
 	return a
 }
@@ -199,7 +199,7 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 	if data[0]&pointAtInfinityMask == 1 {
 
 	} else {
-		cp.z = *fqOne
+		cp.z = *new(fq).SetUint64(1)
 	}
 
 	var err error
@@ -251,18 +251,18 @@ func (a *curvePoint) SWEncode(b *fq) *curvePoint {
 			fqMul(x, b, w)
 			fqSub(x, fqHalfSqrtNegThreeMinusOne, x)
 		case 1:
-			fqSub(x, fqMinusOne, x)
+			fqSub(x, &fq{0x43F5FFFFFFFCAAAE, 0x32B7FFF2ED47FFFD, 0x7E83A49A2E99D69, 0xECA8F3318332BB7A, 0xEF148D1EA0F4C069, 0x40AB3263EFF0206}, x)
 		case 2:
 			fqMul(x, w, w)
 			fqInv(x, x)
-			fqAdd(x, x, fqOne)
+			fqAdd(x, x, new(fq).SetUint64(1))
 		}
 
 		fqMul(y, x, x)
 		fqMul(y, y, x)
 		fqAdd(y, y, fqCurveB)
 		if fqSqrt(y, y) {
-			a.x, a.y, a.z = *x, *y, *fqOne
+			a.x, a.y, a.z = *x, *y, *new(fq).SetUint64(1)
 			return a
 		}
 	}

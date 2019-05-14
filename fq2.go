@@ -1,7 +1,5 @@
 package bls12
 
-var fq2One = &fq2{c0: *fqOne}
-
 // fq2 is an element of Fq² = Fq[X]/(X² − β), where β is a quadratic
 // non-residue in Fq with a value of -1. See
 // http://eprint.iacr.org/2006/471.pdf for arithmetic.
@@ -12,7 +10,7 @@ type fq2 struct {
 // IsOne reports whether x is equal to 1.
 // review
 func (z *fq2) IsOne() bool {
-	return z.c0 == fq2One.c0 && z.c1 == fq2One.c1
+	return z.c0 == *new(fq).SetUint64(1) && z.c1 == fq{}
 }
 
 // Equal reports whether x is equal to y.
@@ -31,15 +29,14 @@ func (z *fq2) Set(x *fq2) *fq2 {
 
 // SetOne sets z to 0 and returns z.
 func (z *fq2) SetZero() *fq2 {
-	z.c0.SetZero()
-	z.c1.SetZero()
+	z.c0, z.c1 = fq{}, fq{}
 	return z
 }
 
 // SetOne sets z to 1 and returns z.
 func (z *fq2) SetOne() *fq2 {
-	z.c0.SetOne()
-	z.c1.SetZero()
+	z.c0 = *new(fq).SetUint64(1)
+	z.c1 = fq{}
 	return z
 }
 
