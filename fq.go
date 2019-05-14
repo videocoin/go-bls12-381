@@ -11,17 +11,13 @@ import (
 )
 
 const (
-	fqLen       = 6
 	fqByteLen   = 48
-	decimalBase = 10
+	fqLen       = 6
 	wordSize    = 64
+	decimalBase = 10
 )
 
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
-
-var (
-	fqMinusOne, _ = new(fq).SetString("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786")
-)
 
 // fq is an element of the finite field of order q.
 // fq operates, internally, on the montgomery form but it's possible to
@@ -30,20 +26,10 @@ var (
 // making sure that the montgomery form is used whenever required.
 type fq [fqLen]uint64
 
-// IsOne reports whether x is equal to 1.
-func (x *fq) IsOne() bool {
-	return *x == *new(fq).SetUint64(1)
-}
-
 // Set sets z to x and returns z.
 func (z *fq) Set(x *fq) *fq {
 	*z = *x
 	return z
-}
-
-// Equal reports whether x is equal to y.
-func (x *fq) Equal(y *fq) bool {
-	return *x == *y
 }
 
 // MontgomeryEncode converts z to the Montgomery form and returns z.

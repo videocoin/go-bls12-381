@@ -28,7 +28,7 @@ func (c *twistPoint) Set(a *twistPoint) *twistPoint {
 
 // Equal reports whether a is equal to b.
 func (a *twistPoint) Equal(b *twistPoint) bool {
-	return a.x.Equal(&b.x) && a.y.Equal(&b.y) && a.z.Equal(&b.z)
+	return a.x == b.x && a.y == b.y && a.z == b.z && a.t == b.t
 }
 
 // IsInfinity reports whether the point is at infinity.
@@ -136,7 +136,7 @@ func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
 // ToAffine sets a to its affine value and returns a.
 // See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
 func (a *twistPoint) ToAffine() *twistPoint {
-	if a.z.IsOne() {
+	if (a.z.c0 == *new(fq).SetUint64(1)) && (a.z.c1 == fq{}) {
 		return a
 	}
 

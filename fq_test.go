@@ -5,37 +5,6 @@ import (
 	"testing"
 )
 
-var (
-	fqZero         = fq{}
-	fqOne          = fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}
-	fqLast         = fq{0x43F5FFFFFFFCAAAE, 0x32B7FFF2ED47FFFD, 0x7E83A49A2E99D69, 0xECA8F3318332BB7A, 0xEF148D1EA0F4C069, 0x40AB3263EFF0206}
-	fqLastStandard = fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
-	fqTwoStandard  = fq{2}
-	bigOne         = big.NewInt(1)
-	bigZero        = big.NewInt(0)
-	bigLast, _     = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559786")
-)
-
-// note: fq operates, internally, on the montgomery form.
-func TestFqIsOne(t *testing.T) {
-	tests := map[string]struct {
-		input fq
-		want  bool
-	}{
-		"mont(0)":    {input: fq{}, want: false},
-		"mont(1)":    {input: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}, want: true},
-		"mont(last)": {input: fq{0x43F5FFFFFFFCAAAE, 0x32B7FFF2ED47FFFD, 0x7E83A49A2E99D69, 0xECA8F3318332BB7A, 0xEF148D1EA0F4C069, 0x40AB3263EFF0206}, want: false},
-	}
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			got := tc.input.IsOne()
-			if got != tc.want {
-				t.Fatalf("expected: %v, got: %v", tc.want, got)
-			}
-		})
-	}
-}
-
 func TestFqSet(t *testing.T) {
 	tests := map[string]struct {
 		input, want fq
@@ -49,6 +18,40 @@ func TestFqSet(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := new(fq).Set(&tc.input)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
+
+func TestFqMontgomeryEncode(t *testing.T) {
+	tests := map[string]struct {
+		input, want fq
+	}{
+		"0 > mont(0)": {input: fq{}, want: fq{}},
+		"1 > mont(1)": {input: fq{1}, want: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq).MontgomeryEncode(&tc.input)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
+
+func TestFqMontgomeryDecode(t *testing.T) {
+	tests := map[string]struct {
+		input, want fq
+	}{
+		"mont(0) > 0": {input: fq{}, want: fq{}},
+		"mont(1) > 1": {input: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}, want: fq{1}},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq).MontgomeryDecode(&tc.input)
 			if *got != tc.want {
 				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
@@ -88,7 +91,7 @@ func TestFqSetInt(t *testing.T) {
 	}{
 		"0 > mont(0)":       {input: new(big.Int).SetUint64(0), want: fq{}, err: nil},
 		"1 > mont(1)":       {input: new(big.Int).SetUint64(1), want: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}, err: nil},
-		"last > mont(last)": {input: new(big.Int).Sub(q, bigOne), want: fq{0x43F5FFFFFFFCAAAE, 0x32B7FFF2ED47FFFD, 0x7E83A49A2E99D69, 0xECA8F3318332BB7A, 0xEF148D1EA0F4C069, 0x40AB3263EFF0206}, err: nil},
+		"last > mont(last)": {input: new(big.Int).Sub(q, new(big.Int).SetUint64(1)), want: fq{0x43F5FFFFFFFCAAAE, 0x32B7FFF2ED47FFFD, 0x7E83A49A2E99D69, 0xECA8F3318332BB7A, 0xEF148D1EA0F4C069, 0x40AB3263EFF0206}, err: nil},
 		"out of bounds":     {input: q, err: errOutOfBounds},
 	}
 	for name, tc := range tests {
@@ -115,40 +118,6 @@ func TestFqSetUint64(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := new(fq).SetUint64(tc.input)
-			if *got != tc.want {
-				t.Fatalf("expected: %v, got: %v", fqZero, got)
-			}
-		})
-	}
-}
-
-func TestFqMontgomeryEncode(t *testing.T) {
-	tests := map[string]struct {
-		input, want fq
-	}{
-		"0 > mont(0)": {input: fq{}, want: fq{}},
-		"1 > mont(1)": {input: fq{1}, want: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}},
-	}
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			got := new(fq).MontgomeryEncode(&tc.input)
-			if *got != tc.want {
-				t.Fatalf("expected: %v, got: %v", tc.want, got)
-			}
-		})
-	}
-}
-
-func TestFqMontgomeryDecode(t *testing.T) {
-	tests := map[string]struct {
-		input, want fq
-	}{
-		"mont(0) > 0": {input: fq{}, want: fq{}},
-		"mont(1) > 1": {input: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}, want: fq{1}},
-	}
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			got := new(fq).MontgomeryDecode(&tc.input)
 			if *got != tc.want {
 				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
@@ -304,37 +273,24 @@ func TestFqSqrt(t *testing.T) {
 	}
 }
 
-/*
 func TestFqInv(t *testing.T) {
-	negFqMontOne := new(fq)
-	fqNeg(negFqMontOne, &fqMontOne)
-
-	// TODO complete
-	testCases := []struct {
-		base     fq
-		exponent []uint64
-		output   fq
+	tests := map[string]struct {
+		input, want fq
 	}{
-		{
-			base:     *negFqMontOne,
-			exponent: []uint64{123123},
-			output:   *negFqMontOne,
-		},
-		{
-			base:     fqMontOne,
-			exponent: []uint64{123123},
-			output:   fqMontOne,
-		},
+		"Inv(mont(1)) = mont(1)": {input: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}, want: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}},
 	}
-	for _, testCase := range testCases {
-		result := new(fq)
-		fqExp(result, &testCase.base, testCase.exponent)
-		if *result != testCase.output {
-			t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
-		}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			var got fq
+			fqInv(&got, &tc.input)
+			if got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
 	}
 }
 
+/*
 
 func TestFqBasicMul(t *testing.T) {
 	testCases := []struct {

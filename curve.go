@@ -144,7 +144,7 @@ func (c *curvePoint) ScalarMult(a *curvePoint, b *big.Int) *curvePoint {
 
 // ToAffine sets a to its affine value and returns a.
 func (a *curvePoint) ToAffine() *curvePoint {
-	if a.z.IsOne() {
+	if a.z == *new(fq).SetUint64(1) {
 		return a
 	}
 

@@ -7,19 +7,6 @@ type fq2 struct {
 	c0, c1 fq
 }
 
-// IsOne reports whether x is equal to 1.
-// review
-func (z *fq2) IsOne() bool {
-	return z.c0 == *new(fq).SetUint64(1) && z.c1 == fq{}
-}
-
-// Equal reports whether x is equal to y.
-// TODO review
-func (x *fq2) Equal(y *fq2) bool {
-	// TODO a.c0.Equal form
-	return (x.c0 == y.c0) && (x.c1 == y.c1)
-}
-
 // Set sets z to x and returns z.
 func (z *fq2) Set(x *fq2) *fq2 {
 	z.c0.Set(&x.c0)
@@ -27,9 +14,9 @@ func (z *fq2) Set(x *fq2) *fq2 {
 	return z
 }
 
-// SetOne sets z to 0 and returns z.
+// SetZero sets z to 0 and returns z.
 func (z *fq2) SetZero() *fq2 {
-	z.c0, z.c1 = fq{}, fq{}
+	*z = fq2{}
 	return z
 }
 
