@@ -1,8 +1,8 @@
 package bls12
 
-// fq2 is an element of Fq² = Fq[X]/(X² − β), where β is a quadratic
-// non-residue in Fq with a value of -1. See
-// http://eprint.iacr.org/2006/471.pdf for arithmetic.
+// fq2 is an element of Fq² = Fq[X]/(X² − β), where β is a quadratic non-residue
+// in Fq with a value of -1. See http://eprint.iacr.org/2006/471.pdf for
+// arithmetic.
 type fq2 struct {
 	c0, c1 fq
 }
@@ -48,8 +48,7 @@ func (z *fq2) Sub(x, y *fq2) *fq2 {
 	return z
 }
 
-// Mul sets z to the product x*y and returns z.
-// Mul utilizes Karatsuba's method.
+// Mul sets z to the product x*y and returns z. Mul utilizes Karatsuba's method.
 func (z *fq2) Mul(x, y *fq2) *fq2 {
 	ret := new(fq2)
 	// v0 = a0b0
