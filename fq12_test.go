@@ -72,6 +72,7 @@ func TestFq12SetOne(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := tc.input.SetOne()
+			// TODO replace set uint with hardcoded value
 			if (*got != fq12{c0: fq6{c0: fq2{c0: *new(fq).SetUint64(1)}}}) {
 				t.Fatalf("expected: %v, got: %v", fq12{c0: fq6{c0: fq2{c0: *new(fq).SetUint64(1)}}}, got)
 			}
@@ -284,7 +285,23 @@ func TestFq12Add(t *testing.T) {
 }
 
 func TestFq12Mul(t *testing.T) {
-	// TODO
+	tests := map[string]struct {
+		x, y, want fq12
+	}{
+		"0 * 0 = 0": {
+			x:    fq12{},
+			y:    fq12{},
+			want: fq12{},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq12).Mul(&tc.x, &tc.y)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
 
 func TestFq12SparseMult(t *testing.T) {
@@ -292,7 +309,22 @@ func TestFq12SparseMult(t *testing.T) {
 }
 
 func TestFq12Sqr(t *testing.T) {
-	// TODO
+	tests := map[string]struct {
+		input, want fq12
+	}{
+		"sqr(0) = 0": {
+			input: fq12{},
+			want:  fq12{},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq12).Sqr(&tc.input)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
 
 func TestFq12Inv(t *testing.T) {
