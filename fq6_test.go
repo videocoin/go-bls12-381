@@ -289,6 +289,33 @@ func TestFq6Sub(t *testing.T) {
 	}
 }
 
+func TestFq6MulQuadraticNonResidue(t *testing.T) {
+	tests := map[string]struct {
+		input, want fq6
+	}{
+		"((2 + 2X) + (1 + X)B + (3 + 3X)B^2) >  (6X + (2 + 2X)B + (1 + X)B^2)": {
+			input: fq6{
+				c0: fq2{c0: fq{2}, c1: fq{2}},
+				c1: fq2{c0: fq{1}, c1: fq{1}},
+				c2: fq2{c0: fq{3}, c1: fq{3}},
+			},
+			want: fq6{
+				c0: fq2{c0: fq{}, c1: fq{6}},
+				c1: fq2{c0: fq{2}, c1: fq{2}},
+				c2: fq2{c0: fq{1}, c1: fq{1}},
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq6).MulQuadraticNonResidue(&tc.input)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
+
 /*
 
 func TestFq6Mul(t *testing.T) {
@@ -299,9 +326,7 @@ func TestFq6SparseMult(t *testing.T) {
 	// TODO
 }
 
-func TestFq6MulQuadraticNonResidue(t *testing.T) {
-	// TODO
-}
+
 
 func TestFq6Sqr(t *testing.T) {
 	// TODO
