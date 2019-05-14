@@ -240,17 +240,56 @@ func TestFq6Neg(t *testing.T) {
 	}
 }
 
-/*
-
-
-
-func TestFq6Add(t *testing.T) {
-	// TODO
-}
-
 func TestFq6Sub(t *testing.T) {
-	// TODO
+	tests := map[string]struct {
+		x, y, want fq6
+	}{
+		"((2 + X) + (2 + X)B + (2 + X)B^2) - ((1 + 2X) + (1 + 2X)B + (1 + 2X)B^2) = (1 + lastX) + (1 + lastX)B + (1 + lastX)B^2": {
+			x: fq6{
+				c0: fq2{c0: fq{2}, c1: fq{1}},
+				c1: fq2{c0: fq{2}, c1: fq{1}},
+				c2: fq2{c0: fq{2}, c1: fq{1}},
+			},
+			y: fq6{
+				c0: fq2{c0: fq{1}, c1: fq{2}},
+				c1: fq2{c0: fq{1}, c1: fq{2}},
+				c2: fq2{c0: fq{1}, c1: fq{2}},
+			},
+			want: fq6{
+				c0: fq2{c0: fq{1}, c1: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}},
+				c1: fq2{c0: fq{1}, c1: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}},
+				c2: fq2{c0: fq{1}, c1: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}},
+			},
+		},
+		"(1 + B + B^2) - ((1 + lastX) + (1 + lastX)B + (1 + lastX)B^2) = X + XB + XB^2": {
+			x: fq6{
+				c0: fq2{c0: fq{1}},
+				c1: fq2{c0: fq{1}},
+				c2: fq2{c0: fq{1}},
+			},
+			y: fq6{
+				c0: fq2{c0: fq{1}, c1: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}},
+				c1: fq2{c0: fq{1}, c1: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}},
+				c2: fq2{c0: fq{1}, c1: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}},
+			},
+			want: fq6{
+				c0: fq2{c1: fq{1}},
+				c1: fq2{c1: fq{1}},
+				c2: fq2{c1: fq{1}},
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq6).Sub(&tc.x, &tc.y)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
+
+/*
 
 func TestFq6Mul(t *testing.T) {
 	// TODO
