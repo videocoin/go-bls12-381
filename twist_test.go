@@ -1,5 +1,35 @@
 package bls12
 
+import "testing"
+
+func TestTwistPointSet(t *testing.T) {
+	// TODO
+}
+
+func TestTwistPointEqual(t *testing.T) {
+	// TODO
+}
+
+func TestTwistPointIsInfinity(t *testing.T) {
+	// TODO
+}
+
+func TestTwistPointAdd(t *testing.T) {
+	// TODO
+}
+
+func TestTwistPointDouble(t *testing.T) {
+	// TODO
+}
+
+func TestTwistPointScalarMult(t *testing.T) {
+	// TODO
+}
+
+func TestTwistPointToAffine(t *testing.T) {
+	// TODO
+}
+
 /*
 func TestTwistPointAdd(t *testing.T) {
 	testCases := []struct {

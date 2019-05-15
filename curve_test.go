@@ -2,7 +2,7 @@ package bls12
 
 import "testing"
 
-func TestCurveSet(t *testing.T) {
+func TestCurvePointSet(t *testing.T) {
 	tests := map[string]struct {
 		input, want curvePoint
 	}{
@@ -19,7 +19,7 @@ func TestCurveSet(t *testing.T) {
 	}
 }
 
-func TestCurveEqual(t *testing.T) {
+func TestCurvePointEqual(t *testing.T) {
 	tests := map[string]struct {
 		a, b curvePoint
 		want bool
@@ -60,7 +60,7 @@ func TestCurveEqual(t *testing.T) {
 	}
 }
 
-func TestCurveIsInfinity(t *testing.T) {
+func TestCurvePointIsInfinity(t *testing.T) {
 	tests := map[string]struct {
 		input curvePoint
 		want  bool
@@ -89,34 +89,34 @@ func TestCurveIsInfinity(t *testing.T) {
 	}
 }
 
-func TestCurveAdd(t *testing.T) {
+func TestCurvePointAdd(t *testing.T) {
 	// TODO
 }
 
-func TestCurveDouble(t *testing.T) {
+func TestCurvePointDouble(t *testing.T) {
 	// TODO
 }
 
-func TestCurveScalarMult(t *testing.T) {
+func TestCurvePointScalarMult(t *testing.T) {
 	// TODO
 }
 
-func TestCurveToAffine(t *testing.T) {
+func TestCurvePointToAffine(t *testing.T) {
 	// TODO
 }
 
-func TestCurveMarshal(t *testing.T) {
+func TestCurvePointMarshal(t *testing.T) {
 	// TODO
 }
 
-func TestCurveUnmarshal(t *testing.T) {
+func TestCurvePointUnmarshal(t *testing.T) {
 	// TODO
 }
 
-func TestCurveSetBytes(t *testing.T) {
+func TestCurvePointSetBytes(t *testing.T) {
 	// TODO
 }
 
-func TestCurveSWEncode(t *testing.T) {
+func TestCurvePointSWEncode(t *testing.T) {
 	// TODO
 }

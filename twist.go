@@ -28,7 +28,7 @@ func (c *twistPoint) Set(a *twistPoint) *twistPoint {
 
 // Equal reports whether a is equal to b.
 func (a *twistPoint) Equal(b *twistPoint) bool {
-	return a.x == b.x && a.y == b.y && a.z == b.z && a.t == b.t
+	return *a == *b
 }
 
 // IsInfinity reports whether the point is at infinity.

@@ -5,6 +5,30 @@ import (
 	"testing"
 )
 
+func TestG2PointSet(t *testing.T) {
+	// TODO
+}
+
+func TestG2PointEqual(t *testing.T) {
+	// TODO
+}
+
+func TestG2PointAdd(t *testing.T) {
+	// TODO
+}
+
+func TestG2PointBaseScalarMult(t *testing.T) {
+	// TODO
+}
+
+func TestG2PointScalarMult(t *testing.T) {
+	// TODO
+}
+
+func TestG2PointToAffine(t *testing.T) {
+	// TODO
+}
+
 func BenchmarkG2(b *testing.B) {
 	x, _ := randFieldElement(rand.Reader)
 	b.ResetTimer()

@@ -14,10 +14,6 @@ func TestFinalExp(t *testing.T) {
 	// TODO
 }
 
-func TestMiller(t *testing.T) {
-	// TODO
-}
-
 func TestPair(t *testing.T) {
 	// TODO
 }
