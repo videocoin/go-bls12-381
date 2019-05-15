@@ -32,7 +32,7 @@ func (c *curvePoint) Set(a *curvePoint) *curvePoint {
 
 // Equal reports whether a is equal to b.
 func (a *curvePoint) Equal(b *curvePoint) bool {
-	return a.x == b.x && a.y == b.y && a.z == b.z
+	return *a == *b
 }
 
 // IsInfinity reports whether the point is at infinity.
