@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"fmt"
 	"math/big"
 )
 
@@ -86,7 +87,12 @@ func finalExp(p *fq12) *fq12 {
 	// easy part
 	f := new(fq12).Conjugate(p) // frobenius
 	t0 := new(fq12).Inv(p)
-	f.Mul(f, t0).Mul(f, t0.Frobenius(f, 2))
+	f.Mul(f, t0)
+	fmt.Println("f")
+	fmt.Println(f)
+	fmt.Println("frob")
+	fmt.Println(new(fq12).Frobenius(f, 2))
+	f.Mul(f, t0.Frobenius(f, 2))
 
 	// hard part
 	// note: u is negative.

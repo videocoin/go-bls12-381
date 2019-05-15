@@ -1,6 +1,8 @@
 package bls12
 
-import "math/big"
+import (
+	"math/big"
+)
 
 // fq12 implements the field of size q¹² as a quadratic extension of fq6 where
 // y = v. See https://eprint.iacr.org/2006/471.pdf for arithmetic.
@@ -45,9 +47,12 @@ func (z *fq12) Add(x, y *fq12) *fq12 {
 // Mul sets z to the product x*y and returns z.
 // Mul utilizes Karatsuba's method.
 func (z *fq12) Mul(x, y *fq12) *fq12 {
-	ret, t0, v1 := new(fq12), new(fq6), new(fq6).Mul(&x.c1, &y.c1)
-	ret.c0.MulQuadraticNonResidue(v1).Add(&ret.c0, v1)
-	ret.c1.Add(&x.c0, &x.c1).Mul(&ret.c1, t0.Add(&y.c0, &y.c1)).Sub(&ret.c1, t0.Add(t0.Mul(&x.c0, &y.c0), v1))
+	ret, t0 := new(fq12), new(fq6)
+	v0 := new(fq6).Mul(&x.c0, &y.c0)
+	v1 := new(fq6).Mul(&x.c1, &y.c1)
+
+	ret.c0.MulQuadraticNonResidue(v1).Add(&ret.c0, v0)
+	ret.c1.Add(&x.c0, &x.c1).Mul(&ret.c1, t0.Add(&y.c0, &y.c1)).Sub(&ret.c1, t0.Add(v0, v1))
 
 	return z.Set(ret)
 }

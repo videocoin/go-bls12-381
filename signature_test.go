@@ -12,17 +12,16 @@ func TestSignAndVerify(t *testing.T) {
 	// TODO
 	/*
 		priv, _ := GenerateKey(rand.Reader)
-
 		hashed := []byte("testing")
 		sig := Sign(priv, hashed)
 
-		if !Verify(&priv.PublicKey, hashed, sig) {
-			t.Errorf("%s: Verify failed", tag)
+		if valid, _ := Verify(hashed, sig, &priv.PublicKey); !valid {
+			t.Errorf("Verify failed")
 		}
 
 		hashed[0] ^= 0xff
-		if Verify(&priv.PublicKey, hashed, r, s) {
-			t.Errorf("%s: Verify always works!", tag)
+		if valid, _ := Verify(hashed, sig, &priv.PublicKey); valid {
+			t.Errorf("Verify always works!")
 		}
 	*/
 }

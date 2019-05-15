@@ -125,6 +125,7 @@ func (z *fq2) Inv(x *fq2) *fq2 {
 }
 
 func (z *fq2) Frobenius(x *fq2, power uint64) *fq2 {
+	z.c0.Set(&x.c0)
 	fqMul(&z.c1, &x.c1, frobFq2C1[power%2])
 	return z
 }

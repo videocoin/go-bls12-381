@@ -152,6 +152,7 @@ func (a *curvePoint) ToAffine() *curvePoint {
 	if a.IsInfinity() {
 		//  If this bit is set, the remaining bits of the group element's encoding should be set to zero.
 		//pointAtInfinityMask
+		return nil
 	}
 
 	zInv := new(fq)
