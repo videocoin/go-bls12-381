@@ -1,6 +1,9 @@
 package bls12
 
-import "testing"
+import (
+	"math/big"
+	"testing"
+)
 
 func TestFq12Set(t *testing.T) {
 	tests := map[string]struct {
@@ -193,7 +196,7 @@ func TestFq12Conjugate(t *testing.T) {
 	tests := map[string]struct {
 		input, want fq12
 	}{
-		//"conjugate(0) = 0": {input: fq12{}, want: fq12{}}, TODO
+		"conjugate(0) = 0": {input: fq12{}, want: fq12{}},
 		"conjugate(c0 + c1U) = c0 - c1U": {
 			input: fq12{
 				c0: fq6{
@@ -361,7 +364,25 @@ func TestFq12Inv(t *testing.T) {
 }
 
 func TestFq12Exp(t *testing.T) {
-	// TODO
+	tests := map[string]struct {
+		base fq12
+		exp  *big.Int
+		want fq12
+	}{
+		"1^X = 1": {
+			base: fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+			exp:  bigU,
+			want: fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq12).Exp(&tc.base, tc.exp)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
 
 func TestFq12Frobenius(t *testing.T) {
