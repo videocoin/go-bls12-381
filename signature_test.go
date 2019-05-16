@@ -8,22 +8,22 @@ func TestGenerateKey(t *testing.T) {
 	// TODO
 }
 
-/*
 func TestSignAndVerify(t *testing.T) {
-	priv, _ := GenerateKey(rand.Reader)
-	hashed := []byte("testing")
-	sig := Sign(priv, hashed)
+	/*
+		priv, _ := GenerateKey(rand.Reader)
+		hashed := []byte("testing")
+		sig := Sign(priv, hashed)
 
-	if valid, _ := Verify(hashed, sig, &priv.PublicKey); !valid {
-		t.Errorf("Verify failed")
-	}
+		if valid, _ := Verify(hashed, sig, &priv.PublicKey); !valid {
+			t.Errorf("Verify failed")
+		}
 
-	hashed[0] ^= 0xff
-	if valid, _ := Verify(hashed, sig, &priv.PublicKey); valid {
-		t.Errorf("Verify always works!")
-	}
+		hashed[0] ^= 0xff
+		if valid, _ := Verify(hashed, sig, &priv.PublicKey); valid {
+			t.Errorf("Verify always works!")
+		}
+	*/
 }
-*/
 
 func TestZeroHashSignature(t *testing.T) {
 	// TODO

@@ -1,7 +1,6 @@
 package bls12
 
 import (
-	"fmt"
 	"math/big"
 )
 
@@ -84,21 +83,10 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, R2 *fq2) 
 // finalExp implements the final exponentiation step.
 // See https://eprint.iacr.org/2019/077.pdf - Algorithm 1, step 8.
 func finalExp(p *fq12) *fq12 {
-	fmt.Println("p")
-	fmt.Println(p)
 	// easy part
 	f := new(fq12).Conjugate(p) // frobenius
-	fmt.Println("f 1")
-	fmt.Println(f)
 	t0 := new(fq12).Inv(p)
-	fmt.Println("t0")
-	fmt.Println(t0)
-	fmt.Println("f * t0")
-	fmt.Println(new(fq12).Mul(f, t0))
 	f.Mul(f, t0).Mul(f, t0.Frobenius(f, 2))
-	fmt.Println("f 2")
-	fmt.Println(f)
-	fmt.Println()
 
 	// hard part
 	// note: u is negative.
@@ -133,6 +121,7 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
 	R2 := new(fq2).Sqr(&qAffine.y)
 
+	// TODO i > 0 or i >= 0
 	for i := uArrLen - 1; i > 0; i-- {
 		// skip the initial squaring (f = 1)
 		if i != (uArrLen - 1) {
