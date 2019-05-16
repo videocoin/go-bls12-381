@@ -378,7 +378,22 @@ func TestFq6Sqr(t *testing.T) {
 }
 
 func TestFq6Inv(t *testing.T) {
-	// TODO
+	tests := map[string]struct {
+		input, want fq6
+	}{
+		"inv(1) = 1": {
+			input: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}},
+			want:  fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq6).Inv(&tc.input)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
 
 func TestFq6Frobenius(t *testing.T) {

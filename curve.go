@@ -155,10 +155,12 @@ func (a *curvePoint) ToAffine() *curvePoint {
 		return nil
 	}
 
-	zInv := new(fq)
+	zInv, zInvSqr, zInvCube := new(fq), new(fq), new(fq)
 	fqInv(zInv, &a.z)
-	fqMul(&a.x, &a.x, zInv)
-	fqMul(&a.y, &a.y, zInv)
+	fqMul(zInvSqr, zInv, zInv)
+	fqMul(zInvCube, zInvSqr, zInv)
+	fqMul(&a.x, &a.x, zInvSqr)
+	fqMul(&a.y, &a.y, zInvCube)
 	a.z = *new(fq).SetUint64(1)
 
 	return a
