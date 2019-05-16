@@ -37,7 +37,6 @@ func fqAdd(z, x, y *fq) {
 		z[i] = zi
 		carry = (xi&yi | (xi|yi)&^zi) >> (wordSize - 1)
 	}
-
 	fqMod(z)
 }
 
@@ -55,6 +54,7 @@ func fqNeg(z, x *fq) {
 		z[i] = zi
 		carry = (xi&^qi | (xi|^qi)&zi) >> (wordSize - 1)
 	}
+	fqMod(z)
 }
 
 func fqBasicMul(z *fqLarge, x, y *fq) {

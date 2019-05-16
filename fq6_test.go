@@ -169,6 +169,10 @@ func TestFq6Neg(t *testing.T) {
 	tests := map[string]struct {
 		input, want fq6
 	}{
+		"-0 = 0": {
+			input: fq6{},
+			want:  fq6{},
+		},
 		"-((last + lastX) + (last + lastX)B + (last + lastX)B^2) = (1 + X) + (1 + X)B + (1 + X)B^2": {
 			input: fq6{
 				c0: fq2{

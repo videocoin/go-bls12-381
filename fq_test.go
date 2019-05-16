@@ -175,7 +175,7 @@ func TestFqNeg(t *testing.T) {
 	tests := map[string]struct {
 		input, want fq
 	}{
-		//"-0 = 0":    {input: fq{}, want: fq{}}, TODO
+		"-0 = 0":    {input: fq{}, want: fq{}},
 		"-last = 1": {input: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}, want: fq{1}},
 		"-1 = last": {input: fq{1}, want: fq{0xB9FEFFFFFFFFAAAA, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}},
 	}
