@@ -15,7 +15,7 @@ func (z *fq6) Set(x *fq6) *fq6 {
 	return z
 }
 
-// SetOne sets z to 0 and returns z.
+// SetZero sets z to 0 and returns z.
 func (z *fq6) SetZero() *fq6 {
 	*z = fq6{}
 	return z

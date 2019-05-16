@@ -293,6 +293,16 @@ func TestFq12Mul(t *testing.T) {
 			y:    fq12{},
 			want: fq12{},
 		},
+		"0 * mont(1) = 0": {
+			x:    fq12{},
+			y:    fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+			want: fq12{},
+		},
+		"mont(1) * mont(1) = mont(1)": {
+			x:    fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+			y:    fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+			want: fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+		},
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -315,6 +325,10 @@ func TestFq12Sqr(t *testing.T) {
 		"sqr(0) = 0": {
 			input: fq12{},
 			want:  fq12{},
+		},
+		"sqr(mont(1)) = mont(1)": {
+			input: fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+			want:  fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
 		},
 	}
 	for name, tc := range tests {

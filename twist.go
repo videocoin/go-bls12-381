@@ -147,6 +147,7 @@ func (a *twistPoint) ToAffine() *twistPoint {
 	a.x.Mul(&a.x, zInvSqr)
 	a.y.Mul(&a.y, zInvCube)
 	a.z.SetOne()
+	a.t.SetOne()
 
 	return a
 }
