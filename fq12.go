@@ -50,7 +50,6 @@ func (z *fq12) Mul(x, y *fq12) *fq12 {
 	ret, t0 := new(fq12), new(fq6)
 	v0 := new(fq6).Mul(&x.c0, &y.c0)
 	v1 := new(fq6).Mul(&x.c1, &y.c1)
-
 	ret.c0.MulQuadraticNonResidue(v1).Add(&ret.c0, v0)
 	ret.c1.Add(&x.c0, &x.c1).Mul(&ret.c1, t0.Add(&y.c0, &y.c1)).Sub(&ret.c1, t0.Add(v0, v1))
 
@@ -92,7 +91,7 @@ func (z *fq12) Inv(x *fq12) *fq12 {
 	t0, t1 := new(fq6).Sqr(&x.c0), new(fq6).Sqr(&x.c1)
 	t1.MulQuadraticNonResidue(t1).Sub(t0, t1).Inv(t1)
 	z.c0.Mul(&x.c0, t1)
-	z.c1.Mul(&x.c1, t1)
+	z.c1.Mul(&x.c1, t1).Neg(&z.c1)
 
 	return z
 }
