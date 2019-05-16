@@ -110,8 +110,10 @@ func (z *fq6) MulQuadraticNonResidue(x *fq6) *fq6 {
 	return z.Set(ret)
 }
 
+/*
+// TODO
 // Sqr sets z to the product x*x and returns z.
-// Sqr utilizes the CH-SQR3x method.
+// Sqr utilizes the CH-SQR3x method (c = 2a^2).
 func (z *fq6) Sqr(x *fq6) *fq6 {
 	t0, t1 := new(fq2), new(fq2)
 	s0 := new(fq2).Sqr(&x.c0)
@@ -130,6 +132,22 @@ func (z *fq6) Sqr(x *fq6) *fq6 {
 	z.c2.Add(s1, s2).Sub(&z.c2, t0.Add(t0.Add(s0, s0), t1.Add(s4, s4)))
 
 	return z
+}
+*/
+
+// Sqr sets z to the product x*x and returns z.
+// Sqr utilizes Karatsuba's method (c = 2a^2).
+// TODO fastest method?
+func (z *fq6) Sqr(x *fq6) *fq6 {
+	v0 := new(fq2).Sqr(&x.c0)
+	v1 := new(fq2).Sqr(&x.c1)
+	v2 := new(fq2).Sqr(&x.c2)
+	ret, t0 := new(fq6), new(fq2)
+	ret.c0.Add(&x.c1, &x.c2).Sqr(&ret.c0).Sub(&ret.c0, t0.Add(v1, v2)).MulXi(&ret.c0).Add(&ret.c0, v0)
+	ret.c1.Add(&x.c0, &x.c1).Sqr(&ret.c1).Sub(&ret.c1, t0.Add(v0, v1)).Add(&ret.c1, t0.MulXi(v2))
+	ret.c2.Add(&x.c0, &x.c2).Sqr(&ret.c2).Sub(&ret.c2, t0.Add(v0, v2)).Add(&ret.c2, v1)
+
+	return z.Set(ret)
 }
 
 // Inv sets z to 1/x and returns z.
