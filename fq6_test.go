@@ -351,7 +351,21 @@ func TestFq6Mul(t *testing.T) {
 }
 
 func TestFq6SparseMult(t *testing.T) {
-	// TODO
+	tests := map[string]struct {
+		a      fq6
+		b0, b1 fq2
+		want   fq6
+	}{
+		"tc1": {},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(fq6).SparseMul(&tc.a, &tc.b0, &tc.b1)
+			if *got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
 
 func TestFq6Sqr(t *testing.T) {

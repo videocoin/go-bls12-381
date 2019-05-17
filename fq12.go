@@ -59,7 +59,7 @@ func (z *fq12) Mul(x, y *fq12) *fq12 {
 // SparseMult sets z to the product of x with a0, a1, a2 and returns z.
 // SparseMult utilizes the sparness property to avoid full fq12 arithmetic.
 // See https://eprint.iacr.org/2012/408.pdf - algorithm 5.
-func (z *fq12) SparseMult(x *fq12, a0 *fq2, a1 *fq2, a2 *fq2) *fq12 {
+func (z *fq12) SparseMul(x *fq12, a0 *fq2, a1 *fq2, a2 *fq2) *fq12 {
 	a, t0 := new(fq6), new(fq6)
 	a.c0.Mul(a0, &x.c0.c0)
 	a.c1.Mul(a0, &x.c0.c1)
