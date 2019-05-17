@@ -2,6 +2,7 @@ package bls12
 
 import "testing"
 
+/*
 func TestDoublingAndLine(t *testing.T) {
 	tests := map[string]struct {
 		r          twistPoint
@@ -194,17 +195,18 @@ func TestMiller(t *testing.T) {
 		})
 	}
 }
+*/
 
 func TestFinalExp(t *testing.T) {
 	tests := map[string]struct {
 		input, want fq12
 	}{
-		/*
-			"finalExp(1) = 1": {
-				input: fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
-				want:  fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
-			},
-		*/
+
+		"finalExp(1) = 1": {
+			input: fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+			want:  fq12{c0: fq6{c0: fq2{c0: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493}}}},
+		},
+
 		"finalExp(miller(g1Gen, g2Gen))": {
 			input: fq12{
 				c0: fq6{
