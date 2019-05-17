@@ -47,12 +47,12 @@ func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq
 
 // mixedAdditionAndLine returns the sum r + p and the line function result.
 // See https://arxiv.org/pdf/0904.0854v3.pdf - Mixed Addition.
-func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, R2 *fq2) (*twistPoint, *fq2, *fq2, *fq2) {
+func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← R + P
 	t0 := new(fq2)
 	b := new(fq2).Mul(&p.x, &r.t)
 	d := new(fq2).Add(&p.y, &r.z)
-	d.Sqr(d).Sub(d, t0.Add(R2, &r.t))
+	d.Sqr(d).Sub(d, t0.Add(r2, &r.t)).Mul(d, &r.t)
 	h := new(fq2).Sub(b, &r.x)
 	i := new(fq2).Sqr(h)
 	e := new(fq2).Add(i, i)
@@ -68,7 +68,7 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, R2 *fq2) 
 
 	// line function
 	t1 := new(fq2).Add(l1, l1) // caches 2L1
-	c0 := new(fq2).Add(R2, &sum.t)
+	c0 := new(fq2).Add(r2, &sum.t)
 	c0.Add(c0, t0.Mul(t1, &p.x)).Sub(c0, t0.Add(&p.y, &sum.z).Sqr(t0))
 	c1 := new(fq2).Neg(t1)
 	fqMul(&c1.c0, &t1.c0, &q.x)
@@ -119,9 +119,8 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 	f := new(fq12).SetOne()
 
 	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
-	R2 := new(fq2).Sqr(&qAffine.y)
+	r2 := new(fq2).Sqr(&qAffine.y)
 
-	// TODO i > 0 or i >= 0
 	for i := uArrLen - 1; i > 0; i-- {
 		// skip the initial squaring (f = 1)
 		if i != (uArrLen - 1) {
@@ -132,7 +131,7 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 		f.SparseMult(f, a0, a1, a2)
 
 		if uArr[i] == 1 {
-			_, a0, a1, a2 := mixedAdditionAndLine(r, qAffine, pAffine, R2)
+			_, a0, a1, a2 := mixedAdditionAndLine(r, qAffine, pAffine, r2)
 			f.SparseMult(f, a0, a1, a2)
 		}
 	}

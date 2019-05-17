@@ -98,12 +98,15 @@ func (z *fq12) Inv(x *fq12) *fq12 {
 
 // Exp sets z=x**y and returns z.
 func (z *fq12) Exp(x *fq12, y *big.Int) *fq12 {
-	ret, base := new(fq12).SetOne(), *x
-	for i := y.BitLen() - 1; i >= 0; i-- {
-		if y.Bit(i) == 1 {
-			ret.Mul(ret, &base)
+	ret := new(fq12).SetOne()
+	base := *x
+	for _, word := range y.Bits() {
+		for j := uint64(0); j < wordSize; j++ {
+			if (word & (1 << j)) != 0 {
+				ret.Mul(ret, &base)
+			}
+			base.Sqr(&base)
 		}
-		base.Sqr(&base)
 	}
 
 	return z.Set(ret)
