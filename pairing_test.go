@@ -1,8 +1,9 @@
 package bls12
 
-import "testing"
+import (
+	"testing"
+)
 
-/*
 func TestDoublingAndLine(t *testing.T) {
 	tests := map[string]struct {
 		r          twistPoint
@@ -49,23 +50,22 @@ func TestDoublingAndLine(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			sum, c0, c1, c2 := doublingAndLine(&tc.r, &tc.q)
 			if *sum != tc.sum {
-				t.Fatalf("expected: %v, got: %v", tc.sum, sum)
+				t.Fatalf("[sum] expected: %v, got: %v", tc.sum, sum)
 			}
 			if *c0 != tc.c0 {
-				t.Fatalf("expected: %v, got: %v", tc.c0, c0)
+				t.Fatalf("[c0] expected: %v, got: %v", tc.c0, c0)
 			}
 			if *c1 != tc.c1 {
-				t.Fatalf("expected: %v, got: %v", tc.c1, c1)
+				t.Fatalf("[c1] expected: %v, got: %v", tc.c1, c1)
 			}
 			if *c2 != tc.c2 {
-				t.Fatalf("expected: %v, got: %v", tc.c2, c2)
+				t.Fatalf("[c2] expected: %v, got: %v", tc.c2, c2)
 			}
 		})
 	}
 }
 
 func TestMixedAdditionAndLine(t *testing.T) {
-
 	tests := map[string]struct {
 		r, p       twistPoint
 		q          curvePoint
@@ -127,19 +127,18 @@ func TestMixedAdditionAndLine(t *testing.T) {
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			r2 := new(fq2).Sqr(&tc.p.y)
-			sum, c0, c1, c2 := mixedAdditionAndLine(&tc.r, &tc.p, &tc.q, r2)
+			sum, c0, c1, c2 := mixedAdditionAndLine(&tc.r, &tc.p, &tc.q, new(fq2).Sqr(&tc.p.y))
 			if *sum != tc.sum {
-				t.Fatalf("expected: %v, got: %v", tc.sum, sum)
+				t.Fatalf("[sum] expected: %v, got: %v", tc.sum, sum)
 			}
 			if *c0 != tc.c0 {
-				t.Fatalf("expected: %v, got: %v", tc.c0, c0)
+				t.Fatalf("[c0] expected: %v, got: %v", tc.c0, c0)
 			}
 			if *c1 != tc.c1 {
-				t.Fatalf("expected: %v, got: %v", tc.c1, c1)
+				t.Fatalf("[c1] expected: %v, got: %v", tc.c1, c1)
 			}
 			if *c2 != tc.c2 {
-				t.Fatalf("expected: %v, got: %v", tc.c2, c2)
+				t.Fatalf("[c2] expected: %v, got: %v", tc.c2, c2)
 			}
 		})
 	}
@@ -195,7 +194,6 @@ func TestMiller(t *testing.T) {
 		})
 	}
 }
-*/
 
 func TestFinalExp(t *testing.T) {
 	tests := map[string]struct {

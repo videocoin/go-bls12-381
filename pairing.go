@@ -12,7 +12,7 @@ var (
 )
 
 // doublingAndLine returns the sum r + r and the line function result.
-// See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves.
+// See https://arxiv.org/pdf/0904.0854v3.pdf - Doubling on curves with a4 = 0.
 func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq2) {
 	// R ← [2]R
 	t0 := new(fq2)
@@ -31,7 +31,7 @@ func doublingAndLine(r *twistPoint, q *curvePoint) (*twistPoint, *fq2, *fq2, *fq
 	sum.t.Sqr(&sum.z)
 
 	// line function
-	c0 := new(fq2).Mul(&r.x, e)
+	c0 := new(fq2).Add(&r.x, e)
 	c0.Sqr(c0).Sub(c0, t0.Add(b, b).Add(t0, t0).Add(t0, a).Add(t0, g))
 	c1 := new(fq2).Add(e, e)
 	c1.Mul(c1, &r.t).Neg(c1)
@@ -71,8 +71,9 @@ func mixedAdditionAndLine(r *twistPoint, p *twistPoint, q *curvePoint, r2 *fq2) 
 	c0 := new(fq2).Add(r2, &sum.t)
 	c0.Add(c0, t0.Mul(t1, &p.x)).Sub(c0, t0.Add(&p.y, &sum.z).Sqr(t0))
 	c1 := new(fq2).Neg(t1)
-	fqMul(&c1.c0, &t1.c0, &q.x)
-	fqMul(&c1.c1, &t1.c1, &q.x)
+	fqMul(&c1.c0, &c1.c0, &q.x)
+	fqMul(&c1.c1, &c1.c1, &q.x)
+
 	c2 := new(fq2).Add(&sum.z, &sum.z)
 	fqMul(&c2.c0, &c2.c0, &q.y)
 	fqMul(&c2.c1, &c2.c1, &q.y)
@@ -121,18 +122,18 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
 	r2 := new(fq2).Sqr(&qAffine.y)
 
-	for i := uArrLen - 1; i > 0; i-- {
+	for i := uArrLen - 1; i >= 0; i-- {
 		// skip the initial squaring (f = 1)
 		if i != (uArrLen - 1) {
 			f.Sqr(f)
 		}
 
-		_, a0, a1, a2 := doublingAndLine(r, pAffine)
-		f.SparseMul014(f, a0, a1, a2)
+		_, c0, c1, c4 := doublingAndLine(r, pAffine)
+		f.SparseMul014(f, c0, c1, c4)
 
 		if uArr[i] == 1 {
-			_, a0, a1, a2 := mixedAdditionAndLine(r, qAffine, pAffine, r2)
-			f.SparseMul014(f, a0, a1, a2)
+			_, c0, c1, c4 := mixedAdditionAndLine(r, qAffine, pAffine, r2)
+			f.SparseMul014(f, c0, c1, c4)
 		}
 	}
 
