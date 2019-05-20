@@ -56,23 +56,18 @@ func (z *fq12) Mul(x, y *fq12) *fq12 {
 	return z.Set(ret)
 }
 
-// SparseMult sets z to the product of x with a0, a1, a2 and returns z.
+// SparseMult sets z to the product of x with c0, c1, c4 and returns z.
 // SparseMult utilizes the sparness property to avoid full fq12 arithmetic.
-// See https://eprint.iacr.org/2012/408.pdf - algorithm 5.
-func (z *fq12) SparseMul(x *fq12, a0 *fq2, a1 *fq2, a2 *fq2) *fq12 {
-	a, t0 := new(fq6), new(fq6)
-	a.c0.Mul(a0, &x.c0.c0)
-	a.c1.Mul(a0, &x.c0.c1)
-	a.c2.Mul(a0, &x.c0.c2)
-	b := new(fq6).SparseMul(&x.c1, a1, a2)
-	c := new(fq6)
-	c.c0.Add(a0, a1)
-	c.c1 = *a2
-	e := new(fq6).SparseMul(t0.Add(&x.c0, &x.c1), &c.c0, &c.c1) // d, e
-	z.c1.Sub(e, t0.Add(a, b))                                   // f
-	z.c0.Add(a, t0.MulQuadraticNonResidue(b))                   // g, h
+// See https://github.com/zkcrypto/pairing/blob/master/src/bls12_381/fq12.rs#L34.
+func (z *fq12) SparseMul014(x *fq12, c0 *fq2, c1 *fq2, c4 *fq2) *fq12 {
+	aa := new(fq6).SparseMul01(&x.c0, c0, c1)
+	bb := new(fq6).SparseMul1(&x.c1, c4)
+	o, t0 := new(fq2), new(fq6)
+	ret := new(fq12)
+	ret.c1.Add(&x.c1, &x.c0).SparseMul01(&ret.c1, c0, o.Add(c1, c4)).Sub(&ret.c1, t0.Add(aa, bb))
+	ret.c0.MulQuadraticNonResidue(bb).Add(&ret.c0, aa)
 
-	return z
+	return z.Set(ret)
 }
 
 // Sqr sets z to the product x*x and returns z.

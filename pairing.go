@@ -128,11 +128,11 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 		}
 
 		_, a0, a1, a2 := doublingAndLine(r, pAffine)
-		f.SparseMult(f, a0, a1, a2)
+		f.SparseMul014(f, a0, a1, a2)
 
 		if uArr[i] == 1 {
 			_, a0, a1, a2 := mixedAdditionAndLine(r, qAffine, pAffine, r2)
-			f.SparseMult(f, a0, a1, a2)
+			f.SparseMul014(f, a0, a1, a2)
 		}
 	}
 

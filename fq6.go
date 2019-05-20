@@ -81,6 +81,7 @@ func (z *fq6) Mul(x, y *fq6) *fq6 {
 	return z.Set(ret)
 }
 
+/*
 // SparseMult sets z to the product of x with a0, a1, a2 and returns z.
 // SparseMult utilizes the sparness property to avoid full fq6 arithmetic.
 // See https://eprint.iacr.org/2012/408.pdf - Algorithm 6.
@@ -93,6 +94,30 @@ func (z *fq6) SparseMul(x *fq6, a0 *fq2, a1 *fq2) *fq6 {
 	ret.c0.Add(a, t0.MulXi(&x.c2).Mul(t0, a1)) // d
 	ret.c1.Sub(e, t0.Add(a, b))                // g
 	ret.c2.Mul(a0, &x.c2).Add(&z.c2, b)        // i
+
+	return z.Set(ret)
+}*/
+
+// SparseMult01 sets z to the product of x with c0, c1 and returns z.
+// See https://github.com/zkcrypto/pairing/blob/master/src/bls12_381/fq6.rs#L68.
+func (z *fq6) SparseMul01(x *fq6, c0 *fq2, c1 *fq2) *fq6 {
+	aa := new(fq2).Mul(&x.c0, c0)
+	bb := new(fq2).Mul(&x.c1, c1)
+	ret, t0 := new(fq6), new(fq2)
+	ret.c0.Mul(c1, t0.Add(&x.c1, &x.c2)).Sub(&ret.c0, bb).MulXi(&ret.c0).Add(&ret.c0, aa)
+	ret.c2.Mul(c0, t0.Add(&x.c0, &x.c2)).Sub(&ret.c2, aa).Add(&ret.c2, bb)
+	ret.c1.Add(c0, c1).Mul(&ret.c1, t0.Add(&x.c0, &x.c1)).Sub(&ret.c1, t0.Add(aa, bb))
+
+	return z.Set(ret)
+}
+
+// SparseMult1 sets z to the product of x with c0, c1 and returns z.
+// See https://github.com/zkcrypto/pairing/blob/master/src/bls12_381/fq6.rs#L40.
+func (z *fq6) SparseMul1(x *fq6, c1 *fq2) *fq6 {
+	ret, t0 := new(fq6), new(fq2)
+	ret.c2.Mul(&x.c1, c1)
+	ret.c0.Mul(c1, t0.Add(&x.c1, &x.c2)).Sub(&ret.c0, &ret.c2).MulXi(&ret.c0)
+	ret.c1.Mul(c1, t0.Add(&x.c0, &x.c1)).Sub(&ret.c1, &ret.c2)
 
 	return z.Set(ret)
 }
