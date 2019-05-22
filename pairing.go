@@ -113,6 +113,7 @@ func finalExp(p *fq12) *fq12 {
 }
 
 // miller implements the Miller’s double-and-add algorithm.
+// https://eprint.iacr.org/2016/130.pdf contains useful examples.
 func miller(p *curvePoint, q *twistPoint) *fq12 {
 	pAffine := new(curvePoint).Set(p).ToAffine()
 	qAffine := new(twistPoint).Set(q).ToAffine()
@@ -122,9 +123,9 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
 	r2 := new(fq2).Sqr(&qAffine.y)
 
-	for i := uArrLen - 1; i >= 0; i-- {
-		// skip the initial squaring (f = 1)
-		if i != (uArrLen - 1) {
+	for i := uArrLen - 2; i >= 0; i-- {
+		// skip initial multiplciation (f = 1)
+		if i != (uArrLen - 2) {
 			f.Sqr(f)
 		}
 
