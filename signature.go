@@ -49,6 +49,5 @@ func Verify(hash []byte, rawSig []byte, pub *PublicKey) (bool, error) {
 	if err := sig.Unmarshal(rawSig); err != nil {
 		return false, err
 	}
-
 	return Pair(&sig, g2Gen).Equal(Pair(new(g1Point).SetBytes(hash), pub)), nil
 }

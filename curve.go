@@ -57,7 +57,7 @@ func (c *curvePoint) Add(a, b *curvePoint) *curvePoint {
 	// See https://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
 	z1z1, z2z2 := new(fq), new(fq)
 	fqMul(z1z1, &a.z, &a.z)
-	fqMul(z2z2, &a.z, &a.z)
+	fqMul(z2z2, &b.z, &b.z)
 
 	u1, u2 := new(fq), new(fq)
 	fqMul(u1, &a.x, z2z2)

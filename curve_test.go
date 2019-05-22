@@ -1,6 +1,9 @@
 package bls12
 
-import "testing"
+import (
+	"math/big"
+	"testing"
+)
 
 func TestCurvePointSet(t *testing.T) {
 	tests := map[string]struct {
@@ -98,9 +101,32 @@ func TestCurvePointDouble(t *testing.T) {
 }
 
 func TestCurvePointScalarMult(t *testing.T) {
-	// TODO
+	tests := map[string]struct {
+		point  curvePoint
+		scalar *big.Int
+		want   curvePoint
+	}{
+		"testcase 1": {
+			point:  g1Gen.p,
+			scalar: new(big.Int).SetUint64(57),
+			want: curvePoint{
+				x: fq{10167668087098498840, 12007495882678423899, 3444586411392841405, 17496946105194000634, 15545891604672389846, 1004146385472758665},
+				y: fq{17399866279200227458, 13488772900345834999, 9150629517599614720, 12422932654397576046, 10596503356839999349, 1360682455110082503},
+				z: fq{16288557835584950008, 11072915878001992196, 1009666109118314550, 14317758622910970758, 9177236567440559526, 1669672164031368809},
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(curvePoint).ScalarMult(&tc.point, tc.scalar)
+			if !tc.want.Equal(got) {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
 
+/*
 func TestCurvePointToAffine(t *testing.T) {
 	tests := map[string]struct {
 		input, want curvePoint
@@ -128,13 +154,19 @@ func TestCurvePointToAffine(t *testing.T) {
 		})
 	}
 }
+*/
 
-func TestCurvePointMarshal(t *testing.T) {
-	// TODO
-}
-
-func TestCurvePointUnmarshal(t *testing.T) {
-	// TODO
+func TestCurvePointMarshalUnmarshal(t *testing.T) {
+	p1 := &curvePoint{
+		x: *new(fq).Rand(),
+		y: *new(fq).Rand(),
+		z: *new(fq).SetUint64(1),
+	}
+	p2 := new(curvePoint)
+	p2.Unmarshal(p1.Marshal())
+	if !p2.Equal(p1) {
+		t.Errorf("Marshaling/unmarshaling failed: expected %v, got %v", p1, p2)
+	}
 }
 
 func TestCurvePointSetBytes(t *testing.T) {

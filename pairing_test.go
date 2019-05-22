@@ -280,7 +280,7 @@ func TestFinalExp(t *testing.T) {
 }
 
 // See https://github.com/zkcrypto/pairing/blob/master/src/bls12_381/tests/mod.rs#L23
-/*func TestPair(t *testing.T) {
+func TestPair(t *testing.T) {
 	tests := map[string]struct {
 		a    g1Point
 		b    g2Point
@@ -322,8 +322,6 @@ func TestFinalExp(t *testing.T) {
 		},
 	}
 	for name, tc := range tests {
-		fmt.Println("WANT")
-		fmt.Println(tc.want)
 		t.Run(name, func(t *testing.T) {
 			got := Pair(&tc.a, &tc.b)
 			if *got != tc.want {
@@ -333,4 +331,8 @@ func TestFinalExp(t *testing.T) {
 	}
 }
 
-*/
+func BenchmarkPairing(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Pair(g1Gen, g2Gen)
+	}
+}

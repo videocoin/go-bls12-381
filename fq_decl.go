@@ -13,3 +13,6 @@ func fqSub(z, x, y *fq)
 
 //go:noescape
 func fqMul(z, x, y *fq)
+
+//go:noescape
+func fqMod(z *fq)
