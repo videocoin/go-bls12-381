@@ -123,6 +123,7 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 	// See https://arxiv.org/pdf/0904.0854v3.pdf - Full addition (precompute R2)
 	r2 := new(fq2).Sqr(&qAffine.y)
 
+	// log2(u) - 1 = uArrLen - 2
 	for i := uArrLen - 2; i >= 0; i-- {
 		// skip initial multiplciation (f = 1)
 		if i != (uArrLen - 2) {
