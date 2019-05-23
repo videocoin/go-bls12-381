@@ -2,6 +2,7 @@ package bls12
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"math/big"
 )
@@ -36,10 +37,7 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 	}
 
 	for _, priv := range coefficients {
-		coeff, err := new(fq).SetInt(priv.Secret)
-		if err != nil {
-			return nil, err
-		}
+		coeff, _ := new(fq).SetInt(priv.Secret)
 		p.coefficients = append(p.coefficients, coeff)
 	}
 
@@ -49,7 +47,7 @@ func newPolynomial(coefficients []*PrivateKey) (*polynomial, error) {
 func (p *polynomial) evaluate(x uint64) *PrivateKey {
 	fqX := new(fq).SetUint64(x)
 	mul := new(fq).SetUint64(1)
-	sum := p.coefficients[0]
+	sum := new(fq).Set(p.coefficients[0])
 	for _, coeff := range p.coefficients[1:] {
 		term := new(fq)
 		fqMul(mul, mul, fqX)
@@ -70,13 +68,10 @@ func CreateShares(reader io.Reader, threshold uint64, numShares uint64) ([]*Publ
 	secrets := make([]*PrivateKey, 0, threshold)
 	verification := make([]*PublicKey, 0, threshold)
 	for i := uint64(0); i < threshold; i++ {
-		/*
-			priv, err := GenerateKey(reader)
-			if err != nil {
-				return nil, nil, nil, err
-			}
-		*/
-		priv := privKeyFromScalar(new(big.Int).SetUint64(1))
+		priv, err := GenerateKey(reader)
+		if err != nil {
+			return nil, nil, nil, err
+		}
 		pub := priv.Public()
 		secrets = append(secrets, priv)
 		verification = append(verification, &pub)
@@ -148,8 +143,8 @@ func newPublicPolynomial(coefficients []*PublicKey) (*publicPolynomial, error) {
 
 func (p *publicPolynomial) evaluate(x uint64) (*PublicKey, error) {
 	bigX := new(big.Int).SetUint64(x)
-	sum := new(g2Point).Set(p.coefficients[0])
 	mul := new(big.Int).SetUint64(1)
+	sum := new(g2Point).Set(p.coefficients[0])
 	for _, coeff := range p.coefficients[1:] {
 		mul.Mul(mul, bigX)
 		sum.Add(sum, new(g2Point).ScalarMult(coeff, mul))
@@ -171,6 +166,8 @@ func VerifyShare(share *Share, verificationVec []*PublicKey) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(pubKey)
+	fmt.Println(expectedPubKey)
 	if !pubKey.Equal(&expectedPubKey) {
 		return errInvalidShare
 	}

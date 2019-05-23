@@ -1,10 +1,14 @@
 package bls12
 
-/*
+import (
+	"crypto/rand"
+	"testing"
+)
+
 func TestFeldman(t *testing.T) {
-	threshold := uint64(6)
-	numShares := uint64(20)
-	verificationVec, shares, privKey, err := CreateShares(rand.Reader, threshold, numShares)
+	threshold := uint64(5)
+	numShares := uint64(30)
+	/*verificationVec*/ _, shares, privKey, err := CreateShares(rand.Reader, threshold, numShares)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,20 +40,23 @@ func TestFeldman(t *testing.T) {
 		t.Errorf("expected: %s, got: %s\n", privKey.Secret, newPrivKey.Secret)
 	}
 
-	// generated shares must be valid
-	for _, share := range shares {
-		if err := VerifyShare(share, verificationVec); err != nil {
-			t.Fatal(err)
+	/*
+		// generated shares must be valid
+		for _, share := range shares {
+			if err := VerifyShare(share, verificationVec); err != nil {
+				t.Fatal(err)
+			}
 		}
-	}
 
-	invalidShare := &Share{
-		X: 3,
-		Y: privKeyFromScalar(new(big.Int).SetUint64(6)),
-	}
-	if err := VerifyShare(invalidShare, verificationVec); err == nil {
-		t.Fatal("pub keys must be different")
-	}
+		invalidShare := &Share{
+			X: 3,
+			Y: privKeyFromScalar(new(big.Int).SetUint64(6)),
+		}
+		if err := VerifyShare(invalidShare, verificationVec); err == nil {
+			t.Fatal("pub keys must be different")
+		}
+	*/
+
 }
 
 func TestCreateShares(t *testing.T) {
@@ -63,4 +70,3 @@ func TestPrivKeyFromShares(t *testing.T) {
 func TestVerifyShare(t *testing.T) {
 	// TODO
 }
-*/
