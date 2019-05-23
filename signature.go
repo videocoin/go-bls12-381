@@ -39,7 +39,7 @@ func (priv *PrivateKey) Public() PublicKey {
 // Sign signs a hash (which should be the result of hashing a larger message)
 // using the private key, priv.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	return new(g1Point).SetBytes(hash).ScalarBaseMult(priv.Secret).Marshal()
+	return new(g1Point).ScalarMult(new(g1Point).SetBytes(hash), priv.Secret).Marshal()
 }
 
 // Verify verifies the signature of hash using the public key, pub. Its

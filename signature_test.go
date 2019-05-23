@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"math/big"
 	"testing"
 )
 
@@ -9,20 +10,21 @@ func TestGenerateKey(t *testing.T) {
 }
 
 func TestSignAndVerify(t *testing.T) {
-	/*
-		priv, _ := GenerateKey(rand.Reader)
-		hashed := []byte("testing")
-		sig := Sign(priv, hashed)
+	//priv, _ := GenerateKey(rand.Reader)
+	priv := privKeyFromScalar(new(big.Int).SetUint64(15))
+	hashed := []byte("testing")
+	sig := Sign(priv, hashed)
 
-		if valid, _ := Verify(hashed, sig, &priv.PublicKey); !valid {
-			t.Errorf("Verify failed")
-		}
+	if valid, _ := Verify(hashed, sig, &priv.PublicKey); !valid {
+		t.Errorf("Verify failed")
+		return
+	}
 
-		hashed[0] ^= 0xff
-		if valid, _ := Verify(hashed, sig, &priv.PublicKey); valid {
-			t.Errorf("Verify always works!")
-		}
-	*/
+	hashed[0] ^= 0xff
+	if valid, _ := Verify(hashed, sig, &priv.PublicKey); valid {
+		t.Errorf("Verify always works!")
+		return
+	}
 }
 
 func TestZeroHashSignature(t *testing.T) {
