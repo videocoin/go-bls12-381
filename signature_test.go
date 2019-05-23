@@ -1,7 +1,7 @@
 package bls12
 
 import (
-	"math/big"
+	"crypto/rand"
 	"testing"
 )
 
@@ -10,41 +10,33 @@ func TestGenerateKey(t *testing.T) {
 }
 
 func TestSignAndVerify(t *testing.T) {
-	//priv, _ := GenerateKey(rand.Reader)
-	priv := privKeyFromScalar(new(big.Int).SetUint64(15))
+	priv, err := GenerateKey(rand.Reader)
+	if err != nil {
+		panic(err)
+	}
 	hashed := []byte("testing")
 	sig := Sign(priv, hashed)
 
 	if valid, _ := Verify(hashed, sig, &priv.PublicKey); !valid {
 		t.Errorf("Verify failed")
-		return
 	}
 
 	hashed[0] ^= 0xff
 	if valid, _ := Verify(hashed, sig, &priv.PublicKey); valid {
 		t.Errorf("Verify always works!")
-		return
 	}
 }
 
 func TestZeroHashSignature(t *testing.T) {
-	// TODO
-	/*
-		zeroHash := make([]byte, 64)
-		privKey, err := GenerateKey(rand.Reader)
-		if err != nil {
-			panic(err)
-		}
+	priv, err := GenerateKey(rand.Reader)
+	if err != nil {
+		panic(err)
+	}
+	zeroHash := make([]byte, 64)
+	sig := Sign(priv, zeroHash)
 
-		// Sign a hash consisting of all zeros.
-		r, s, err := Sign(rand.Reader, privKey, zeroHash)
-		if err != nil {
-			panic(err)
-		}
-
-		// Confirm that it can be verified.
-		if !Verify(&privKey.PublicKey, zeroHash, r, s) {
-			t.Errorf("zero hash signature verify failed for %T", curve)
-		}
-	*/
+	// Confirm that it can be verified.
+	if valid, _ := Verify(zeroHash, sig, &priv.PublicKey); !valid {
+		t.Errorf("zero hash signature verify failed")
+	}
 }
