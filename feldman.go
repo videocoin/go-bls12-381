@@ -2,9 +2,7 @@ package bls12
 
 import (
 	"errors"
-	"fmt"
 	"io"
-	"math/big"
 )
 
 var (
@@ -48,8 +46,8 @@ func (p *polynomial) evaluate(x uint64) *PrivateKey {
 	fqX := new(fq).SetUint64(x)
 	mul := new(fq).SetUint64(1)
 	sum := new(fq).Set(p.coefficients[0])
+	term := new(fq)
 	for _, coeff := range p.coefficients[1:] {
-		term := new(fq)
 		fqMul(mul, mul, fqX)
 		fqMul(term, coeff, mul)
 		fqAdd(sum, sum, term)
@@ -59,22 +57,28 @@ func (p *polynomial) evaluate(x uint64) *PrivateKey {
 }
 
 // CreateShares divides the secret into parts, giving each participant its own unique part.
-func CreateShares(reader io.Reader, threshold uint64, numShares uint64) ([]*PublicKey, []*Share, *PrivateKey, error) {
+func CreateShares(reader io.Reader, priv *PrivateKey, threshold uint64, numShares uint64) ([]*PublicKey, []*Share, *PrivateKey, error) {
 	if threshold > numShares {
 		return nil, nil, nil, errInvalidThreshold
 	}
 
-	// generate coefficients
 	secrets := make([]*PrivateKey, 0, threshold)
 	verification := make([]*PublicKey, 0, threshold)
-	for i := uint64(0); i < threshold; i++ {
+
+	// use an existent secret instead of generating a new one
+	if priv != nil {
+		secrets = append(secrets, priv)
+		verification = append(verification, &priv.PublicKey)
+	}
+
+	for i := uint64(len(secrets)); i < threshold; i++ {
 		priv, err := GenerateKey(reader)
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		pub := priv.Public()
+
 		secrets = append(secrets, priv)
-		verification = append(verification, &pub)
+		verification = append(verification, &priv.PublicKey)
 	}
 
 	randPolynomial, err := newPolynomial(secrets)
@@ -141,16 +145,17 @@ func newPublicPolynomial(coefficients []*PublicKey) (*publicPolynomial, error) {
 	}, nil
 }
 
-func (p *publicPolynomial) evaluate(x uint64) (*PublicKey, error) {
-	bigX := new(big.Int).SetUint64(x)
-	mul := new(big.Int).SetUint64(1)
+func (p *publicPolynomial) evaluate(x uint64) *PublicKey {
+	fqX := new(fq).SetUint64(x)
+	mul := new(fq).SetUint64(1)
 	sum := new(g2Point).Set(p.coefficients[0])
+	term := new(g2Point)
 	for _, coeff := range p.coefficients[1:] {
-		mul.Mul(mul, bigX)
-		sum.Add(sum, new(g2Point).ScalarMult(coeff, mul))
+		fqMul(mul, mul, fqX)
+		sum.Add(sum, term.ScalarMult(coeff, mul.Int()))
 	}
 
-	return sum.ToAffine(), nil
+	return sum.ToAffine()
 }
 
 // VerifyShare verifies that a received secret key share is actually the result
@@ -162,12 +167,11 @@ func VerifyShare(share *Share, verificationVec []*PublicKey) error {
 
 	expectedPubKey := share.Y.Public()
 	publicPolynomial, err := newPublicPolynomial(verificationVec)
-	pubKey, err := publicPolynomial.evaluate(share.X)
 	if err != nil {
 		return err
 	}
-	fmt.Println(pubKey)
-	fmt.Println(expectedPubKey)
+	pubKey := publicPolynomial.evaluate(share.X)
+
 	if !pubKey.Equal(&expectedPubKey) {
 		return errInvalidShare
 	}

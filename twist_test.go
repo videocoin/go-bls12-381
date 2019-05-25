@@ -1,6 +1,9 @@
 package bls12
 
-import "testing"
+import (
+	"math/big"
+	"testing"
+)
 
 func TestTwistPointSet(t *testing.T) {
 	// TODO
@@ -80,7 +83,40 @@ func TestTwistPointDouble(t *testing.T) {
 }
 
 func TestTwistPointScalarMult(t *testing.T) {
-	// TODO
+	bigScalar, _ := new(big.Int).SetString("3312312312312412412412412412", 10)
+
+	tests := map[string]struct {
+		point  twistPoint
+		scalar *big.Int
+		want   twistPoint
+	}{
+		"testcase 1": {
+			point:  g2Gen.p,
+			scalar: bigScalar,
+			want: twistPoint{
+				x: fq2{
+					c0: fq{258298954131270785, 6031199319403499511, 13215321372991054810, 10793028928194452699, 12545195150549532002, 418360014612507155},
+					c1: fq{363500408228787514, 5587318202130313330, 9540894848301847118, 5041453135017232261, 3487162834034077066, 1115149902004962792},
+				},
+				y: fq2{
+					c0: fq{6690345035233781621, 3562744566195686152, 8244649581155643263, 15071456266549040712, 3168554881749121049, 965636694296934801},
+					c1: fq{12585082243579685663, 14765898236155783342, 412546229312647833, 13721012784435188331, 17384506503505628828, 979823804858579181},
+				},
+				z: fq2{
+					c0: fq{15678942064029259612, 2194540089697254893, 10242369891462262537, 13003955447420839221, 15769587657955325728, 990175294458667147},
+					c1: fq{17389390864939335514, 9210534055547565855, 18395176412508403931, 13683204675781454352, 3094656600060504434, 1438144701997614361},
+				},
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := new(twistPoint).ScalarMult(&tc.point, tc.scalar)
+			if !tc.want.Equal(got) {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
 }
 
 func TestTwistPointToAffine(t *testing.T) {
