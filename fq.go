@@ -67,7 +67,7 @@ func (z *fq) SetString(s string) (*fq, error) {
 // the operation failed, the value of z is undefined but the returned value is
 // nil.
 func (z *fq) SetInt(x *big.Int) (*fq, error) {
-	if !isFieldElement(x) {
+	if !isFieldElement(x, q) {
 		return nil, errOutOfBounds
 	}
 
@@ -181,7 +181,7 @@ func (x *fqLarge) String() string {
 }
 
 // isFieldElement reports whether the value is within field bounds.
-func isFieldElement(value *big.Int) bool {
+func isFieldElement(value *big.Int, order *big.Int) bool {
 	// TODO desc & naming q > r
-	return (value.Sign() >= 0) && (value.Cmp(r) < 0)
+	return (value.Sign() >= 0) && (value.Cmp(order) < 0)
 }

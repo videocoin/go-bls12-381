@@ -228,9 +228,9 @@ func (c *curvePoint) SetBytes(buf []byte, ref0 []byte, ref1 []byte) *curvePoint 
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], ref0...))
 	t0 := new(big.Int)
-	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
+	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), r))
 	sum = blake2b.Sum512(append(h[:], ref1...))
-	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), q))
+	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), r))
 
 	return c.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
 }

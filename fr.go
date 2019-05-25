@@ -17,7 +17,7 @@ func (z *fr) Set(x *fr) *fr {
 }
 
 func (z *fr) SetInt(x *big.Int) (*fr, error) {
-	if !isFieldElement(x) {
+	if !isFieldElement(x, r) {
 		return nil, errOutOfBounds
 	}
 
