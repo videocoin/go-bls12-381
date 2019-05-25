@@ -1,21 +1,17 @@
 package bls12
 
 import (
-	"crypto/rand"
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"io"
 	"math/big"
 	mrand "math/rand"
 	"strconv"
 )
 
 const (
-	fqByteLen   = 48
-	fqLen       = 6
-	wordSize    = 64
-	decimalBase = 10
+	fqByteLen = 48
+	fqLen     = 6
 )
 
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
@@ -186,19 +182,4 @@ func (x *fqLarge) String() string {
 // isFieldElement reports whether the value is within field bounds.
 func isFieldElement(value *big.Int) bool {
 	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
-}
-
-// randInt returns a random scalar between 0 and max.
-func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
-	for {
-		n, err = rand.Int(reader, max)
-		if n.Sign() > 0 || err != nil {
-			return
-		}
-	}
-}
-
-// randFieldElement returns a random scalar between 0 and q.
-func randFieldElement(reader io.Reader) (*big.Int, error) {
-	return randInt(reader, q)
 }

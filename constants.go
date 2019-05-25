@@ -4,15 +4,33 @@
 // (x1, y1, z1) where x = x1/z1² and y = y1/z1³.
 package bls12
 
+const (
+	wordSize     = 64
+	halfWordSize = wordSize / 2
+	halfWordMask = (1 << halfWordSize) - 1
+	decimalBase  = 10
+)
+
 var (
 	// q is a prime number that specifies the number of elements of the finite field.
 	q, _ = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787")
 
+	// r is the group order.
+	r, _ = bigFromBase10("52435875175126190479447740508185965837690552500527637822603658699938581184513")
+
 	// q64 is q as 64 bit words.
 	q64 = [6]uint64{0xB9FEFFFFFFFFAAAB, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 
+	// TODO
+	// r64 is r as 64 bit words.
+	r64 = [4]uint64{}
+
 	// qMinusTwo is the value by which to exponentiate field elements to calculate their inverse.
 	qMinusTwo = &fq{0xB9FEFFFFFFFFAAA9, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
+
+	// TODO
+	// rMinusTwo is the value by which to exponentiate field elements to calculate their inverse.
+	rMinusTwo = &fq{}
 
 	// r2 is the value by which to multiply field elements to map them to the Montgomery domain.
 	r2 = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}

@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"crypto/rand"
 	"io"
 	"math/big"
 )
@@ -19,6 +20,21 @@ func privKeyFromScalar(k *big.Int) *PrivateKey {
 	priv.Secret = k
 	priv.PublicKey = *new(g2Point).ScalarBaseMult(k).ToAffine()
 	return priv
+}
+
+// randInt returns a random scalar between 0 and max.
+func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
+	for {
+		n, err = rand.Int(reader, max)
+		if n.Sign() > 0 || err != nil {
+			return
+		}
+	}
+}
+
+// randFieldElement returns a random scalar between 0 and r.
+func randFieldElement(reader io.Reader) (*big.Int, error) {
+	return randInt(reader, r)
 }
 
 // GenerateKey generates a public and private key pair.
