@@ -53,32 +53,28 @@ func frSub(z, x, y *fr) {
 type frLarge [frLen * 2]uint64
 
 func frBasicMul(z *frLarge, x, y *fr) {
-	/*
-		var carry uint64
-		for i, yi := range y {
-			carry = 0
-			if yi != 0 {
-				y0, y1 := yi&halfWordMask, yi>>halfWordSize
-				for j, xj := range x {
-					x0, x1 := xj&halfWordMask, xj>>halfWordSize
+	var carry uint64
+	for i, yi := range y {
+		carry = 0
+		if yi != 0 {
+			y0, y1 := yi&halfWordMask, yi>>halfWordSize
+			for j, xj := range x {
+				x0, x1 := xj&halfWordMask, xj>>halfWordSize
 
-					// See Hacker's Delight - Multiword Multiplication
-					x0y0 := x0 * y0
-					x1y0 := x1 * y0
-					x0y1 := x0 * y1
-					x1y1 := x1 * y1
-					w0 := (x0y0 & halfWordMask) + (z[i+j] & halfWordMask) + (carry & halfWordMask)
-					w1 := (w0 >> halfWordSize) + (x0y0 >> halfWordSize) + (z[i+j] >> halfWordSize) + (x1y0 & halfWordMask) + (x0y1 & halfWordMask) + (carry >> halfWordSize)
-					w2 := (w1 >> halfWordSize) + (x1y0 >> halfWordSize) + (x0y1 >> halfWordSize) + (x1y1 & halfWordMask)
-					carry = (((w2 >> halfWordSize) + (x1y1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
-					z[i+j] = (w1 << halfWordSize) | (w0 & halfWordMask)
-				}
-				z[i+fqLen] = carry
+				// See Hacker's Delight - Multiword Multiplication
+				x0y0 := x0 * y0
+				x1y0 := x1 * y0
+				x0y1 := x0 * y1
+				x1y1 := x1 * y1
+				w0 := (x0y0 & halfWordMask) + (z[i+j] & halfWordMask) + (carry & halfWordMask)
+				w1 := (w0 >> halfWordSize) + (x0y0 >> halfWordSize) + (z[i+j] >> halfWordSize) + (x1y0 & halfWordMask) + (x0y1 & halfWordMask) + (carry >> halfWordSize)
+				w2 := (w1 >> halfWordSize) + (x1y0 >> halfWordSize) + (x0y1 >> halfWordSize) + (x1y1 & halfWordMask)
+				carry = (((w2 >> halfWordSize) + (x1y1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
+				z[i+j] = (w1 << halfWordSize) | (w0 & halfWordMask)
 			}
+			z[i+frLen] = carry
 		}
-
-		return
-	*/
+	}
 }
 
 // frREDC applies the montgomery reduction.

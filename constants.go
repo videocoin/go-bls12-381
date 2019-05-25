@@ -32,8 +32,13 @@ var (
 	// rMinusTwo is the value by which to exponentiate field elements to calculate their inverse.
 	rMinusTwo = &fq{}
 
-	// r2 is the value by which to multiply field elements to map them to the Montgomery domain.
-	r2 = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}
+	// r2Q is the value by which to multiply field elements to map them to the Montgomery domain.
+	r2Q = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}
+
+	// TODO desc & naming
+	// r2R R^2 % r
+	// TODO
+	r2R = &fr{}
 
 	// g1X is the x-coordinate of G1's generator.
 	g1X, _ = new(fq).SetString("3685416753713387016781088315183077757961620795782546409894578378688607592378376318836054947676345821548104185464507")

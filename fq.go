@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	fqByteLen = 48
 	fqLen     = 6
+	fqByteLen = 48
 )
 
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
@@ -32,7 +32,7 @@ func (z *fq) Set(x *fq) *fq {
 // MontgomeryEncode converts z to the Montgomery form and returns z.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func (z *fq) MontgomeryEncode(x *fq) *fq {
-	fqMul(z, x, r2)
+	fqMul(z, x, r2Q)
 	return z
 }
 
@@ -181,5 +181,6 @@ func (x *fqLarge) String() string {
 
 // isFieldElement reports whether the value is within field bounds.
 func isFieldElement(value *big.Int) bool {
-	return (value.Sign() >= 0) && (value.Cmp(q) < 0)
+	// TODO desc & naming q > r
+	return (value.Sign() >= 0) && (value.Cmp(r) < 0)
 }
