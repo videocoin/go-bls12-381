@@ -14,6 +14,13 @@ const (
 	fqByteLen = 48
 )
 
+const (
+	wordSize     = 64
+	halfWordSize = wordSize / 2
+	halfWordMask = (1 << halfWordSize) - 1
+	decimalBase  = 10
+)
+
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
 
 // fq is an element of the finite field of order q.
