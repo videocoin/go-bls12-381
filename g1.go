@@ -4,7 +4,13 @@ import (
 	"math/big"
 )
 
-var g1Gen = &g1Point{curvePoint{*g1X, *g1Y, *new(fq).SetUint64(1)}}
+var g1Gen = &g1Point{curvePoint{
+	/*
+		x: *g1X,
+		y: *g1Y,
+		z: *new(fq).SetUint64(1),
+	*/
+}}
 
 type g1Point struct {
 	p curvePoint

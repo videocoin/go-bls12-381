@@ -2,8 +2,13 @@
 
 package bls12
 
-// k64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n
-const k64 uint64 = 0x89f3fffcfffcfffd
+const (
+	halfWordSize = wordSize / 2
+	halfWordMask = (1 << halfWordSize) - 1
+
+	// k64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n
+	k64 uint64 = 0x89f3fffcfffcfffd
+)
 
 func fqMod(a *fq) {
 	b := new(fq)

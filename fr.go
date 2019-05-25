@@ -5,9 +5,7 @@ import (
 	"strconv"
 )
 
-const (
-	frLen = 4
-)
+const frLen = 4
 
 // fr is an element of the finite field of order r.
 // fr operates, internally, on the montgomery form.

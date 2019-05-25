@@ -12,13 +12,10 @@ import (
 const (
 	fqLen     = 6
 	fqByteLen = 48
-)
 
-const (
-	wordSize     = 64
-	halfWordSize = wordSize / 2
-	halfWordMask = (1 << halfWordSize) - 1
-	decimalBase  = 10
+	wordSize = 64
+
+	decimalBase = 10
 )
 
 var errOutOfBounds = errors.New("fq: value must be within the bounds of the field")
