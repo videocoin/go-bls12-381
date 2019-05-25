@@ -156,6 +156,8 @@ func TestCurvePointToAffine(t *testing.T) {
 }
 */
 
+/*
+TODO REVIEW RAND
 func TestCurvePointMarshalUnmarshal(t *testing.T) {
 	p1 := &curvePoint{
 		x: *new(fq).Rand(),
@@ -168,6 +170,7 @@ func TestCurvePointMarshalUnmarshal(t *testing.T) {
 		t.Errorf("Marshaling/unmarshaling failed: expected %v, got %v", p1, p2)
 	}
 }
+*/
 
 func TestCurvePointSetBytes(t *testing.T) {
 	// TODO

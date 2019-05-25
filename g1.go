@@ -5,11 +5,9 @@ import (
 )
 
 var g1Gen = &g1Point{curvePoint{
-	/*
-		x: *g1X,
-		y: *g1Y,
-		z: *new(fq).SetUint64(1),
-	*/
+	x: *g1X,
+	y: *g1Y,
+	z: *new(fq).SetUint64(1),
 }}
 
 type g1Point struct {

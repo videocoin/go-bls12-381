@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	mrand "math/rand"
 	"strconv"
 )
 
@@ -50,10 +49,6 @@ func (z *fq) MontgomeryDecode(x *fq) *fq {
 // String implements the Stringer interface.
 func (x *fq) String() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[5], x[4], x[3], x[2], x[1], x[0])
-}
-
-func bigFromBase10(s string) (*big.Int, bool) {
-	return new(big.Int).SetString(s, decimalBase)
 }
 
 // SetString sets z to the Montgomery value of s, interpreted in the decimal
@@ -132,6 +127,7 @@ func fqInv(z, x *fq) {
 }
 
 // TODO review
+/*
 func (z *fq) Rand() *fq {
 	for i := range z {
 		z[i] = uint64(mrand.Uint32()) | (uint64(mrand.Uint32()) << 32)
@@ -140,6 +136,7 @@ func (z *fq) Rand() *fq {
 
 	return z.MontgomeryEncode(z)
 }
+*/
 
 // See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 func fqExp(z *fq, x *fq, y []uint64) {
