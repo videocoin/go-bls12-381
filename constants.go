@@ -25,11 +25,9 @@ var (
 	qK64 uint64 = 0x89f3fffcfffcfffd
 
 	// r is the order of the groups.
-	// TODO confirm value
 	r, _ = bigFromBase10("52435875175126190479447740508185965837690552500527637822603658699938581184513")
 
 	// r64 is r as 64 bit words.
-	// TODO confirm value
 	r64 = [4]uint64{0xFFFFFFFF00000001, 0x53BDA402FFFE5BFE, 0x3339D80809A1D805, 0x73EDA753299D7D48}
 
 	// TODO review desc.
@@ -38,11 +36,9 @@ var (
 
 	// rMinusTwo is the value by which to exponentiate r order field elements to
 	// calculate their inverse.
-	// TODO confirm value
 	rMinusTwo = &fr{0xFFFFFFFEFFFFFFFF, 0x53BDA402FFFE5BFE, 0x3339D80809A1D805, 0x73EDA753299D7D48}
 
 	// r2R is the value by which to multiply r order field elements to map them to the Montgomery domain.
-	// TODO confirm value.
 	rR2 = &fr{0xC999E990F3F29C6D, 0x2B6CEDCB87925C23, 0x05D314967254398F, 0x748D9D99F59FF11}
 
 	// g1X is the x-coordinate of G1's generator.

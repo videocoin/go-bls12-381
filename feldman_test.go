@@ -48,6 +48,7 @@ func TestFeldman(t *testing.T) {
 		}
 	}
 
+	// invalid share
 	invalidShare := &Share{
 		X: 3,
 		Y: privKeyFromScalar(new(big.Int).SetUint64(6)),
@@ -56,16 +57,4 @@ func TestFeldman(t *testing.T) {
 		t.Fatal("pub keys must be different")
 	}
 
-}
-
-func TestCreateShares(t *testing.T) {
-	// TODO
-}
-
-func TestPrivKeyFromShares(t *testing.T) {
-	// TODO
-}
-
-func TestVerifyShare(t *testing.T) {
-	// TODO
 }

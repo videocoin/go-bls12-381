@@ -6,4 +6,10 @@ Package go-bls12-381 implements the BLS12 pairing-friendly elliptic curve constr
 
 (2,3 GHz Intel Core i7)
 
-branch `master`:
+branch `master` -tags generic:
+
+```
+BenchmarkG1-8        	    1000	   2049394 ns/op
+BenchmarkG2-8        	     200	   6370759 ns/op
+BenchmarkPairing-8   	     100	  15894423 ns/op
+```
