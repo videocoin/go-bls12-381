@@ -5,11 +5,11 @@ package bls12
 func frMod(a *fr) {
 	b := new(fr)
 	var carry uint64
-	for i, qi := range r64 {
+	for i, ri := range r64 {
 		ai := a[i]
-		bi := ai - qi - carry
+		bi := ai - ri - carry
 		b[i] = bi
-		carry = (qi&^ai | (qi|^ai)&bi) >> (wordSize - 1)
+		carry = (ri&^ai | (ri|^ai)&bi) >> (wordSize - 1)
 	}
 
 	// if b is negative, then return a, else return b.
@@ -86,21 +86,21 @@ func frREDC(c *fr, x *frLarge) {
 		carryMul = 0
 		// 2. k=(r(r^−1 mod n)−1)/n
 		// 5. s=(x*k mod r);
-		s := x[i] * k64
+		s := x[i] * rK64
 		if s != 0 {
 			s0, s1 := s&halfWordMask, s>>halfWordSize
-			for j, q := range q64 {
-				q0, q1 := q&halfWordMask, q>>halfWordSize
+			for j, r := range r64 {
+				r0, r1 := r&halfWordMask, r>>halfWordSize
 
 				// See Hacker's Delight - Multiword Multiplication
-				q0s0 := q0 * s0
-				q1s0 := q1 * s0
-				q0s1 := q0 * s1
-				q1s1 := q1 * s1
-				w0 := (q0s0 & halfWordMask) + (x[i+j] & halfWordMask) + (carryMul & halfWordMask)
-				w1 := (w0 >> halfWordSize) + (q0s0 >> halfWordSize) + (x[i+j] >> halfWordSize) + (q1s0 & halfWordMask) + (q0s1 & halfWordMask) + (carryMul >> halfWordSize)
-				w2 := (w1 >> halfWordSize) + (q1s0 >> halfWordSize) + (q0s1 >> halfWordSize) + (q1s1 & halfWordMask)
-				carryMul = (((w2 >> halfWordSize) + (q1s1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
+				r0s0 := r0 * s0
+				r1s0 := r1 * s0
+				r0s1 := r0 * s1
+				r1s1 := r1 * s1
+				w0 := (r0s0 & halfWordMask) + (x[i+j] & halfWordMask) + (carryMul & halfWordMask)
+				w1 := (w0 >> halfWordSize) + (r0s0 >> halfWordSize) + (x[i+j] >> halfWordSize) + (r1s0 & halfWordMask) + (r0s1 & halfWordMask) + (carryMul >> halfWordSize)
+				w2 := (w1 >> halfWordSize) + (r1s0 >> halfWordSize) + (r0s1 >> halfWordSize) + (r1s1 & halfWordMask)
+				carryMul = (((w2 >> halfWordSize) + (r1s1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
 				if j > 0 {
 					// note(rgeraldes): since the low order bits are going to be discarded and x[i+j=0]
 					// is not used anymore during the program, we can skip the assignment.

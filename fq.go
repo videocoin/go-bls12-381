@@ -35,7 +35,7 @@ func (z *fq) Set(x *fq) *fq {
 // MontgomeryEncode converts z to the Montgomery form and returns z.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func (z *fq) MontgomeryEncode(x *fq) *fq {
-	fqMul(z, x, r2Q)
+	fqMul(z, x, qR2)
 	return z
 }
 

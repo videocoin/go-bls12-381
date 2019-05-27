@@ -86,7 +86,7 @@ func frInv(z, x *fr) {
 // MontgomeryEncode converts z to the Montgomery form and returns z.
 // See http://home.deib.polimi.it/pelosi/lib/exe/fetch.php?media=teaching:montgomery.pdf page 12/17
 func (z *fr) MontgomeryEncode(x *fr) *fr {
-	frMul(z, x, r2R)
+	frMul(z, x, rR2)
 	return z
 }
 

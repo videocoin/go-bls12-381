@@ -5,9 +5,6 @@ package bls12
 const (
 	halfWordSize = wordSize / 2
 	halfWordMask = (1 << halfWordSize) - 1
-
-	// k64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n
-	k64 uint64 = 0x89f3fffcfffcfffd
 )
 
 func fqMod(a *fq) {
@@ -91,7 +88,7 @@ func fqREDC(c *fq, x *fqLarge) {
 		carryMul = 0
 		// 2. k=(r(r^−1 mod n)−1)/n
 		// 5. s=(x*k mod r);
-		s := x[i] * k64
+		s := x[i] * qK64
 		if s != 0 {
 			s0, s1 := s&halfWordMask, s>>halfWordSize
 			for j, q := range q64 {

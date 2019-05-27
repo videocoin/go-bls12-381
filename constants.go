@@ -18,7 +18,11 @@ var (
 	qMinusTwo = &fq{0xB9FEFFFFFFFFAAA9, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 
 	// r2Q is the value by which to multiply q order field elements to map them to the Montgomery domain.
-	r2Q = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}
+	qR2 = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}
+
+	// TODO review desc.
+	// qK64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n.
+	qK64 uint64 = 0x89f3fffcfffcfffd
 
 	// r is the order of the groups.
 	// TODO confirm value
@@ -28,14 +32,18 @@ var (
 	// TODO confirm value
 	r64 = [4]uint64{0xFFFFFFFF00000001, 0x53BDA402FFFE5BFE, 0x3339D80809A1D805, 0x73EDA753299D7D48}
 
+	// TODO review desc.
+	// rK64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n.
+	rK64 uint64 = 0xfffffffeffffffff
+
 	// rMinusTwo is the value by which to exponentiate r order field elements to
 	// calculate their inverse.
 	// TODO confirm value
 	rMinusTwo = &fr{0xFFFFFFFEFFFFFFFF, 0x53BDA402FFFE5BFE, 0x3339D80809A1D805, 0x73EDA753299D7D48}
 
 	// r2R is the value by which to multiply r order field elements to map them to the Montgomery domain.
-	// TODO confirm value
-	r2R = &fr{0xC999E990F3F29C6D, 0x2B6CEDCB87925C23, 0x05D314967254398F, 0x748D9D99F59FF11}
+	// TODO confirm value.
+	rR2 = &fr{0xC999E990F3F29C6D, 0x2B6CEDCB87925C23, 0x05D314967254398F, 0x748D9D99F59FF11}
 
 	// g1X is the x-coordinate of G1's generator.
 	g1X = &fq{6679831729115696150, 8653662730902241269, 1535610680227111361, 17342916647841752903, 17135755455211762752, 1297449291367578485}
