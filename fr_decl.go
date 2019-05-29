@@ -3,9 +3,6 @@
 package bls12
 
 //go:noescape
-func frMod(z *fr)
-
-//go:noescape
 func frAdd(z, x, y *fr)
 
 //go:noescape

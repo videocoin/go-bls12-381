@@ -13,11 +13,11 @@ var (
 	// q64 is q as 64 bit words.
 	q64 = [6]uint64{0xB9FEFFFFFFFFAAAB, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 
-	// qMinusTwo is the value by which to exponentiate q order field elements to
+	// qMinusTwo is the value by which to exponentiate q-order field elements to
 	// calculate their inverse.
 	qMinusTwo = &fq{0xB9FEFFFFFFFFAAA9, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
 
-	// r2Q is the value by which to multiply q order field elements to map them to the Montgomery domain.
+	// r2Q is the value by which to multiply q-order field elements to map them to the Montgomery domain.
 	qR2 = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}
 
 	// TODO review desc.
@@ -34,11 +34,11 @@ var (
 	// rK64 is a pre-calculated quantity equal to k mod R where k=(r(r^−1 mod n)−1)/n.
 	rK64 uint64 = 0xfffffffeffffffff
 
-	// rMinusTwo is the value by which to exponentiate r order field elements to
+	// rMinusTwo is the value by which to exponentiate r-order field elements to
 	// calculate their inverse.
 	rMinusTwo = &fr{0xFFFFFFFEFFFFFFFF, 0x53BDA402FFFE5BFE, 0x3339D80809A1D805, 0x73EDA753299D7D48}
 
-	// r2R is the value by which to multiply r order field elements to map them to the Montgomery domain.
+	// r2R is the value by which to multiply r-order field elements to map them to the Montgomery domain.
 	rR2 = &fr{0xC999E990F3F29C6D, 0x2B6CEDCB87925C23, 0x05D314967254398F, 0x748D9D99F59FF11}
 
 	// g1X is the x-coordinate of G1's generator.

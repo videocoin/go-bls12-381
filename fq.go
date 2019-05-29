@@ -126,18 +126,6 @@ func fqInv(z, x *fq) {
 	fqExp(z, x, qMinusTwo[:])
 }
 
-// TODO review
-/*
-func (z *fq) Rand() *fq {
-	for i := range z {
-		z[i] = uint64(mrand.Uint32()) | (uint64(mrand.Uint32()) << 32)
-	}
-	fqMod(z)
-
-	return z.MontgomeryEncode(z)
-}
-*/
-
 // See https://www.coursera.org/lecture/mathematical-foundations-cryptography/square-and-multiply-ty62K
 func fqExp(z *fq, x *fq, y []uint64) {
 	b := *x
