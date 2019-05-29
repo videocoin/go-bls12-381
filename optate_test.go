@@ -146,8 +146,8 @@ func TestMixedAdditionAndLine(t *testing.T) {
 
 func TestMiller(t *testing.T) {
 	tests := map[string]struct {
-		g1   g1Point
-		g2   g2Point
+		g1   G1Point
+		g2   G2Point
 		want fq12
 	}{
 		"generators": {
@@ -282,8 +282,8 @@ func TestFinalExp(t *testing.T) {
 // See https://github.com/zkcrypto/pairing/blob/master/src/bls12_381/tests/mod.rs#L23
 func TestPair(t *testing.T) {
 	tests := map[string]struct {
-		a    g1Point
-		b    g2Point
+		a    G1Point
+		b    G2Point
 		want fq12
 	}{
 		"generators": {

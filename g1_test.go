@@ -34,6 +34,6 @@ func BenchmarkG1(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		new(g1Point).ScalarBaseMult(x)
+		new(G1Point).ScalarBaseMult(x)
 	}
 }

@@ -145,6 +145,6 @@ func miller(p *curvePoint, q *twistPoint) *fq12 {
 
 // Pair implements the optimal ate pairing algorithm on BLS curves.
 // See https://eprint.iacr.org/2019/077.pdf - Algorithm 1.
-func Pair(g1 *g1Point, g2 *g2Point) *fq12 {
+func Pair(g1 *G1Point, g2 *G2Point) *fq12 {
 	return finalExp(miller(&g1.p, &g2.p))
 }

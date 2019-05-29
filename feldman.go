@@ -148,8 +148,8 @@ func newPublicPolynomial(coefficients []*PublicKey) (*publicPolynomial, error) {
 func (p *publicPolynomial) evaluate(x uint64) *PublicKey {
 	frX := new(fr).SetUint64(x)
 	mul := new(fr).SetUint64(1)
-	sum := new(g2Point).Set(p.coefficients[0])
-	term := new(g2Point)
+	sum := new(G2Point).Set(p.coefficients[0])
+	term := new(G2Point)
 	for _, coeff := range p.coefficients[1:] {
 		frMul(mul, mul, frX)
 		sum.Add(sum, term.ScalarMult(coeff, mul.Int()))

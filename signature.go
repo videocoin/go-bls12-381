@@ -7,7 +7,7 @@ import (
 )
 
 // PublicKey represents a BLS public key.
-type PublicKey = g2Point
+type PublicKey = G2Point
 
 // PrivateKey represents a BLS private key.
 type PrivateKey struct {
@@ -18,7 +18,7 @@ type PrivateKey struct {
 func privKeyFromScalar(k *big.Int) *PrivateKey {
 	priv := new(PrivateKey)
 	priv.Secret = k
-	priv.PublicKey = *new(g2Point).ScalarBaseMult(k).ToAffine()
+	priv.PublicKey = *new(G2Point).ScalarBaseMult(k).ToAffine()
 	return priv
 }
 
@@ -55,15 +55,15 @@ func (priv *PrivateKey) Public() PublicKey {
 // Sign signs a hash (which should be the result of hashing a larger message)
 // using the private key, priv.
 func Sign(priv *PrivateKey, hash []byte) []byte {
-	return new(g1Point).ScalarMult(new(g1Point).SetBytes(hash), priv.Secret).Marshal()
+	return new(G1Point).ScalarMult(new(G1Point).SetBytes(hash), priv.Secret).Marshal()
 }
 
 // Verify verifies the signature of hash using the public key, pub. Its
 // return value records whether the signature is valid.
 func Verify(hash []byte, rawSig []byte, pub *PublicKey) (bool, error) {
-	var sig g1Point
+	var sig G1Point
 	if err := sig.Unmarshal(rawSig); err != nil {
 		return false, err
 	}
-	return Pair(&sig, g2Gen).Equal(Pair(new(g1Point).SetBytes(hash), pub)), nil
+	return Pair(&sig, g2Gen).Equal(Pair(new(G1Point).SetBytes(hash), pub)), nil
 }
