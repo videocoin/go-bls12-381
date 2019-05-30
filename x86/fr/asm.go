@@ -56,6 +56,8 @@ func neg(src Mem) [frLen]Register {
 }
 
 func main() {
+	Package("github.com/VideoCoin/go-bls12-381")
+
 	TEXT("frAdd", 0, "func(z *[4]uint64, x *[4]uint64, y *[4]uint64)")
 	Doc("frAdd sets z to the sum x+y.")
 	x := Mem{Base: Load(Param("x"), GP64())}
