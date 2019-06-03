@@ -31,6 +31,7 @@ func fqStore(dst Mem, regs [fqLen]Register) {
 
 func fqMod(regs [fqLen]Register) [fqLen]Register {
 	fq := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
+
 	for i, ri := range regs {
 		MOVQ(ri, fq[i])
 	}
@@ -152,8 +153,6 @@ func fqREDC(x Mem) [fqLen]Register {
 	for i := 0; i < fqLen; i++ {
 		MOVQ(x.Offset(fqLen*8+i*8), product[i])
 	}
-
-	return product
 
 	return fqMod(product)
 }

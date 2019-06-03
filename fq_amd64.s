@@ -156,582 +156,600 @@ TEXT ·fqSub(SB), $0-24
 
 // func fqMul(z *[6]uint64, x *[6]uint64, y *[6]uint64)
 TEXT ·fqMul(SB), $96-24
-	MOVQ x+8(FP), CX
-	MOVQ y+16(FP), BX
-	MOVQ (CX), AX
-	MULQ (BX)
-	MOVQ AX, BP
-	MOVQ DX, SI
-	MOVQ (CX), AX
-	MULQ 8(BX)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ (CX), AX
-	MULQ 16(BX)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ (CX), AX
-	MULQ 24(BX)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ (CX), AX
-	MULQ 32(BX)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, R10
-	MOVQ (CX), AX
-	MULQ 40(BX)
-	ADDQ AX, R10
-	ADCQ $0x00, DX
-	MOVQ DX, 48(SP)
-	MOVQ BP, (SP)
-	MOVQ SI, 8(SP)
-	MOVQ DI, 16(SP)
-	MOVQ R8, 24(SP)
-	MOVQ R9, 32(SP)
-	MOVQ R10, 40(SP)
-	MOVQ 8(CX), AX
-	MULQ (BX)
-	MOVQ AX, BP
-	MOVQ DX, SI
-	MOVQ 8(CX), AX
-	MULQ 8(BX)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ 8(CX), AX
-	MULQ 16(BX)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ 8(CX), AX
-	MULQ 24(BX)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ 8(CX), AX
-	MULQ 32(BX)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, R10
-	MOVQ 8(CX), AX
-	MULQ 40(BX)
-	ADDQ AX, R10
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 8(SP), BP
-	ADCQ 16(SP), SI
-	ADCQ 24(SP), DI
-	ADCQ 32(SP), R8
-	ADCQ 40(SP), R9
-	ADCQ 48(SP), R10
-	ADCQ $0x00, AX
-	MOVQ AX, 56(SP)
-	MOVQ BP, 8(SP)
-	MOVQ SI, 16(SP)
-	MOVQ DI, 24(SP)
-	MOVQ R8, 32(SP)
-	MOVQ R9, 40(SP)
-	MOVQ R10, 48(SP)
-	MOVQ 16(CX), AX
-	MULQ (BX)
-	MOVQ AX, BP
-	MOVQ DX, SI
-	MOVQ 16(CX), AX
-	MULQ 8(BX)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ 16(CX), AX
-	MULQ 16(BX)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ 16(CX), AX
-	MULQ 24(BX)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ 16(CX), AX
-	MULQ 32(BX)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, R10
-	MOVQ 16(CX), AX
-	MULQ 40(BX)
-	ADDQ AX, R10
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 16(SP), BP
-	ADCQ 24(SP), SI
-	ADCQ 32(SP), DI
-	ADCQ 40(SP), R8
-	ADCQ 48(SP), R9
-	ADCQ 56(SP), R10
-	ADCQ $0x00, AX
-	MOVQ AX, 64(SP)
-	MOVQ BP, 16(SP)
-	MOVQ SI, 24(SP)
-	MOVQ DI, 32(SP)
-	MOVQ R8, 40(SP)
-	MOVQ R9, 48(SP)
-	MOVQ R10, 56(SP)
-	MOVQ 24(CX), AX
-	MULQ (BX)
-	MOVQ AX, BP
-	MOVQ DX, SI
-	MOVQ 24(CX), AX
-	MULQ 8(BX)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ 24(CX), AX
-	MULQ 16(BX)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ 24(CX), AX
-	MULQ 24(BX)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ 24(CX), AX
-	MULQ 32(BX)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, R10
-	MOVQ 24(CX), AX
-	MULQ 40(BX)
-	ADDQ AX, R10
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 24(SP), BP
-	ADCQ 32(SP), SI
-	ADCQ 40(SP), DI
-	ADCQ 48(SP), R8
-	ADCQ 56(SP), R9
-	ADCQ 64(SP), R10
-	ADCQ $0x00, AX
-	MOVQ AX, 72(SP)
-	MOVQ BP, 24(SP)
-	MOVQ SI, 32(SP)
-	MOVQ DI, 40(SP)
-	MOVQ R8, 48(SP)
-	MOVQ R9, 56(SP)
-	MOVQ R10, 64(SP)
-	MOVQ 32(CX), AX
-	MULQ (BX)
-	MOVQ AX, BP
-	MOVQ DX, SI
-	MOVQ 32(CX), AX
-	MULQ 8(BX)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ 32(CX), AX
-	MULQ 16(BX)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ 32(CX), AX
-	MULQ 24(BX)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ 32(CX), AX
-	MULQ 32(BX)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, R10
-	MOVQ 32(CX), AX
-	MULQ 40(BX)
-	ADDQ AX, R10
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 32(SP), BP
-	ADCQ 40(SP), SI
-	ADCQ 48(SP), DI
-	ADCQ 56(SP), R8
-	ADCQ 64(SP), R9
-	ADCQ 72(SP), R10
-	ADCQ $0x00, AX
-	MOVQ AX, 80(SP)
-	MOVQ BP, 32(SP)
-	MOVQ SI, 40(SP)
-	MOVQ DI, 48(SP)
-	MOVQ R8, 56(SP)
-	MOVQ R9, 64(SP)
-	MOVQ R10, 72(SP)
-	MOVQ 40(CX), AX
-	MULQ (BX)
-	MOVQ AX, BP
-	MOVQ DX, SI
-	MOVQ 40(CX), AX
-	MULQ 8(BX)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ 40(CX), AX
-	MULQ 16(BX)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ 40(CX), AX
-	MULQ 24(BX)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ 40(CX), AX
-	MULQ 32(BX)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, R10
-	MOVQ 40(CX), AX
-	MULQ 40(BX)
-	ADDQ AX, R10
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 40(SP), BP
-	ADCQ 48(SP), SI
-	ADCQ 56(SP), DI
-	ADCQ 64(SP), R8
-	ADCQ 72(SP), R9
-	ADCQ 80(SP), R10
-	ADCQ $0x00, AX
-	MOVQ AX, 88(SP)
-	MOVQ BP, 40(SP)
-	MOVQ SI, 48(SP)
-	MOVQ DI, 56(SP)
-	MOVQ R8, 64(SP)
-	MOVQ R9, 72(SP)
-	MOVQ R10, 80(SP)
-	MOVQ z+0(FP), CX
-	XORQ R11, R11
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ (SP)
-	MULQ ·q64+0(SB)
-	MOVQ AX, BX
-	MOVQ DX, BP
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ (SP)
-	MULQ ·q64+8(SB)
-	ADDQ AX, BP
-	ADCQ $0x00, DX
-	MOVQ DX, SI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ (SP)
-	MULQ ·q64+16(SB)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ (SP)
-	MULQ ·q64+24(SB)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ (SP)
-	MULQ ·q64+32(SB)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ (SP)
-	MULQ ·q64+40(SB)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ (SP), BX
-	ADCQ 8(SP), BP
-	ADCQ 16(SP), SI
-	ADCQ 24(SP), DI
-	ADCQ 32(SP), R8
-	ADCQ 40(SP), R9
-	ADCQ $0x00, AX
-	ADDQ R11, AX
-	XORQ R11, R11
-	ADDQ 48(SP), AX
-	ADCQ $0x00, R11
-	MOVQ AX, 48(SP)
-	MOVQ BP, 8(SP)
-	MOVQ SI, 16(SP)
-	MOVQ DI, 24(SP)
-	MOVQ R8, 32(SP)
-	MOVQ R9, 40(SP)
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 8(SP)
-	MULQ ·q64+0(SB)
-	MOVQ AX, BX
-	MOVQ DX, BP
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 8(SP)
-	MULQ ·q64+8(SB)
-	ADDQ AX, BP
-	ADCQ $0x00, DX
-	MOVQ DX, SI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 8(SP)
-	MULQ ·q64+16(SB)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 8(SP)
-	MULQ ·q64+24(SB)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 8(SP)
-	MULQ ·q64+32(SB)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 8(SP)
-	MULQ ·q64+40(SB)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 8(SP), BX
-	ADCQ 16(SP), BP
-	ADCQ 24(SP), SI
-	ADCQ 32(SP), DI
-	ADCQ 40(SP), R8
-	ADCQ 48(SP), R9
-	ADCQ $0x00, AX
-	ADDQ R11, AX
-	XORQ R11, R11
-	ADDQ 56(SP), AX
-	ADCQ $0x00, R11
-	MOVQ AX, 56(SP)
-	MOVQ BP, 16(SP)
-	MOVQ SI, 24(SP)
-	MOVQ DI, 32(SP)
-	MOVQ R8, 40(SP)
-	MOVQ R9, 48(SP)
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 16(SP)
-	MULQ ·q64+0(SB)
-	MOVQ AX, BX
-	MOVQ DX, BP
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 16(SP)
-	MULQ ·q64+8(SB)
-	ADDQ AX, BP
-	ADCQ $0x00, DX
-	MOVQ DX, SI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 16(SP)
-	MULQ ·q64+16(SB)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 16(SP)
-	MULQ ·q64+24(SB)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 16(SP)
-	MULQ ·q64+32(SB)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 16(SP)
-	MULQ ·q64+40(SB)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 16(SP), BX
-	ADCQ 24(SP), BP
-	ADCQ 32(SP), SI
-	ADCQ 40(SP), DI
-	ADCQ 48(SP), R8
-	ADCQ 56(SP), R9
-	ADCQ $0x00, AX
-	ADDQ R11, AX
-	XORQ R11, R11
-	ADDQ 64(SP), AX
-	ADCQ $0x00, R11
-	MOVQ AX, 64(SP)
-	MOVQ BP, 24(SP)
-	MOVQ SI, 32(SP)
-	MOVQ DI, 40(SP)
-	MOVQ R8, 48(SP)
-	MOVQ R9, 56(SP)
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 24(SP)
-	MULQ ·q64+0(SB)
-	MOVQ AX, BX
-	MOVQ DX, BP
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 24(SP)
-	MULQ ·q64+8(SB)
-	ADDQ AX, BP
-	ADCQ $0x00, DX
-	MOVQ DX, SI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 24(SP)
-	MULQ ·q64+16(SB)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 24(SP)
-	MULQ ·q64+24(SB)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 24(SP)
-	MULQ ·q64+32(SB)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 24(SP)
-	MULQ ·q64+40(SB)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 24(SP), BX
-	ADCQ 32(SP), BP
-	ADCQ 40(SP), SI
-	ADCQ 48(SP), DI
-	ADCQ 56(SP), R8
-	ADCQ 64(SP), R9
-	ADCQ $0x00, AX
-	ADDQ R11, AX
-	XORQ R11, R11
-	ADDQ 72(SP), AX
-	ADCQ $0x00, R11
-	MOVQ AX, 72(SP)
-	MOVQ BP, 32(SP)
-	MOVQ SI, 40(SP)
-	MOVQ DI, 48(SP)
-	MOVQ R8, 56(SP)
-	MOVQ R9, 64(SP)
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 32(SP)
-	MULQ ·q64+0(SB)
-	MOVQ AX, BX
-	MOVQ DX, BP
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 32(SP)
-	MULQ ·q64+8(SB)
-	ADDQ AX, BP
-	ADCQ $0x00, DX
-	MOVQ DX, SI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 32(SP)
-	MULQ ·q64+16(SB)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 32(SP)
-	MULQ ·q64+24(SB)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 32(SP)
-	MULQ ·q64+32(SB)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 32(SP)
-	MULQ ·q64+40(SB)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 32(SP), BX
-	ADCQ 40(SP), BP
-	ADCQ 48(SP), SI
-	ADCQ 56(SP), DI
-	ADCQ 64(SP), R8
-	ADCQ 72(SP), R9
-	ADCQ $0x00, AX
-	ADDQ R11, AX
-	XORQ R11, R11
-	ADDQ 80(SP), AX
-	ADCQ $0x00, R11
-	MOVQ AX, 80(SP)
-	MOVQ BP, 40(SP)
-	MOVQ SI, 48(SP)
-	MOVQ DI, 56(SP)
-	MOVQ R8, 64(SP)
-	MOVQ R9, 72(SP)
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 40(SP)
-	MULQ ·q64+0(SB)
-	MOVQ AX, BX
-	MOVQ DX, BP
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 40(SP)
-	MULQ ·q64+8(SB)
-	ADDQ AX, BP
-	ADCQ $0x00, DX
-	MOVQ DX, SI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 40(SP)
-	MULQ ·q64+16(SB)
-	ADDQ AX, SI
-	ADCQ $0x00, DX
-	MOVQ DX, DI
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 40(SP)
-	MULQ ·q64+24(SB)
-	ADDQ AX, DI
-	ADCQ $0x00, DX
-	MOVQ DX, R8
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 40(SP)
-	MULQ ·q64+32(SB)
-	ADDQ AX, R8
-	ADCQ $0x00, DX
-	MOVQ DX, R9
-	MOVQ $0x89f3fffcfffcfffd, AX
-	MULQ 40(SP)
-	MULQ ·q64+40(SB)
-	ADDQ AX, R9
-	ADCQ $0x00, DX
-	MOVQ DX, AX
-	ADDQ 40(SP), BX
-	ADCQ 48(SP), BP
-	ADCQ 56(SP), SI
-	ADCQ 64(SP), DI
-	ADCQ 72(SP), R8
-	ADCQ 80(SP), R9
-	ADCQ $0x00, AX
-	ADDQ R11, AX
-	XORQ R11, R11
-	ADDQ 88(SP), AX
-	ADCQ $0x00, R11
-	MOVQ AX, 88(SP)
-	MOVQ BP, 48(SP)
-	MOVQ SI, 56(SP)
-	MOVQ DI, 64(SP)
-	MOVQ R8, 72(SP)
-	MOVQ R9, 80(SP)
-	MOVQ 48(SP), BX
-	MOVQ 56(SP), BP
-	MOVQ 64(SP), SI
-	MOVQ 72(SP), DI
-	MOVQ 80(SP), R8
-	MOVQ 88(SP), R9
-	MOVQ BX, (CX)
-	MOVQ BP, 8(CX)
-	MOVQ SI, 16(CX)
-	MOVQ DI, 24(CX)
-	MOVQ R8, 32(CX)
-	MOVQ R9, 40(CX)
+	MOVQ    x+8(FP), CX
+	MOVQ    y+16(FP), BX
+	MOVQ    (CX), AX
+	MULQ    (BX)
+	MOVQ    AX, BP
+	MOVQ    DX, SI
+	MOVQ    (CX), AX
+	MULQ    8(BX)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    (CX), AX
+	MULQ    16(BX)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    (CX), AX
+	MULQ    24(BX)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    (CX), AX
+	MULQ    32(BX)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, R10
+	MOVQ    (CX), AX
+	MULQ    40(BX)
+	ADDQ    AX, R10
+	ADCQ    $0x00, DX
+	MOVQ    DX, 48(SP)
+	MOVQ    BP, (SP)
+	MOVQ    SI, 8(SP)
+	MOVQ    DI, 16(SP)
+	MOVQ    R8, 24(SP)
+	MOVQ    R9, 32(SP)
+	MOVQ    R10, 40(SP)
+	MOVQ    8(CX), AX
+	MULQ    (BX)
+	MOVQ    AX, BP
+	MOVQ    DX, SI
+	MOVQ    8(CX), AX
+	MULQ    8(BX)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    8(CX), AX
+	MULQ    16(BX)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    8(CX), AX
+	MULQ    24(BX)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    8(CX), AX
+	MULQ    32(BX)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, R10
+	MOVQ    8(CX), AX
+	MULQ    40(BX)
+	ADDQ    AX, R10
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    8(SP), BP
+	ADCQ    16(SP), SI
+	ADCQ    24(SP), DI
+	ADCQ    32(SP), R8
+	ADCQ    40(SP), R9
+	ADCQ    48(SP), R10
+	ADCQ    $0x00, AX
+	MOVQ    AX, 56(SP)
+	MOVQ    BP, 8(SP)
+	MOVQ    SI, 16(SP)
+	MOVQ    DI, 24(SP)
+	MOVQ    R8, 32(SP)
+	MOVQ    R9, 40(SP)
+	MOVQ    R10, 48(SP)
+	MOVQ    16(CX), AX
+	MULQ    (BX)
+	MOVQ    AX, BP
+	MOVQ    DX, SI
+	MOVQ    16(CX), AX
+	MULQ    8(BX)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    16(CX), AX
+	MULQ    16(BX)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    16(CX), AX
+	MULQ    24(BX)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    16(CX), AX
+	MULQ    32(BX)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, R10
+	MOVQ    16(CX), AX
+	MULQ    40(BX)
+	ADDQ    AX, R10
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    16(SP), BP
+	ADCQ    24(SP), SI
+	ADCQ    32(SP), DI
+	ADCQ    40(SP), R8
+	ADCQ    48(SP), R9
+	ADCQ    56(SP), R10
+	ADCQ    $0x00, AX
+	MOVQ    AX, 64(SP)
+	MOVQ    BP, 16(SP)
+	MOVQ    SI, 24(SP)
+	MOVQ    DI, 32(SP)
+	MOVQ    R8, 40(SP)
+	MOVQ    R9, 48(SP)
+	MOVQ    R10, 56(SP)
+	MOVQ    24(CX), AX
+	MULQ    (BX)
+	MOVQ    AX, BP
+	MOVQ    DX, SI
+	MOVQ    24(CX), AX
+	MULQ    8(BX)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    24(CX), AX
+	MULQ    16(BX)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    24(CX), AX
+	MULQ    24(BX)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    24(CX), AX
+	MULQ    32(BX)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, R10
+	MOVQ    24(CX), AX
+	MULQ    40(BX)
+	ADDQ    AX, R10
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    24(SP), BP
+	ADCQ    32(SP), SI
+	ADCQ    40(SP), DI
+	ADCQ    48(SP), R8
+	ADCQ    56(SP), R9
+	ADCQ    64(SP), R10
+	ADCQ    $0x00, AX
+	MOVQ    AX, 72(SP)
+	MOVQ    BP, 24(SP)
+	MOVQ    SI, 32(SP)
+	MOVQ    DI, 40(SP)
+	MOVQ    R8, 48(SP)
+	MOVQ    R9, 56(SP)
+	MOVQ    R10, 64(SP)
+	MOVQ    32(CX), AX
+	MULQ    (BX)
+	MOVQ    AX, BP
+	MOVQ    DX, SI
+	MOVQ    32(CX), AX
+	MULQ    8(BX)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    32(CX), AX
+	MULQ    16(BX)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    32(CX), AX
+	MULQ    24(BX)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    32(CX), AX
+	MULQ    32(BX)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, R10
+	MOVQ    32(CX), AX
+	MULQ    40(BX)
+	ADDQ    AX, R10
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    32(SP), BP
+	ADCQ    40(SP), SI
+	ADCQ    48(SP), DI
+	ADCQ    56(SP), R8
+	ADCQ    64(SP), R9
+	ADCQ    72(SP), R10
+	ADCQ    $0x00, AX
+	MOVQ    AX, 80(SP)
+	MOVQ    BP, 32(SP)
+	MOVQ    SI, 40(SP)
+	MOVQ    DI, 48(SP)
+	MOVQ    R8, 56(SP)
+	MOVQ    R9, 64(SP)
+	MOVQ    R10, 72(SP)
+	MOVQ    40(CX), AX
+	MULQ    (BX)
+	MOVQ    AX, BP
+	MOVQ    DX, SI
+	MOVQ    40(CX), AX
+	MULQ    8(BX)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    40(CX), AX
+	MULQ    16(BX)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    40(CX), AX
+	MULQ    24(BX)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    40(CX), AX
+	MULQ    32(BX)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, R10
+	MOVQ    40(CX), AX
+	MULQ    40(BX)
+	ADDQ    AX, R10
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    40(SP), BP
+	ADCQ    48(SP), SI
+	ADCQ    56(SP), DI
+	ADCQ    64(SP), R8
+	ADCQ    72(SP), R9
+	ADCQ    80(SP), R10
+	ADCQ    $0x00, AX
+	MOVQ    AX, 88(SP)
+	MOVQ    BP, 40(SP)
+	MOVQ    SI, 48(SP)
+	MOVQ    DI, 56(SP)
+	MOVQ    R8, 64(SP)
+	MOVQ    R9, 72(SP)
+	MOVQ    R10, 80(SP)
+	MOVQ    z+0(FP), CX
+	XORQ    R11, R11
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    (SP)
+	MULQ    ·q64+0(SB)
+	MOVQ    AX, BX
+	MOVQ    DX, BP
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    (SP)
+	MULQ    ·q64+8(SB)
+	ADDQ    AX, BP
+	ADCQ    $0x00, DX
+	MOVQ    DX, SI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    (SP)
+	MULQ    ·q64+16(SB)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    (SP)
+	MULQ    ·q64+24(SB)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    (SP)
+	MULQ    ·q64+32(SB)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    (SP)
+	MULQ    ·q64+40(SB)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    (SP), BX
+	ADCQ    8(SP), BP
+	ADCQ    16(SP), SI
+	ADCQ    24(SP), DI
+	ADCQ    32(SP), R8
+	ADCQ    40(SP), R9
+	ADCQ    $0x00, AX
+	ADDQ    R11, AX
+	XORQ    R11, R11
+	ADDQ    48(SP), AX
+	ADCQ    $0x00, R11
+	MOVQ    AX, 48(SP)
+	MOVQ    BP, 8(SP)
+	MOVQ    SI, 16(SP)
+	MOVQ    DI, 24(SP)
+	MOVQ    R8, 32(SP)
+	MOVQ    R9, 40(SP)
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    8(SP)
+	MULQ    ·q64+0(SB)
+	MOVQ    AX, BX
+	MOVQ    DX, BP
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    8(SP)
+	MULQ    ·q64+8(SB)
+	ADDQ    AX, BP
+	ADCQ    $0x00, DX
+	MOVQ    DX, SI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    8(SP)
+	MULQ    ·q64+16(SB)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    8(SP)
+	MULQ    ·q64+24(SB)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    8(SP)
+	MULQ    ·q64+32(SB)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    8(SP)
+	MULQ    ·q64+40(SB)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    8(SP), BX
+	ADCQ    16(SP), BP
+	ADCQ    24(SP), SI
+	ADCQ    32(SP), DI
+	ADCQ    40(SP), R8
+	ADCQ    48(SP), R9
+	ADCQ    $0x00, AX
+	ADDQ    R11, AX
+	XORQ    R11, R11
+	ADDQ    56(SP), AX
+	ADCQ    $0x00, R11
+	MOVQ    AX, 56(SP)
+	MOVQ    BP, 16(SP)
+	MOVQ    SI, 24(SP)
+	MOVQ    DI, 32(SP)
+	MOVQ    R8, 40(SP)
+	MOVQ    R9, 48(SP)
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    16(SP)
+	MULQ    ·q64+0(SB)
+	MOVQ    AX, BX
+	MOVQ    DX, BP
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    16(SP)
+	MULQ    ·q64+8(SB)
+	ADDQ    AX, BP
+	ADCQ    $0x00, DX
+	MOVQ    DX, SI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    16(SP)
+	MULQ    ·q64+16(SB)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    16(SP)
+	MULQ    ·q64+24(SB)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    16(SP)
+	MULQ    ·q64+32(SB)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    16(SP)
+	MULQ    ·q64+40(SB)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    16(SP), BX
+	ADCQ    24(SP), BP
+	ADCQ    32(SP), SI
+	ADCQ    40(SP), DI
+	ADCQ    48(SP), R8
+	ADCQ    56(SP), R9
+	ADCQ    $0x00, AX
+	ADDQ    R11, AX
+	XORQ    R11, R11
+	ADDQ    64(SP), AX
+	ADCQ    $0x00, R11
+	MOVQ    AX, 64(SP)
+	MOVQ    BP, 24(SP)
+	MOVQ    SI, 32(SP)
+	MOVQ    DI, 40(SP)
+	MOVQ    R8, 48(SP)
+	MOVQ    R9, 56(SP)
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    24(SP)
+	MULQ    ·q64+0(SB)
+	MOVQ    AX, BX
+	MOVQ    DX, BP
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    24(SP)
+	MULQ    ·q64+8(SB)
+	ADDQ    AX, BP
+	ADCQ    $0x00, DX
+	MOVQ    DX, SI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    24(SP)
+	MULQ    ·q64+16(SB)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    24(SP)
+	MULQ    ·q64+24(SB)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    24(SP)
+	MULQ    ·q64+32(SB)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    24(SP)
+	MULQ    ·q64+40(SB)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    24(SP), BX
+	ADCQ    32(SP), BP
+	ADCQ    40(SP), SI
+	ADCQ    48(SP), DI
+	ADCQ    56(SP), R8
+	ADCQ    64(SP), R9
+	ADCQ    $0x00, AX
+	ADDQ    R11, AX
+	XORQ    R11, R11
+	ADDQ    72(SP), AX
+	ADCQ    $0x00, R11
+	MOVQ    AX, 72(SP)
+	MOVQ    BP, 32(SP)
+	MOVQ    SI, 40(SP)
+	MOVQ    DI, 48(SP)
+	MOVQ    R8, 56(SP)
+	MOVQ    R9, 64(SP)
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    32(SP)
+	MULQ    ·q64+0(SB)
+	MOVQ    AX, BX
+	MOVQ    DX, BP
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    32(SP)
+	MULQ    ·q64+8(SB)
+	ADDQ    AX, BP
+	ADCQ    $0x00, DX
+	MOVQ    DX, SI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    32(SP)
+	MULQ    ·q64+16(SB)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    32(SP)
+	MULQ    ·q64+24(SB)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    32(SP)
+	MULQ    ·q64+32(SB)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    32(SP)
+	MULQ    ·q64+40(SB)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    32(SP), BX
+	ADCQ    40(SP), BP
+	ADCQ    48(SP), SI
+	ADCQ    56(SP), DI
+	ADCQ    64(SP), R8
+	ADCQ    72(SP), R9
+	ADCQ    $0x00, AX
+	ADDQ    R11, AX
+	XORQ    R11, R11
+	ADDQ    80(SP), AX
+	ADCQ    $0x00, R11
+	MOVQ    AX, 80(SP)
+	MOVQ    BP, 40(SP)
+	MOVQ    SI, 48(SP)
+	MOVQ    DI, 56(SP)
+	MOVQ    R8, 64(SP)
+	MOVQ    R9, 72(SP)
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    40(SP)
+	MULQ    ·q64+0(SB)
+	MOVQ    AX, BX
+	MOVQ    DX, BP
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    40(SP)
+	MULQ    ·q64+8(SB)
+	ADDQ    AX, BP
+	ADCQ    $0x00, DX
+	MOVQ    DX, SI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    40(SP)
+	MULQ    ·q64+16(SB)
+	ADDQ    AX, SI
+	ADCQ    $0x00, DX
+	MOVQ    DX, DI
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    40(SP)
+	MULQ    ·q64+24(SB)
+	ADDQ    AX, DI
+	ADCQ    $0x00, DX
+	MOVQ    DX, R8
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    40(SP)
+	MULQ    ·q64+32(SB)
+	ADDQ    AX, R8
+	ADCQ    $0x00, DX
+	MOVQ    DX, R9
+	MOVQ    $0x89f3fffcfffcfffd, AX
+	MULQ    40(SP)
+	MULQ    ·q64+40(SB)
+	ADDQ    AX, R9
+	ADCQ    $0x00, DX
+	MOVQ    DX, AX
+	ADDQ    40(SP), BX
+	ADCQ    48(SP), BP
+	ADCQ    56(SP), SI
+	ADCQ    64(SP), DI
+	ADCQ    72(SP), R8
+	ADCQ    80(SP), R9
+	ADCQ    $0x00, AX
+	ADDQ    R11, AX
+	XORQ    R11, R11
+	ADDQ    88(SP), AX
+	ADCQ    $0x00, R11
+	MOVQ    AX, 88(SP)
+	MOVQ    BP, 48(SP)
+	MOVQ    SI, 56(SP)
+	MOVQ    DI, 64(SP)
+	MOVQ    R8, 72(SP)
+	MOVQ    R9, 80(SP)
+	MOVQ    48(SP), BX
+	MOVQ    56(SP), BP
+	MOVQ    64(SP), SI
+	MOVQ    72(SP), DI
+	MOVQ    80(SP), R8
+	MOVQ    88(SP), R9
+	MOVQ    BX, AX
+	MOVQ    BP, DX
+	MOVQ    SI, R10
+	MOVQ    DI, R11
+	MOVQ    R8, R12
+	MOVQ    R9, R13
+	SUBQ    ·q64+0(SB), AX
+	SBBQ    ·q64+8(SB), DX
+	SBBQ    ·q64+16(SB), R10
+	SBBQ    ·q64+24(SB), R11
+	SBBQ    ·q64+32(SB), R12
+	SBBQ    ·q64+40(SB), R13
+	CMOVQCC AX, BX
+	CMOVQCC DX, BP
+	CMOVQCC R10, SI
+	CMOVQCC R11, DI
+	CMOVQCC R12, R8
+	CMOVQCC R13, R9
+	MOVQ    BX, (CX)
+	MOVQ    BP, 8(CX)
+	MOVQ    SI, 16(CX)
+	MOVQ    DI, 24(CX)
+	MOVQ    R8, 32(CX)
+	MOVQ    R9, 40(CX)
 	RET
