@@ -211,6 +211,52 @@ func TestFqSub(t *testing.T) {
 	}
 }
 
+/*
+func TestFqBasicMul(t *testing.T) {
+	tests := map[string]struct {
+		x, y fq
+		want fqLarge
+	}{
+		"mont(1) * mont(1)": {
+			x:    fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
+			y:    fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
+			want: fqLarge{4308256032186826761, 9736470487001121831, 287188666318867508, 9411727246759754810, 556276242615351097, 5622430251812733688, 9271268026069131092, 6664267707275611424, 5564274134935465567, 13215400929012682143, 13089280675248920539, 135768410554570549},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			var got fqLarge
+			fqBasicMul(&got, &tc.x, &tc.y)
+			if got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
+
+
+func TestFqREDC(t *testing.T) {
+	tests := map[string]struct {
+		input fqLarge
+		want  fq
+	}{
+		"mont(1) * mont(1) = mont(1)": {
+			input: fqLarge{4308256032186826761, 9736470487001121831, 287188666318867508, 9411727246759754810, 556276242615351097, 5622430251812733688, 9271268026069131092, 6664267707275611424, 5564274134935465567, 13215400929012682143, 13089280675248920539, 135768410554570549},
+			want:  fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			var got fq
+			fqREDC(&got, &tc.input)
+			if got != tc.want {
+				t.Fatalf("expected: %v, got: %v", tc.want, got)
+			}
+		})
+	}
+}
+*/
+
 // note: to multiply x and y, they are first converted to Montgomery form.
 func TestFqMul(t *testing.T) {
 	tests := map[string]struct {
@@ -290,66 +336,3 @@ func TestFqInv(t *testing.T) {
 		})
 	}
 }
-
-/*
-
-func TestFqBasicMul(t *testing.T) {
-	testCases := []struct {
-		a, b   fq
-		output fqLarge
-	}{
-		{
-			a:      fq{0, 0, 0, 0, 1},
-			b:      fq{0, 0, 0, 0, 1},
-			output: fqLarge{0, 0, 0, 0, 0, 0, 0, 0, 1},
-		},
-		{
-			a:      fqZero,
-			b:      fqOne,
-			output: fqLarge{0},
-		},
-		{
-			a:      fq{0, 0, 0, 0, 1},
-			b:      fqOne,
-			output: fqLarge{0, 0, 0, 0, 1},
-		},
-		{
-			a:      fqOne,
-			b:      r2,
-			output: fqLarge{r2[0], r2[1], r2[2], r2[3], r2[4], r2[5]},
-		},
-	}
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("a: %s, b: %s\n", testCase.a.String(), testCase.b.String()), func(t *testing.T) {
-			var result fqLarge
-			fqBasicMul(&result, &testCase.a, &testCase.b)
-			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
-			}
-		})
-	}
-}
-
-func TestFqREDC(t *testing.T) {
-	testCases := []struct {
-		input  fqLarge
-		output fq
-	}{
-		{
-			input:  fqLarge{r2[0], r2[1], r2[2], r2[3], r2[4], r2[5]},
-			output: fq{0x760900000002fffd, 0xebf4000bc40c0002, 0x5f48985753c758ba, 0x77ce585370525745, 0x5c071a97a256ec6d, 0x15f65ec3fa80e493},
-		},
-	}
-
-	for _, testCase := range testCases {
-		t.Run(fmt.Sprintf("input: %s\n", testCase.input.String()), func(t *testing.T) {
-			var result fq
-			fqREDC(&result, &testCase.input)
-			if result != testCase.output {
-				t.Errorf("expected %s, got %s\n", testCase.output.String(), result.String())
-			}
-		})
-	}
-}
-
-*/

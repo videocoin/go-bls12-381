@@ -104,12 +104,13 @@ func fqREDC(c *fq, x *fqLarge) {
 				w2 := (w1 >> halfWordSize) + (q1s0 >> halfWordSize) + (q0s1 >> halfWordSize) + (q1s1 & halfWordMask)
 				carryMul = (((w2 >> halfWordSize) + (q1s1 >> halfWordSize)) << halfWordSize) | (w2 & halfWordMask)
 				if j > 0 {
-					// note(rgeraldes): since the low order bits are going to be discarded and x[i+j=0]
-					// is not used anymore during the program, we can skip the assignment.
+					// note(rgeraldes): since the low order bits are going to be discarded and
+					// x[i+j=0] is not used anymore during the program, we can skip the assignment.
 					x[i+j] = (w1 << halfWordSize) | (w0 & halfWordMask)
 				}
 			}
 		}
+
 		// 6. t=x+sn.
 		xi := x[i+fqLen]
 		t0 := xi&halfWordMask + carryMul&halfWordMask + carrySum&halfWordMask

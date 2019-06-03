@@ -6,17 +6,14 @@ import (
 	. "github.com/mmcloughlin/avo/reg"
 )
 
-// add notes about carry being always 0
+// TODO(rgeraldes): add notes about carry being always 0
 
 const (
-	fqLen        = 6
-	qK64  uint64 = 0x89f3fffcfffcfffd
+	fqLen = 6
+	qK64  = 0x89f3fffcfffcfffd
 )
 
-var (
-	q64  = [6]uint64{0xB9FEFFFFFFFFAAAB, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
-	zero = Imm(0)
-)
+var zero = Imm(0)
 
 func fqLoad(src Mem) [fqLen]Register {
 	regs := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
@@ -40,7 +37,7 @@ func fqMod(regs [fqLen]Register) [fqLen]Register {
 
 	q := Mem{Symbol: Symbol{Name: "·q64"}, Base: StaticBase}
 	SUBQ(q.Offset(0), fq[0])
-	for i := range q64[1:] {
+	for i := 0; i < (fqLen - 1); i++ {
 		SBBQ(q.Offset((i+1)*8), fq[i+1])
 	}
 
@@ -66,7 +63,8 @@ func fqNeg(src Mem) [fqLen]Register {
 	return fqMod(regs)
 }
 
-func basicMul(z, x, y Mem) {
+func basicMul(x, y Mem) Mem {
+	z := AllocLocal(96)
 	product := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
 	carry := GP64()
 	for i := 0; i < fqLen; i++ {
@@ -91,6 +89,7 @@ func basicMul(z, x, y Mem) {
 		if i == 0 {
 			MOVQ(RDX, z.Offset(fqLen*8))
 		} else {
+			MOVQ(RDX, carry)
 			ADDQ(z.Offset(i*8), product[0])
 			for j, word := range product[1:] {
 				ADCQ(z.Offset(i*8+(j+1)*8), word)
@@ -100,20 +99,20 @@ func basicMul(z, x, y Mem) {
 		}
 		fqStore(z.Offset(i*8), product)
 	}
+
+	return z
 }
 
-/*
 func fqREDC(x Mem) [fqLen]Register {
-	q := Mem{Symbol: Symbol{Name: "q64"}, Base: StaticBase}
 	product := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
-	carrySum, carryMul := GP64(), GP64()
-	xi := GP64()
+	carryMul, carrySum := GP64(), GP64()
+	XORQ(carrySum, carrySum)
+	q := Mem{Symbol: Symbol{Name: "·q64"}, Base: StaticBase}
 	for i := 0; i < fqLen; i++ {
-		MOVQ(x.Offset(i*8), xi)
-		MULQ(Imm(qK64))
 		j := 0
 		for ; j < (fqLen - 1); j++ {
-			MOVQ(xi, RAX)
+			MOVQ(Imm(qK64), RAX)
+			MULQ(x.Offset(i * 8))
 			MULQ(q.Offset(j * 8))
 			if j == 0 {
 				MOVQ(RAX, product[0])
@@ -123,28 +122,41 @@ func fqREDC(x Mem) [fqLen]Register {
 			}
 			MOVQ(RDX, product[j+1])
 		}
-
-		MOVQ(xi, RAX)
+		MOVQ(Imm(qK64), RAX)
+		MULQ(x.Offset(i * 8))
 		MULQ(q.Offset(j * 8))
 		ADDQ(RAX, product[j])
 		ADCQ(zero, RDX)
 
-		if i == 0 {
-			MOVQ(RDX, x.Offset(fqLen*8))
-		} else {
-			ADDQ(x.Offset(i*8), product[0])
-			for j, word := range product[1:] {
-				ADCQ(x.Offset(i*8+(j+1)*8), word)
-			}
-			ADCQ(zero, carryMul)
-			MOVQ(carryMul, x.Offset(fqLen*8+i*8))
+		MOVQ(RDX, carryMul)
+		ADDQ(x.Offset(i*8), product[0])
+		for j, word := range product[1:] {
+			ADCQ(x.Offset(i*8+(j+1)*8), word)
 		}
-		fqStore(x.Offset(i*8), product)
+
+		ADCQ(zero, carryMul)
+		ADDQ(carrySum, carryMul)
+		XORQ(carrySum, carrySum)
+		ADDQ(x.Offset(fqLen*8+i*8), carryMul)
+		ADCQ(zero, carrySum)
+
+		MOVQ(carryMul, x.Offset(fqLen*8+i*8))
+
+		// note(rgeraldes): since the low order bits are going to be discarded and
+		// x[i+j=0] is not used anymore during the program, we can skip the assignment.
+		for j, pi := range product[1:] {
+			MOVQ(pi, x.Offset(i*8+(j+1)*8))
+		}
+	}
+
+	for i := 0; i < fqLen; i++ {
+		MOVQ(x.Offset(fqLen*8+i*8), product[i])
 	}
 
 	return product
+
+	return fqMod(product)
 }
-*/
 
 func main() {
 	TEXT("fqAdd", 0, "func(z *[6]uint64, x *[6]uint64, y *[6]uint64)")
@@ -164,6 +176,7 @@ func main() {
 
 	TEXT("fqNeg", 0, "func(z *[6]uint64, x *[6]uint64)")
 	Doc("fqNeg sets z to -x.")
+	// Replace RDI with gp64()
 	x = Mem{Base: Load(Param("x"), RDI)}
 	negX := fqNeg(x)
 	z = Mem{Base: Load(Param("z"), x.Base)}
@@ -190,14 +203,12 @@ func main() {
 	Doc("fqMul sets z to the product x*y.")
 	x = Mem{Base: Load(Param("x"), GP64())}
 	y = Mem{Base: Load(Param("y"), GP64())}
-	fqLarge := AllocLocal(96)
-	basicMul(fqLarge, x, y)
+	fqLarge := basicMul(x, y)
 	z = Mem{Base: Load(Param("z"), x.Base)}
-	//fqStore(z, fqReduce(fqLarge))
+	fqStore(z, fqREDC(fqLarge))
 
 	RET()
 
 	ConstraintExpr("amd64,!generic")
-
 	Generate()
 }
