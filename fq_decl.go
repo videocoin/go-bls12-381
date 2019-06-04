@@ -2,6 +2,12 @@
 
 package bls12
 
+import (
+	"golang.org/x/sys/cpu"
+)
+
+var hasBMI2 = cpu.X86.HasBMI2
+
 // fqAdd sets z to the sum x+y.
 func fqAdd(z, x, y *fq)
 

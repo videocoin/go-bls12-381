@@ -11,9 +11,9 @@ Test vectors taken from [Relic](https://github.com/relic-toolkit/relic).
 branch `master`:
 
 ```
-BenchmarkG1-8
-BenchmarkG2-8
-BenchmarkPairing-8
+BenchmarkG1-8        	    3000	    574851 ns/op
+BenchmarkG2-8        	    1000	   2080695 ns/op
+BenchmarkPairing-8   	     300	   5481567 ns/op
 ```
 
 branch `lattices`:

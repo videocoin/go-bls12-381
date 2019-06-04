@@ -13,7 +13,10 @@ const (
 	qK64  = 0x89f3fffcfffcfffd
 )
 
-var zero = Imm(0)
+var (
+	zero    = Imm(0)
+	hasBMI2 = Mem{Symbol: Symbol{Name: "·hasBMI2"}, Base: StaticBase}
+)
 
 func fqLoad(src Mem) [fqLen]Register {
 	regs := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
@@ -64,10 +67,27 @@ func fqNeg(src Mem) [fqLen]Register {
 	return fqMod(regs)
 }
 
-func basicMul(x, y Mem) Mem {
-	z := AllocLocal(96)
+func fqMul() {
+	x := Mem{Base: Load(Param("x"), GP64())}
+	y := Mem{Base: Load(Param("y"), GP64())}
+	fqLarge := AllocLocal(96)
 	product := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
-	carry := GP64()
+	carryMul, carrySum := GP64(), GP64()
+	CMPB(hasBMI2, zero)
+	JE(LabelRef("fallback"))
+	basicMulBMI2(product, fqLarge, x, y)
+	fqREDCBMI2(product, carrySum, fqLarge)
+	JMP(LabelRef("out"))
+	Label("fallback")
+	basicMul(product, fqLarge, x, y)
+	fqREDC(product, carryMul, carrySum, fqLarge)
+	Label("out")
+	z := Mem{Base: Load(Param("z"), x.Base)}
+	fqStore(z, product)
+	RET()
+}
+
+func basicMul(product [fqLen]Register, z Mem, x Mem, y Mem) {
 	for i := 0; i < fqLen; i++ {
 		xi := x.Offset(i * 8)
 		j := 0
@@ -90,23 +110,49 @@ func basicMul(x, y Mem) Mem {
 		if i == 0 {
 			MOVQ(RDX, z.Offset(fqLen*8))
 		} else {
-			MOVQ(RDX, carry)
 			ADDQ(z.Offset(i*8), product[0])
 			for j, word := range product[1:] {
 				ADCQ(z.Offset(i*8+(j+1)*8), word)
 			}
-			ADCQ(zero, carry)
-			MOVQ(carry, z.Offset(fqLen*8+i*8))
+			ADCQ(zero, RDX)
+			MOVQ(RDX, z.Offset(fqLen*8+i*8))
 		}
 		fqStore(z.Offset(i*8), product)
 	}
-
-	return z
 }
 
-func fqREDC(x Mem) [fqLen]Register {
-	product := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
-	carryMul, carrySum := GP64(), GP64()
+func basicMulBMI2(product [fqLen]Register, z Mem, x Mem, y Mem) {
+	for i := 0; i < fqLen; i++ {
+		MOVQ(x.Offset(i*8), RDX)
+		j := 0
+		for ; j < (fqLen - 1); j++ {
+			if j == 0 {
+				MULXQ(y.Offset(j*8), product[j], product[j+1])
+			} else {
+				MULXQ(y.Offset(j*8), RAX, product[j+1])
+				ADDQ(RAX, product[j])
+				ADCQ(zero, product[j+1])
+			}
+		}
+		MULXQ(y.Offset(j*8), RAX, RBX)
+		ADDQ(RAX, product[j])
+		ADCQ(zero, RBX)
+
+		if i == 0 {
+			MOVQ(RBX, z.Offset(fqLen*8))
+		} else {
+			ADDQ(z.Offset(i*8), product[0])
+			for j, word := range product[1:] {
+				ADCQ(z.Offset(i*8+(j+1)*8), word)
+			}
+			ADCQ(zero, RBX)
+			MOVQ(RBX, z.Offset(fqLen*8+i*8))
+		}
+		fqStore(z.Offset(i*8), product)
+	}
+}
+
+func fqREDC(product [fqLen]Register, carryMul Register, carrySum Register, x Mem) {
 	XORQ(carrySum, carrySum)
 	q := Mem{Symbol: Symbol{Name: "·q64"}, Base: StaticBase}
 	for i := 0; i < fqLen; i++ {
@@ -154,7 +200,54 @@ func fqREDC(x Mem) [fqLen]Register {
 		MOVQ(x.Offset(fqLen*8+i*8), product[i])
 	}
 
-	return fqMod(product)
+	fqMod(product)
+}
+
+func fqREDCBMI2(product [fqLen]Register, carrySum Register, x Mem) {
+	XORQ(carrySum, carrySum)
+	q := Mem{Symbol: Symbol{Name: "·q64"}, Base: StaticBase}
+	for i := 0; i < fqLen; i++ {
+		MOVQ(Imm(qK64), RDX)
+		MULXQ(x.Offset(i*8), RDX, RAX)
+		j := 0
+		for ; j < (fqLen - 1); j++ {
+			if j == 0 {
+				MULXQ(q.Offset(j*8), product[j], product[j+1])
+			} else {
+				MULXQ(q.Offset(j*8), RAX, product[j+1])
+				ADDQ(RAX, product[j])
+				ADCQ(zero, product[j+1])
+			}
+		}
+		MULXQ(q.Offset(j*8), RAX, RBX)
+		ADDQ(RAX, product[j])
+		ADCQ(zero, RBX)
+
+		ADDQ(x.Offset(i*8), product[0])
+		for j, word := range product[1:] {
+			ADCQ(x.Offset(i*8+(j+1)*8), word)
+		}
+
+		ADCQ(zero, RBX)
+		ADDQ(carrySum, RBX)
+		XORQ(carrySum, carrySum)
+		ADDQ(x.Offset(fqLen*8+i*8), RBX)
+		ADCQ(zero, carrySum)
+
+		MOVQ(RBX, x.Offset(fqLen*8+i*8))
+
+		// note(rgeraldes): since the low order bits are going to be discarded and
+		// x[i+j=0] is not used anymore during the program, we can skip the assignment.
+		for j, pi := range product[1:] {
+			MOVQ(pi, x.Offset(i*8+(j+1)*8))
+		}
+	}
+
+	for i := 0; i < fqLen; i++ {
+		MOVQ(x.Offset(fqLen*8+i*8), product[i])
+	}
+
+	fqMod(product)
 }
 
 func main() {
@@ -200,13 +293,7 @@ func main() {
 
 	TEXT("fqMul", 0, "func(z *[6]uint64, x *[6]uint64, y *[6]uint64)")
 	Doc("fqMul sets z to the product x*y.")
-	x = Mem{Base: Load(Param("x"), GP64())}
-	y = Mem{Base: Load(Param("y"), GP64())}
-	fqLarge := basicMul(x, y)
-	z = Mem{Base: Load(Param("z"), x.Base)}
-	fqStore(z, fqREDC(fqLarge))
-
-	RET()
+	fqMul()
 
 	ConstraintExpr("amd64,!generic")
 	Generate()
