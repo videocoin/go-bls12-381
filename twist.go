@@ -122,15 +122,28 @@ func (c *twistPoint) Double(a *twistPoint) *twistPoint {
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
 // See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add.
 func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
-	p := &twistPoint{}
-	for i := b.BitLen() - 1; i >= 0; i-- {
-		p.Double(p)
-		if b.Bit(i) == 1 {
-			p.Add(p, a)
+	sum := [4]*twistPoint{
+		nil, // 0*P + 0*Q = 0, ignored
+		&twistPoint{},
+		&twistPoint{},
+		&twistPoint{},
+	}
+	sum[1].Set(a) // 1*P + 0*Q = P
+	sum[2].Set(a) // 0*P + 1*Q = Q
+	// TODO
+	sum[3].Add(sum[1], sum[2]) // 1*P + 1*Q = P + Q
+
+	scalar := multiScalar(curveLattice.Decompose(b))
+
+	r := &twistPoint{}
+	for i := len(scalar) - 1; i >= 0; i-- {
+		r.Double(r)
+		if scalar[i] != 0 {
+			r.Add(r, a)
 		}
 	}
 
-	return c.Set(p)
+	return c.Set(r)
 }
 
 // ToAffine sets a to its affine value and returns a.
