@@ -68,8 +68,13 @@ func (l *lattice) Decompose(n *big.Int) []*big.Int {
 	return u
 }
 
+func round(n, m *big.Int) {
+	if m.Cmp(bigHalfR) == 1 {
+		n.Add(n, bigOne)
+	}
+}
+
 func multiScalarRecoding(scalars []*big.Int) []uint8 {
-	// find the max bit length
 	max := new(big.Int)
 	for _, si := range scalars {
 		if si.Cmp(max) == 1 {
@@ -77,7 +82,6 @@ func multiScalarRecoding(scalars []*big.Int) []uint8 {
 		}
 	}
 
-	// merge lattice vectors according to the pre computed sum
 	multi := make([]uint8, max.BitLen())
 	for i, si := range scalars {
 		for j := 0; j < si.BitLen(); j++ {
@@ -86,10 +90,4 @@ func multiScalarRecoding(scalars []*big.Int) []uint8 {
 	}
 
 	return multi
-}
-
-func round(n, m *big.Int) {
-	if m.Cmp(bigHalfR) == 1 {
-		n.Add(n, bigOne)
-	}
 }
