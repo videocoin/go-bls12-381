@@ -1,5 +1,7 @@
 package bls12
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestBabai(t *testing.T) {}

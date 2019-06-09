@@ -54,7 +54,7 @@ func (x *fq) String() string {
 // SetString sets z to the Montgomery value of s, interpreted in the decimal
 // base, and returns z and a boolean indicating success.
 func (z *fq) SetString(s string) (*fq, error) {
-	k, valid := bigFromBase10(s)
+	k, valid := new(big.Int).SetString(s, decimalBase)
 	if !valid {
 		return nil, nil
 	}

@@ -129,26 +129,40 @@ func (c *curvePoint) Double(a *curvePoint) *curvePoint {
 }
 
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
-// See https://www.iacr.org/archive/crypto2001/21390189.pdf - Algorithm 1.
+// See Guide to Pairing-Based Cryptography - Algorithm 6.2.
+// TODO mixed addition - precompute = affine?
 func (c *curvePoint) ScalarMult(a *curvePoint, b *big.Int) *curvePoint {
+	// precompute lookup table
 	sum := [4]*curvePoint{
-		nil, // 0*P + 0*Q = 0, ignored
-		&curvePoint{},
-		&curvePoint{},
-		&curvePoint{},
+		nil,
+		new(curvePoint).Set(a),
+		new(curvePoint).Set(a),
+		&curvePoint{}, // computed as soon as the final subscalars are known
 	}
-	sum[1].Set(a) // 1*P + 0*Q = P
-	sum[2].Set(a) // 0*P + 1*Q = Q
-	// TODO
-	sum[3].Add(sum[1], sum[2]) // 1*P + 1*Q = P + Q
+	fqMul(&sum[2].x, &sum[2].x, &frobFq6C2[3].c0) // GLV endomorphism
 
-	scalar := multiScalar(curveLattice.Decompose(b))
+	// scalar decomposition
+	subScalars := g1Lattice.Decompose(b)
+
+	// make subscalars positive
+	for i, si := range subScalars {
+		if si.Sign() == -1 {
+			si.Neg(si)
+			sum[i+1].Inverse(sum[i+1])
+		}
+	}
+
+	// complete lookup table
+	sum[3].Add(sum[1], sum[2])
+
+	multiScalar := multiScalarRecoding(subScalars)
 
 	r := new(curvePoint)
-	for i := len(scalar) - 1; i >= 0; i-- {
+	for i := len(multiScalar) - 1; i >= 0; i-- {
 		r.Double(r)
-		if scalar[i] != 0 {
-			r.Add(r, sum[scalar[i]])
+		if multiScalar[i] != 0 {
+
+			r.Add(r, sum[multiScalar[i]])
 		}
 	}
 
@@ -284,4 +298,11 @@ func (a *curvePoint) SWEncode(b *fq) *curvePoint {
 	}
 
 	return a
+}
+
+// Inverse sets c to -a and returns c.
+func (c *curvePoint) Inverse(a *curvePoint) *curvePoint {
+	c.Set(a)
+	fqNeg(&c.y, &c.y)
+	return c
 }
