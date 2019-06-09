@@ -1,6 +1,7 @@
 package bls12
 
 import (
+	"fmt"
 	"math/big"
 
 	"golang.org/x/crypto/blake2b"
@@ -132,17 +133,19 @@ func (c *curvePoint) Double(a *curvePoint) *curvePoint {
 // See Guide to Pairing-Based Cryptography - Algorithm 6.2.
 // TODO mixed addition - precompute = affine?
 func (c *curvePoint) ScalarMult(a *curvePoint, b *big.Int) *curvePoint {
+	//a.ToAffine()
+
 	// precompute lookup table
 	sum := [4]*curvePoint{
 		nil,
-		new(curvePoint).Set(a),
+		a,
 		new(curvePoint).Set(a),
 		&curvePoint{}, // computed as soon as the final subscalars are known
 	}
 	fqMul(&sum[2].x, &sum[2].x, &frobFq6C2[3].c0) // GLV endomorphism
 
-	// scalar decomposition
 	subScalars := g1Lattice.Decompose(b)
+	fmt.Println(subScalars)
 
 	// make subscalars positive
 	for i, si := range subScalars {
@@ -155,13 +158,12 @@ func (c *curvePoint) ScalarMult(a *curvePoint, b *big.Int) *curvePoint {
 	// complete lookup table
 	sum[3].Add(sum[1], sum[2])
 
+	fmt.Println(subScalars)
 	multiScalar := multiScalarRecoding(subScalars)
-
 	r := new(curvePoint)
 	for i := len(multiScalar) - 1; i >= 0; i-- {
 		r.Double(r)
 		if multiScalar[i] != 0 {
-
 			r.Add(r, sum[multiScalar[i]])
 		}
 	}
