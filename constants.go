@@ -11,7 +11,7 @@ const qK64 uint64 = 0x89f3fffcfffcfffd
 
 var (
 	// q is a prime number that specifies the number of elements of the finite field.
-	q, _ = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787")
+	q = bigFromBase10("4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787")
 
 	// q64 is q as 64 bit words.
 	q64 = [6]uint64{0xB9FEFFFFFFFFAAAB, 0x1EABFFFEB153FFFF, 0x6730D2A0F6B0F624, 0x64774B84F38512BF, 0x4B1BA7B6434BACD7, 0x1A0111EA397FE69A}
@@ -24,7 +24,7 @@ var (
 	qR2 = &fq{0xf4df1f341c341746, 0x0a76e6a609d104f1, 0x8de5476c4c95b6d5, 0x67eb88a9939d83c0, 0x9a793e85b519952d, 0x11988fe592cae3aa}
 
 	// r is the order of the groups.
-	r, _ = bigFromBase10("52435875175126190479447740508185965837690552500527637822603658699938581184513")
+	r = bigFromBase10("52435875175126190479447740508185965837690552500527637822603658699938581184513")
 
 	// g1X is the x-coordinate of G1's generator.
 	g1X = &fq{6679831729115696150, 8653662730902241269, 1535610680227111361, 17342916647841752903, 17135755455211762752, 1297449291367578485}
@@ -51,7 +51,7 @@ var (
 	g2Y1 = &fq{12520284671833321565, 1777275927576994268, 9704602344324656032, 8739618045342622522, 16651875250601773805, 804950956836789234}
 
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
-	g1Cofactor, _ = bigFromBase10("76329603384216526031706109802092473003")
+	g1Cofactor = bigFromBase10("76329603384216526031706109802092473003")
 
 	// frobFq2C1 contains the value by which to multiply c1 to calculate the frobenius for a certain power.
 	frobFq2C1 = [2]*fq{
@@ -150,6 +150,7 @@ var (
 	}
 )
 
-func bigFromBase10(s string) (*big.Int, bool) {
-	return new(big.Int).SetString(s, decimalBase)
+func bigFromBase10(s string) *big.Int {
+	n, _ := new(big.Int).SetString(s, decimalBase)
+	return n
 }
