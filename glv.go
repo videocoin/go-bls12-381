@@ -38,20 +38,20 @@ func (l *lattice) Decompose(n *big.Int) []*big.Int {
 	// v ~ wB^-1
 	v := make([]*big.Int, m)
 
-	/*
-		v[0] = new(big.Int)
-		v[0].DivMod(t0.Mul(n, l.adj[0]), l.det, t1)
-		round(v[0], t1)
-		v[1] = new(big.Int)
-		v[1].DivMod(n, l.det, t1)
-		round(v[1], t1)
-	*/
+	v[0] = new(big.Int)
+	v[0].DivMod(t0.Mul(n, l.adj[0]), l.det, t1)
+	round(v[0], t1)
+	v[1] = new(big.Int)
+	v[1].DivMod(n, l.det, t1)
+	round(v[1], t1)
 
-	for i := 0; i < m; i++ {
-		v[i] = new(big.Int)
-		v[i].DivMod(t0.Mul(n, l.adj[i]), l.det, t1)
-		round(v[i], t1)
-	}
+	/*
+		for i := 0; i < m; i++ {
+			v[i] = new(big.Int)
+			v[i].DivMod(t0.Mul(n, l.adj[i]), l.det, t1)
+			round(v[i], t1)
+		}
+	*/
 
 	// u = w - vB
 	u := make([]*big.Int, m)
