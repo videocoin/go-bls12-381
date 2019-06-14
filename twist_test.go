@@ -112,7 +112,7 @@ func TestTwistPointScalarMult(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := new(twistPoint).ScalarMult(&tc.point, tc.scalar)
-			if !tc.want.Equal(got) {
+			if !tc.want.ToAffine().Equal(got.ToAffine()) {
 				t.Fatalf("expected: %v, got: %v", tc.want, got)
 			}
 		})

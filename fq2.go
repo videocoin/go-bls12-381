@@ -72,6 +72,12 @@ func (z *fq2) Mul(x, y *fq2) *fq2 {
 	return z.Set(ret)
 }
 
+func (z *fq2) ScalarMult(x *fq2, y *fq) *fq2 {
+	fqMul(&z.c0, &x.c0, y)
+	fqMul(&z.c1, &x.c1, y)
+	return z
+}
+
 // MulXi sets z to the product ξX and returns z.
 func (z *fq2) MulXi(x *fq2) *fq2 {
 	// ξ = u + 1
@@ -127,5 +133,12 @@ func (z *fq2) Inv(x *fq2) *fq2 {
 func (z *fq2) Frobenius(x *fq2, power uint64) *fq2 {
 	z.c0.Set(&x.c0)
 	fqMul(&z.c1, &x.c1, frobFq2C1[power%2])
+	return z
+}
+
+// Conjugate sets z to the conjugate of x and returns z.
+func (z *fq2) Conjugate(x *fq2) *fq2 {
+	z.c0.Set(&x.c0)
+	fqNeg(&z.c1, &x.c1)
 	return z
 }

@@ -1,38 +1,46 @@
 package bls12
 
 import (
+	"fmt"
 	"math/big"
 )
 
 var (
-	bigHalfR = new(big.Int).Rsh(r, 1)
-	bigOne   = new(big.Int).SetUint64(1)
+	bigHalfR      = new(big.Int).Rsh(r, 1)
+	bigOne        = new(big.Int).SetUint64(1)
+	v1            = bigFromBase10("57896044618658097711785492504343953926634992332820282019728792003956564819968")
+	v1Rsh    uint = 255
 
 	// See Guide to Pairing-Based Cryptography - Decompositions for the k = 12 BLS
 	// family.
-	g1Lattice = &lattice{
+
+	glvLattice = &lattice{
 		basis: [][]*big.Int{
 			{bigFromBase10("228988810152649578064853576960394133503"), bigFromBase10("-1")},
 			{bigFromBase10("1"), bigFromBase10("228988810152649578064853576960394133504")},
 		},
 		adj: []*big.Int{bigFromBase10("228988810152649578064853576960394133504"), bigFromBase10("1")},
-		det: bigFromBase10("52435875175126190479447740508185965837690552500527637822603658699938581184513"),
 	}
 
-	g2Lattice = &lattice{
+	glsLattice = &lattice{
 		basis: [][]*big.Int{
-			{bigFromBase10("-15132376222941642752"), bigFromBase10("1"), new(big.Int), new(big.Int)},
-			{new(big.Int), bigFromBase10("-15132376222941642752"), bigFromBase10("1"), new(big.Int)},
-			{new(big.Int), new(big.Int), bigFromBase10("-15132376222941642752"), bigFromBase10("1")},
-			{bigFromBase10("1"), new(big.Int), bigFromBase10("-1"), bigFromBase10("15132376222941642752")},
+			{bigFromBase10("15132376222941642752"), bigFromBase10("0"), bigFromBase10("1"), bigFromBase10("0")},
+			{bigFromBase10("1"), bigFromBase10("1"), bigFromBase10("15132376222941642752"), bigFromBase10("0")},
+			{bigFromBase10("0"), bigFromBase10("15132376222941642752"), bigFromBase10("-1"), bigFromBase10("1")},
+			{bigFromBase10("0"), bigFromBase10("-1"), bigFromBase10("0"), bigFromBase10("-15132376222941642752")},
 		},
 		adj: []*big.Int{
-			bigFromBase10("3465144826073652318776269530687742778285384844988303605760"),
-			bigFromBase10("-228988810152649578064853576960394133505"),
-			bigFromBase10("-15132376222941642752"),
-			bigFromBase10("-1"),
+			bigFromBase10("3465144826073652318776269530687742778270252468765361963008"),
+			bigFromBase10("-228988810152649578064853576960394133503"),
+			bigFromBase10("15132376222941642752"),
+			bigFromBase10("1"),
 		},
-		det: bigFromBase10("-52435875175126190479447740508185965837690552500527637822603658699938581184513"), // TODO
+		li: []*big.Int{
+			bigFromBase10("3825971794891275542975308155226117830230659266969465460776"),
+			bigFromBase10("-252833509987073905889124965614887630617"),
+			bigFromBase10("-16708116839162527449"),
+			bigFromBase10("1"),
+		},
 	}
 )
 
@@ -40,6 +48,7 @@ type lattice struct {
 	basis [][]*big.Int
 	adj   []*big.Int
 	det   *big.Int
+	li    []*big.Int // roundings
 }
 
 // Decompose implements Babai's rounding technique. Decompose decomposes n as
@@ -65,7 +74,9 @@ func (l *lattice) Decompose(n *big.Int) []*big.Int {
 
 	for i := 0; i < m; i++ {
 		v[i] = new(big.Int)
-		v[i].DivMod(t0.Mul(n, l.adj[i]), l.det, t1)
+		v[i].DivMod(t0.Mul(n, l.adj[i]), r, t1)
+		// v[i].DivMod(t0.Mul(n, l.li[i]), v1, t1)
+		//v[i].Mul(n, l.li[i]).Rsh(v[i], v1Rsh)
 		round(v[i], t1)
 	}
 
@@ -86,7 +97,13 @@ func (l *lattice) Decompose(n *big.Int) []*big.Int {
 
 func round(n, m *big.Int) {
 	if m.Cmp(bigHalfR) == 1 {
-		n.Add(n, bigOne)
+		if n.Sign() == -1 {
+			fmt.Println("Entrou")
+			n.Sub(n, bigOne)
+		} else {
+			n.Add(n, bigOne)
+		}
+
 	}
 }
 
