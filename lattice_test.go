@@ -1,20 +1,13 @@
 package bls12
 
-import (
-	"crypto/rand"
-	"fmt"
-	"math/big"
-	"testing"
-)
-
-func TestDecomposeGLV(t *testing.T) {
+/*
+func TestGLV2(t *testing.T) {
 	// See Guide to Pairing-Based Cryptography - 6.3.2
 	lambda := bigFromBase10("228988810152649578064853576960394133503")
 
 	// n ≡ n0 + n1λ mod r
 	n, _ := rand.Int(rand.Reader, r)
 	subScalars := glvLattice.Decompose(n)
-	fmt.Println(subScalars)
 
 	sum, term := new(big.Int), new(big.Int)
 	sum.Add(sum, subScalars[0])
@@ -23,50 +16,42 @@ func TestDecomposeGLV(t *testing.T) {
 	mod := new(big.Int)
 	new(big.Int).DivMod(sum, r, mod)
 	if mod.Cmp(n) != 0 {
-		t.Fatalf("expected: %v, got: %v", n, sum)
+		t.Fatalf("expected: %v, got: %v", n, mod)
 	}
 }
 
-func TestDecomposeGLS2(t *testing.T) {
-	n := bigFromBase10("16352079474354410340595364877818663142712328869634074743858828567442853094216")
-	subScalars := glsLattice.Decompose(n)
-	fmt.Println(subScalars)
-
-	/*
-		1- [7551454145663700495 343877308400216775 24371303287397002030 -4719017615457912682]
-
-		2-	[7551454145663700494 142819899919596172490354505392508578502 -199108166460466086 4719017615457912682]
-
-		7551454145663700494
-			32704158948708820681111985699948264916707782120674977914261840309922543752506
-			3012979683939863664635314476423708672
-			-16352079474354410340516620822129601773927056280765044947830193197059723886592
-			--- FAIL: TestDecomposeGLS (0.00s)
-				/Users/ricardogeraldes/code/src/github.com/VideoCoin/go-bls12-381/lattice_test.go:56:
-				expected: 16352079474354410340595364877818663142712328869634074743858828567442853094216,
-				got: 16352079474354410340595364877818663142783738819593872830103833881484907275080
-				16352079474354410340595364877818663142640918919674276657613823253400798913352
-	*/
+func TestGLVEndomorphism(t *testing.T) {
+	p0 := g1Gen.p
+	lambda := bigFromBase10("228988810152649578064853576960394133503")
+	p11 := new(curvePoint).ScalarMult(&p0, lambda)
+	p12 := p0
+	fqMul(&p12.x, &p12.x, &frobFq6C2[2].c0)
+	if !p11.ToAffine().Equal(p12.ToAffine()) {
+		t.Fatalf("expected: %v, got: %v", p11, p12)
+	}
 }
 
-func TestDecomposeGLS(t *testing.T) {
-	// See Guide to Pairing-Based Cryptography - 6.3.2
-	x := bigFromBase10("-15132376222941642752")
-	lambda1 := new(big.Int).Mul(x, x)
-	lambda1.Sub(lambda1, bigOne)
-	lambda2 := new(big.Int).Set(x)
+func TestGLS4(t *testing.T) {
+	x := bigFromBase10("15132376222941642752")
+	lambda1 := x
+	lambda2 := new(big.Int).Mul(x, x)
 	lambda3 := new(big.Int).Mul(lambda1, lambda2)
 
-	// n ≡ n0 + n1λ1 + n2λ2 + n3λ1λ2 mod r
-	//n, _ := rand.Int(rand.Reader, r)
-	n := bigFromBase10("16352079474354410340595364877818663142712328869634074743858828567442853094216")
+	//n, _ := randFieldElement(rand.Reader)
+	n := bigFromBase10("10123123123123")
 	subScalars := glsLattice.Decompose(n)
 
-	sum := new(big.Int)
+	for _, si := range subScalars {
+		if si.Sign() == -1 {
+			si.Neg(si)
+		}
+	}
+
+	sum, term := new(big.Int), new(big.Int)
 	sum.Add(sum, subScalars[0])
-	sum.Add(sum, new(big.Int).Mul(subScalars[1], lambda1))
-	sum.Add(sum, new(big.Int).Mul(subScalars[2], lambda2))
-	sum.Add(sum, new(big.Int).Mul(subScalars[3], lambda3))
+	sum.Add(sum, term.Mul(subScalars[1], lambda1))
+	sum.Add(sum, term.Mul(subScalars[2], lambda2))
+	sum.Add(sum, term.Mul(subScalars[3], lambda3))
 
 	mod := new(big.Int)
 	new(big.Int).DivMod(sum, r, mod)
@@ -75,45 +60,85 @@ func TestDecomposeGLS(t *testing.T) {
 	}
 }
 
-func TestOther(t *testing.T) {
+func TestGLSEndomorphism(t *testing.T) {
 	/*
-		subScalars := []*big.Int{
-			bigFromBase10("-2796572967770866043"),
-			bigFromBase10("2036585984363498129"),
-			bigFromBase10("27986574728709285892"),
-			bigFromBase10("4787294474459546991"),
-		}*/
+		//54.... {[8505329371266088957 17002214543764226050 6865905132761471162 8632934651105793861 6631298214892334189 1582556514881692819] [0 0 0 0 0 0]} {[8505329371266088957 17002214543764226050 6865905132761471162 8632934651105793861 6631298214892334189 1582556514881692819] [0 0 0 0 0 0]}},
+		qx := fq2{
+			c0: fq{7945946479894423835, 15934652502800266572, 2488440080670104002, 9386780446441512881, 11030534594722426706, 816011729840636128},
+			c1: fq{13033736016918358455, 10575140707633074893, 712033873462394481, 15426744332523829345, 15149289313990657609, 527804130256077952},
+		}
+		qy := fq2{
+			c0: fq{3979628422115981119, 8799464239825509261, 8769850388554038001, 14088617588560639466, 16028322177399626617, 1349288934766117873},
+			c1: fq{4943015918193553641, 13632206254062479526, 686991123441432951, 12362413863511458327, 14482031900939104829, 591053520888768029},
+		}
+		p := g2Gen.p
 
-	sum := new(big.Int).Add(bigFromBase10("-2796572967770866043"), bigFromBase10("466355401332960035202818963869017731292095396582916715887"))
-	sum.Add(sum, bigFromBase10("423503377986299853829296325399297654784"))
-	sum.Add(sum, bigFromBase10("-16588668679064483740876286834069811886906678135563818078618369863374901149696"))
+		fmt.Println("Endomorphisms")
+		fmt.Println()
+		//fmt.Println(new(fq2).Mul(&qx, new(fq2).Inv(new(fq2).Conjugate(&p.x))))
+		//fmt.Println(new(fq2).Mul(&qy, new(fq2).Inv(new(fq2).Conjugate(&p.y))))
+		fmt.Println(new(fq2).Mul(&qx, new(fq2).Inv(&p.x)))
+		fmt.Println(new(fq2).Mul(&qy, new(fq2).Inv(&p.y)))
 
-	mod := new(big.Int)
-	new(big.Int).DivMod(sum, r, mod)
+
+			//fmt.Println(new(fq2).Mul(&qx, new(fq2).Inv(new(fq2).Conjugate(&p.x))))
+			//fmt.Println(new(fq2).Mul(&qy, new(fq2).Inv(new(fq2).Conjugate(&p.y))))
+
+				fmt.Println("got")
+				fmt.Println()
+				fmt.Println(new(fq2).Mul(new(fq2).Conjugate(&p.x), &fq2{c1: frobFq6C2[1].c0}))
+				fmt.Println(new(fq2).Mul(new(fq2).Conjugate(&p.y), frobFq12C1[3]))
+				t.Fatal()
+*/
+
+/*
+	x := bigFromBase10("15132376222941642752")
+	xFinal := new(big.Int).Sub(r, x)
+	xFinal.Add(xFinal, r)
+	mod := new(big.Int).Set(r)
+	new(big.Int).DivMod(xFinal, r, mod)
 	fmt.Println(mod)
+	// [λ^i]P0 = Pi
 
-	/*
-				35847206496061706738105098272783193915157552023108502158861100541613694798103
-				35847206496061706739037809075449113986410196706819137329103883985578123539445
+*/
 
-		 35847206496061706739037809075449113985490746809769006065114226805236249670645,
-		 got: 35847206496061706739037809075449113985563189950846537621445291334779528229877
-	*/
-
-}
-
-func TestOther2(t *testing.T) {
-	adj := []*big.Int{
-		bigFromBase10("3465144826073652318776269530687742778270252468765361963008"),
-		bigFromBase10("-228988810152649578064853576960394133503"),
-		bigFromBase10("15132376222941642752"),
-		bigFromBase10("1"),
+//p0 := g2Gen.p
+//r := new(big.Int).SetUint64(15132376222941642751)
+//fmt.Println(glsLattice.Decompose(r))
+//fmt.Println(new(twistPoint).ScalarMult(&p0, r))
+//lambda := bigFromBase10("52435875175126190479447740508185965837690552500527637822588526323715639541761")
+//p11 := new(twistPoint).ScalarMult(&p0, lambda)
+//p12 := glsEnd(&p0)
+/*
+	if !p11.ToAffine().Equal(p12.ToAffine()) {
+		t.Fatalf("expected: %v, got: %v", p11, p12)
 	}
+*/
 
-	for _, ai := range adj {
-		value, mod := new(big.Int), new(big.Int)
-		value.DivMod(new(big.Int).Mul(ai, v1), r, mod)
-		round(value, mod)
-		fmt.Println(value)
+//lambda = bigFromBase10("228988810152649578064853576960394133504")
+//p11 = new(twistPoint).ScalarMult(&p0, lambda)
+//p12 = glsEnd(p12)
+//fmt.Println(p12)
+/*
+	if !p11.ToAffine().Equal(p12.ToAffine()) {
+		t.Fatalf("expected: %v, got: %v", p11, p12)
 	}
-}
+*/
+
+//lambda = bigFromBase10("52435875175126190475982595682112313518914282969839895044333406231173219221505")
+//p11 = new(twistPoint).ScalarMult(&p0, lambda)
+//p12 = glsEnd(p12)
+
+/*
+	if !p11.ToAffine().Equal(p12.ToAffine()) {
+		t.Fatalf("expected: %v, got: %v", p11, p12)
+	}
+*/
+//fmt.Println(p12)
+//n, _ := randFieldElement(rand.Reader)
+//p := new(twistPoint).ScalarMult(&g2Gen.p, n)
+//fmt.Println(n)
+//fmt.Println(p)
+
+//t.Fatal()
+//}

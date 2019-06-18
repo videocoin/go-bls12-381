@@ -1,6 +1,8 @@
 package bls12
 
-import "math/big"
+import (
+	"math/big"
+)
 
 // twistPoint is a curve point in the elliptic curve's twist over an extension
 // field Fq². T = z1². To obtain the full speed of pairings on Weierstrass
@@ -117,7 +119,6 @@ func (c *twistPoint) Double(a *twistPoint) *twistPoint {
 	return c.Set(p)
 }
 
-/*
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
 // See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add.
 func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
@@ -132,41 +133,35 @@ func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
 	return c.Set(p)
 }
 
+// p must be Affine
+func glsEnd(p *twistPoint) *twistPoint {
+	q := new(twistPoint)
+	q.x.Conjugate(&p.x).Mul(&q.x, &fq2{c1: frobFq12C1[10].c0})
+	q.y.Conjugate(&p.y).Mul(&q.y, frobFq12C1[3])
+	q.z.SetOne()
+	q.t.SetOne()
+	return q
+}
 
+/*
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
 // ScalarMult implements the 4-GLS algorithm.
 // See https://eprint.iacr.org/2011/608.pdf.
 func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
-	// compute endomorphisms
-	// Φ = ψϕψ^−1
-	glvEnd := func(p *twistPoint) *twistPoint {
-		p.x.ScalarMult(&p.x, &frobFq6C2[2].c0)
-		return p
-	}
-
-	// Ψ = ψFrobpψ^−1
-	// See https://github.com/cloudflare/bn256/blob/master/optate.go#L160
-	glsEnd := func(p *twistPoint) *twistPoint {
-		p.x.Conjugate(&p.x).ScalarMult(&p.x, &frobFq6C1[1].c0)
-		p.y.Conjugate(&p.y).Mul(&p.y, xiToPMinus1Over2)
-		return p
-	}
-
 	// precompute lookup table
 	sum := [16]*twistPoint{}
 	for i := 1; i < len(sum); i++ {
 		sum[i] = new(twistPoint)
 	}
 	sum[1].Set(a)
-	sum[2].Set(a)
-	sum[4].Set(a)
-	sum[8].Set(a)
-	glvEnd(sum[2])
-	glsEnd(sum[4])
-	glsEnd(glvEnd(sum[8]))
+	sum[2] = glsEnd(sum[1])
+	sum[2].Inverse(sum[2])
+	sum[4] = glsEnd(sum[2])
+	sum[4].Inverse(sum[4])
+	sum[8] = glsEnd(sum[4])
+	sum[8].Inverse(sum[8])
 
 	subScalars := glsLattice.Decompose(b)
-	fmt.Println(subScalars)
 
 	// make subscalars positive
 	exp := 1
@@ -177,7 +172,6 @@ func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
 		}
 		exp *= 2
 	}
-	fmt.Println(subScalars)
 
 	// complete lookup table
 	sum[3].Add(sum[1], sum[2])
@@ -191,7 +185,6 @@ func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
 	sum[13].Add(sum[12], sum[1])
 	sum[14].Add(sum[12], sum[2])
 	sum[15].Add(sum[14], sum[1])
-	fmt.Println(sum)
 
 	multiScalar := multiScalarRecoding(subScalars)
 	r := new(twistPoint)
@@ -205,47 +198,6 @@ func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
 	return c.Set(r)
 }
 */
-
-// ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
-// ScalarMult implements the 2-GLV algorithm.
-// See Guide to Pairing-Based Cryptography - Algorithm 6.2.
-// TODO mixed addition - precompute = affine?
-func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
-	// precompute lookup table
-	sum := [4]*twistPoint{
-		nil,
-		new(twistPoint).Set(a),
-		new(twistPoint).Set(a),
-		&twistPoint{}, // computed as soon as the final subscalars are known
-	}
-	sum[2].x.ScalarMult(&sum[2].x, &frobFq6C2[2].c0)
-
-	subScalars := glvLattice.Decompose(b)
-
-	// make subscalars positive
-	exp := 1
-	for _, si := range subScalars {
-		if si.Sign() == -1 {
-			si.Neg(si)
-			sum[exp].Inverse(sum[exp])
-		}
-		exp *= 2
-	}
-
-	// complete lookup table
-	sum[3].Add(sum[1], sum[2])
-
-	multiScalar := multiScalarRecoding(subScalars)
-	r := new(twistPoint)
-	for i := len(multiScalar) - 1; i >= 0; i-- {
-		r.Double(r)
-		if multiScalar[i] != 0 {
-			r.Add(r, sum[multiScalar[i]])
-		}
-	}
-
-	return c.Set(r)
-}
 
 // ToAffine sets a to its affine value and returns a.
 // See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
