@@ -1,8 +1,6 @@
 package bls12
 
-import (
-	"math/big"
-)
+import "math/big"
 
 // twistPoint is a curve point in the elliptic curve's twist over an extension
 // field Fq². T = z1². To obtain the full speed of pairings on Weierstrass
@@ -119,6 +117,7 @@ func (c *twistPoint) Double(a *twistPoint) *twistPoint {
 	return c.Set(p)
 }
 
+/*
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
 // See https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add.
 func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
@@ -132,6 +131,7 @@ func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
 
 	return c.Set(p)
 }
+*/
 
 // p must be Affine
 func glsEnd(p *twistPoint) *twistPoint {
@@ -143,7 +143,6 @@ func glsEnd(p *twistPoint) *twistPoint {
 	return q
 }
 
-/*
 // ScalarMult returns b*(Ax,Ay) where b is a number in big-endian form.
 // ScalarMult implements the 4-GLS algorithm.
 // See https://eprint.iacr.org/2011/608.pdf.
@@ -197,7 +196,6 @@ func (c *twistPoint) ScalarMult(a *twistPoint, b *big.Int) *twistPoint {
 
 	return c.Set(r)
 }
-*/
 
 // ToAffine sets a to its affine value and returns a.
 // See https://www.sciencedirect.com/topics/computer-science/affine-coordinate - Jacobian Projective Points
