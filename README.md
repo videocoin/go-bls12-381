@@ -18,3 +18,9 @@ BenchmarkPairing-8   	     300	   5985261 ns/op
 ```
 
 branch `lattices`:
+
+```
+BenchmarkG1-8        	    5000	    359453 ns/op
+BenchmarkG2-8        	    1000	   1433320 ns/op
+BenchmarkPairing-8   	     300	   5702674 ns/op
+```
