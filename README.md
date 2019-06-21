@@ -11,4 +11,10 @@ Inspiration taken from Cloudflare's [bn256](https://github.com/cloudflare/bn256)
 
 branch `master`:
 
+```
+BenchmarkG1-8        	    3000	    595602 ns/op
+BenchmarkG2-8        	    1000	   2117188 ns/op
+BenchmarkPairing-8   	     300	   5985261 ns/op
+```
+
 branch `lattices`:
