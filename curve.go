@@ -221,10 +221,10 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 	return nil
 }
 
-// SetBytes sets c to the curve point that results from the given slice of bytes
+// HashToPoint sets c to the curve point that results from the given slice of bytes
 // and returns c. The point is not guaranteed to be in a particular subgroup.
 // See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
-func (c *curvePoint) SetBytes(buf []byte, ref0 []byte, ref1 []byte) *curvePoint {
+func (c *curvePoint) HashToPoint(buf []byte, ref0 []byte, ref1 []byte) *curvePoint {
 	h := blake2b.Sum256(buf)
 	sum := blake2b.Sum512(append(h[:], ref0...))
 	t0 := new(big.Int)

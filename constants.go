@@ -1,7 +1,5 @@
 // Package bls12 implements bls12-381 pairing-friendly elliptic curve
 // construction. This package operates, internally, on projective coordinates.
-// For a given (x, y) position on the curve, the Jacobian coordinates are
-// (x1, y1, z1) where x = x1/z1² and y = y1/z1³.
 package bls12
 
 import "math/big"
@@ -52,6 +50,9 @@ var (
 
 	// g1Cofactor is the cofactor by which to multiply points to map them to G1. (on to the r-torsion). h = (x - 1)2 / 3
 	g1Cofactor, _ = bigFromBase10("76329603384216526031706109802092473003")
+
+	// g2Cofactor is the cofactor by which to multiply points to map the to G2.
+	g2Cofactor, _ = bigFromBase10("305502333931268344200999753193121504214466019254188142667664032982267604182971884026507427359259977847832272839041616661285803823378372096355777062779109")
 
 	// frobFq2C1 contains the value by which to multiply c1 to calculate the frobenius for a certain power.
 	frobFq2C1 = [2]*fq{

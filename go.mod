@@ -1,4 +1,4 @@
-module github.com/VideoCoin/go-bls12-381
+module github.com/videocoin/go-bls12-381
 
 go 1.12
 

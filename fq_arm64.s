@@ -110,6 +110,36 @@ TEXT ·fqSub(SB), $0-24
     MOVD 32(R0), R11
     MOVD 40(R0), R12
 
+    SUBS R7, R1
+    SUBS R8, R2
+    SUBS R9, R3
+    SUBS R10, R4
+    SUBS R11, R5
+    SUBS R12, R6
+
+    MOVD ·q64+0(SB), R7
+    MOVD ·q64+8(SB), R8
+    MOVD ·q64+16(SB), R9
+    MOVD ·q64+24(SB), R10
+    MOVD ·q64+32(SB), R11
+    MOVD ·q64+40(SB), R12
+
+    // TODO confirm this part
+
+    CSEL CS, ZR, R7, R7
+	CSEL CS, ZR, R8, R8
+	CSEL CS, ZR, R9, R9
+	CSEL CS, ZR, R10, R10
+    CSEL CS, ZR, R11, R11
+    CSEL CS, ZR, R12, R12
+
+    ADDS R7, R1
+    ADCS R8, R2
+    ADCS R9, R3
+    ADCS R10, R4
+    ADCS R11, R5
+    ADCS R12, R6
+
     RET
 
 TEXT ·fqMul(SB), $96-24

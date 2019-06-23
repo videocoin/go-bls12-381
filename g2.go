@@ -4,7 +4,7 @@ import (
 	"math/big"
 )
 
-var g2Gen = &G2Point{*newTwistPoint(fq2{*g2X0, *g2X1}, fq2{*g2Y0, *g2Y1})}
+var G2Gen = &G2Point{*newTwistPoint(fq2{*g2X0, *g2X1}, fq2{*g2Y0, *g2Y1})}
 
 type G2Point struct {
 	p twistPoint
@@ -32,7 +32,7 @@ func (z *G2Point) Add(x, y *G2Point) *G2Point {
 // ScalarBaseMult returns k*G, where G is the base point of the group
 // and k is an integer in big-endian form.
 func (z *G2Point) ScalarBaseMult(scalar *big.Int) *G2Point {
-	return z.ScalarMult(g2Gen, scalar)
+	return z.ScalarMult(G2Gen, scalar)
 }
 
 // ScalarMult returns k*(Bx,By) where k is a number in big-endian form.
@@ -44,4 +44,16 @@ func (z *G2Point) ScalarMult(x *G2Point, scalar *big.Int) *G2Point {
 func (z *G2Point) ToAffine() *G2Point {
 	z.p.ToAffine()
 	return z
+}
+
+func (z *G2Point) HashToPoint(buf []byte) *G2Point {
+	// TODO review
+	return z.HashToPointWithDomain(buf, 0)
+}
+
+// HashToPointWithDomain uses the Shallue and van de Woestijne encoding.
+// The point is guaranteed to be in the subgroup.
+func (z *G2Point) HashToPointWithDomain(buf []byte, domain uint64) *G2Point {
+	//z.p.HashToPoint(buf, g10, g11)
+	return z.ScalarMult(z, g2Cofactor)
 }

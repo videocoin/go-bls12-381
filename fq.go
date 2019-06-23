@@ -1,9 +1,11 @@
 package bls12
 
 import (
+	"crypto/rand"
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"strconv"
 )
@@ -166,6 +168,21 @@ type fqLarge [fqLen * 2]uint64
 // String implements the Stringer interface.
 func (x *fqLarge) String() string {
 	return fmt.Sprintf("%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x%16.16x", x[11], x[10], x[9], x[8], x[7], x[6], x[5], x[4], x[3], x[2], x[1], x[0])
+}
+
+// randInt returns a random scalar between 0 and max.
+func randInt(reader io.Reader, max *big.Int) (n *big.Int, err error) {
+	for {
+		n, err = rand.Int(reader, max)
+		if n.Sign() > 0 || err != nil {
+			return
+		}
+	}
+}
+
+// RandFieldElement returns a random scalar between 0 and r.
+func RandFieldElement(reader io.Reader) (*big.Int, error) {
+	return randInt(reader, r)
 }
 
 // isFieldElement reports whether the value is within field bounds.
