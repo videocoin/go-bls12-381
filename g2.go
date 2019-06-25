@@ -4,7 +4,7 @@ import (
 	"math/big"
 )
 
-var G2Gen = &G2Point{*newTwistPoint(fq2{*g2X0, *g2X1}, fq2{*g2Y0, *g2Y1})}
+var g2Gen = &G2Point{*newTwistPoint(fq2{*g2X0, *g2X1}, fq2{*g2Y0, *g2Y1})}
 
 type G2Point struct {
 	p twistPoint
@@ -32,7 +32,7 @@ func (z *G2Point) Add(x, y *G2Point) *G2Point {
 // ScalarBaseMult returns k*G, where G is the base point of the group
 // and k is an integer in big-endian form.
 func (z *G2Point) ScalarBaseMult(scalar *big.Int) *G2Point {
-	return z.ScalarMult(G2Gen, scalar)
+	return z.ScalarMult(g2Gen, scalar)
 }
 
 // ScalarMult returns k*(Bx,By) where k is a number in big-endian form.

@@ -30,7 +30,7 @@ func TestG2PointToAffine(t *testing.T) {
 }
 
 func BenchmarkG2(b *testing.B) {
-	x, _ := randFieldElement(rand.Reader)
+	x, _ := RandFieldElement(rand.Reader)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

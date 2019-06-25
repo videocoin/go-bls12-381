@@ -30,7 +30,7 @@ func TestG1PointUnmarshal(t *testing.T) {
 }
 
 func BenchmarkG1(b *testing.B) {
-	x, _ := randFieldElement(rand.Reader)
+	x, _ := RandFieldElement(rand.Reader)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

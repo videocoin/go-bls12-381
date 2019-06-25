@@ -4,7 +4,7 @@ import (
 	"math/big"
 )
 
-var G1Gen = &G1Point{curvePoint{
+var g1Gen = &G1Point{curvePoint{
 	x: *g1X,
 	y: *g1Y,
 	z: *new(fq).SetUint64(1),
@@ -17,7 +17,7 @@ type G1Point struct {
 // ScalarBaseMult returns k*G, where G is the base point of the group
 // and k is an integer in big-endian form.
 func (z *G1Point) ScalarBaseMult(scalar *big.Int) *G1Point {
-	return z.ScalarMult(G1Gen, scalar)
+	return z.ScalarMult(g1Gen, scalar)
 }
 
 // ScalarMult returns k*(Bx,By) where k is a number in big-endian form.
