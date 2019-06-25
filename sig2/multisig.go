@@ -1,5 +1,5 @@
-// Package sig2 implements the BLS multi signature scheme with signatures on G2.
-// See https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html.
+// Package sig2 implements the BLS signature scheme with signatures on G2.
+// See https://eprint.iacr.org/2018/483.pdf.
 package sig2
 
 import (

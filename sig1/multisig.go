@@ -1,5 +1,5 @@
-// Package sig1 implements the BLS multi signature scheme with signatures on G1.
-// See https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html.
+// Package sig1 implements the BLS signature scheme with signatures on G1.
+// See https://eprint.iacr.org/2018/483.pdf.
 package sig1
 
 import (
@@ -67,11 +67,39 @@ func Verify(hash []byte, sig *Signature, pubKey *PublicKey) bool {
 	return bls12.Pair(&sig.G1Point, bls12.G2Gen).Equal(bls12.Pair(new(bls12.G1Point).HashToPoint(hash), &pubKey.G2Point))
 }
 
+// VerifyAggregateCommon verifies that a signature is valid, for a collection
+// of public keys and a common message. Its return value records whether the
+// signature is valid.
+func VerifyAggregateCommon(hash []byte, multiSig *Signature, pubKeys []*PublicKey) bool {
+	return bls12.Pair(&multiSig.G1Point, bls12.G2Gen).Equal(bls12.Pair(new(bls12.G1Point).HashToPoint(hash), &AggregatePublicKeys(pubKeys).G2Point))
+}
+
+// VerifyAggregateDistinct verifies that a signature is valid, for a collection
+// of public keys and distinct messages. Its return value records whether the
+// signature is valid.
+func VerifyAggregateDistinct(hashes [][]byte, multiSig *Signature, pubKeys []*PublicKey) bool {
+	// TODO
+	distinct := true
+
+	if !distinct {
+		return false
+	}
+
+	return VerifyAggregate(hashes, multiSig, pubKeys)
+}
+
 // VerifyAggregate verifies that a signature is valid, for a collection of
-// public keys and messages.
-// TODO duplicates
+// public keys and messages. Its return value records whether the signature is
+// valid. This method should only be used directly if the user proved knowledge
+// or possesion of the corresponding secret key to prevent rogue public-key
+// attacks. Message distinctness can be enforced by always prepending the public
+// key to every message prior to signing. However, because now all messages are
+// distinct, you cannot take advantage of VerifyAggregateCommon.
 func VerifyAggregate(hashes [][]byte, multiSig *Signature, pubKeys []*PublicKey) bool {
 	if len(hashes) != len(pubKeys) {
+		return false
+	}
+	if len(hashes) == 0 {
 		return false
 	}
 
@@ -83,12 +111,6 @@ func VerifyAggregate(hashes [][]byte, multiSig *Signature, pubKeys []*PublicKey)
 	}
 
 	return bls12.Pair(&multiSig.G1Point, bls12.G2Gen).Equal(pairing)
-}
-
-// VerifyAggregateCommon verifies that a signature is valid, when all the
-// messages are the same.
-func VerifyAggregateCommon(hash []byte, multiSig *Signature, pubKeys []*PublicKey) bool {
-	return bls12.Pair(&multiSig.G1Point, bls12.G2Gen).Equal(bls12.Pair(new(bls12.G1Point).HashToPoint(hash), &AggregatePublicKeys(pubKeys).G2Point))
 }
 
 // AggregateSignatures aggregates multiple signatures into one signature.
