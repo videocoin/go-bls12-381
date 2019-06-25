@@ -124,8 +124,6 @@ TEXT ·fqSub(SB), $0-24
     MOVD ·q64+32(SB), R11
     MOVD ·q64+40(SB), R12
 
-    // TODO confirm this part
-
     CSEL CS, ZR, R7, R7
 	CSEL CS, ZR, R8, R8
 	CSEL CS, ZR, R9, R9
@@ -139,6 +137,14 @@ TEXT ·fqSub(SB), $0-24
     ADCS R10, R4
     ADCS R11, R5
     ADCS R12, R6
+
+    MOVD z+0(FP), R0
+    MOVD R1, (R0)
+    MOVD R2, 8(R0)
+    MOVD R3, 16(R0)
+    MOVD R4, 24(R0)
+    MOVD R5, 32(R0)
+    MOVD R6, 40(R0)
 
     RET
 
