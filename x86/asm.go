@@ -276,14 +276,46 @@ func main() {
 
 	RET()
 
+	/*
+		TEXT("fqSub", 0, "func(z *[6]uint64, x *[6]uint64, y *[6]uint64)")
+		Doc("fqSub sets z to the difference x-y.")
+		y = Mem{Base: Load(Param("y"), GP64())}
+		regs = fqNeg(y)
+		x = Mem{Base: Load(Param("x"), y.Base)}
+		ADDQ(x.Offset(0), regs[0])
+		for i, reg := range regs[1:] {
+			ADCQ(x.Offset((i+1)*8), reg)
+		}
+
+		z = Mem{Base: Load(Param("z"), x.Base)}
+		fqStore(z, fqMod(regs))
+
+		RET()
+	*/
+
 	TEXT("fqSub", 0, "func(z *[6]uint64, x *[6]uint64, y *[6]uint64)")
 	Doc("fqSub sets z to the difference x-y.")
-	y = Mem{Base: Load(Param("y"), GP64())}
-	regs = fqNeg(y)
-	x = Mem{Base: Load(Param("x"), y.Base)}
-	ADDQ(x.Offset(0), regs[0])
-	for i, reg := range regs[1:] {
-		ADCQ(x.Offset((i+1)*8), reg)
+	x = Mem{Base: Load(Param("x"), GP64())}
+	regs = fqLoad(x)
+	y = Mem{Base: Load(Param("y"), x.Base)}
+	SUBQ(y.Offset(0), regs[0])
+	for i, ri := range regs[1:] {
+		SBBQ(y.Offset((i+1)*8), ri)
+	}
+	regsQ := [fqLen]Register{GP64(), GP64(), GP64(), GP64(), GP64(), GP64()}
+	q := Mem{Symbol: Symbol{Name: "·q64"}, Base: StaticBase}
+	for i, ri := range regsQ {
+		MOVQ(q.Offset(i*8), ri)
+	}
+	r0 := y.Base
+	XORQ(r0, r0)
+	for _, ri := range regsQ {
+		CMOVQCC(r0, ri)
+	}
+
+	ADDQ(regsQ[0], regs[0])
+	for i, ri := range regs[1:] {
+		ADCQ(regsQ[i], ri)
 	}
 
 	z = Mem{Base: Load(Param("z"), x.Base)}
