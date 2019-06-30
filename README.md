@@ -1,6 +1,8 @@
 ## go-bls12-381
 
-Package go-bls12-381 implements the [BLS12-381](https://electriccoin.co/blog/new-snark-curve/) pairing-friendly elliptic curve construction that targets the 128-bit security level. This project used the [constant-time hashing to the BLS12-381 elliptic curve proposed by Wahby, Boneh](https://eprint.iacr.org/2019/403.pdf). For G1/G2 signatures, use sig1/sig2 respectively.
+Package go-bls12-381 implements the [BLS12-381](https://electriccoin.co/blog/new-snark-curve/) pairing-friendly elliptic curve construction that targets the 128-bit security level.
+
+This project uses the constant-time hashing to the BLS12-381 elliptic curve proposed by [Wahby, Boneh](https://eprint.iacr.org/2019/403.pdf). For G1/G2 signatures, use sig1/sig2 respectively.
 
 There is a `lattices` branch that implements the 2-GLV method on G1 and 4-GLS method on G2 - both methods use an efficent endomorphism and scalar decomposition to speed up elliptic curve scalar multiplication.
 
