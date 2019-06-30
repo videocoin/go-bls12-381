@@ -1,7 +1,6 @@
 package bls12
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 )
@@ -99,12 +98,6 @@ func TestCurvePointAdd(t *testing.T) {
 
 func TestCurvePointDouble(t *testing.T) {
 	// TODO
-	v, err := new(fq).SetString("3650721292069012982822225637849018828271936405382082649291891245623305084633066170122780668657208923883092359301262")
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(v)
-	t.Fatal()
 }
 
 func TestCurvePointScalarMult(t *testing.T) {
