@@ -35,7 +35,7 @@ func (z *G1Point) Add(x, y *G1Point) *G1Point {
 // HashToPoint uses the Shallue and van de Woestijne encoding.
 // The point is guaranteed to be in the subgroup.
 func (z *G1Point) HashToPoint(buf []byte) *G1Point {
-	z.p.HashToPoint(buf, g10, g11)
+	z.p.HashToPoint(buf)
 	return z.ScalarMult(z, g1Cofactor)
 }
 

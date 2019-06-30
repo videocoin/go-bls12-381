@@ -2,8 +2,6 @@ package bls12
 
 import (
 	"math/big"
-
-	"golang.org/x/crypto/blake2b"
 )
 
 const (
@@ -348,16 +346,14 @@ func (cp *curvePoint) Unmarshal(data []byte) error {
 
 // HashToPoint sets c to the curve point that results from the given slice of bytes
 // and returns c. The point is not guaranteed to be in a particular subgroup.
-// See https://github.com/Chia-Network/bls-signatures/blob/master/SPEC.md#hashg1
-func (c *curvePoint) HashToPoint(buf []byte, ref0 []byte, ref1 []byte) *curvePoint {
-	h := blake2b.Sum256(buf)
-	sum := blake2b.Sum512(append(h[:], ref0...))
-	t0 := new(big.Int)
-	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), r))
-	sum = blake2b.Sum512(append(h[:], ref1...))
-	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), r))
+// See https://eprint.iacr.org/2019/403.pdf - Section 5, Construction #2.
+func (c *curvePoint) HashToPoint(msg []byte) *curvePoint {
+	t0 := new(curvePoint).SWUMap(hp(msg))
+	t1 := new(curvePoint).SWUMap(hp(msg))
+	// add note about sum before converting to E(Fq)
+	t0.iso11(t0.Add(t0, t1))
 
-	return c.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
+	return c
 }
 
 // SWUMap maps a value of the finite field to a point in the elliptic curve.
@@ -385,19 +381,31 @@ func (a *curvePoint) SWUMap(t *fq) *curvePoint {
 	fqMul(t1, t0, fqCurveB)
 	fqAdd(u, u, t1)
 
-	/*
-		v := new(fq).Set(t0)
+	v := new(fq).Set(t0)
+	alpha := new(fq)
+	fqMul(alpha, u, v)
+	t0.Set(alpha)
+	fqMul(t0, t0, v)
+	fqMul(t0, t0, v)
+	// t0 frob
+	fqMul(alpha, alpha, t0)
 
-		if t0 == fq{} {
-			fqMul(a.x, n, d)
-			fqMul(x.y, alpha, v)
-			a.z.Set(d)
-		} else {
-			fqMul(a.x, n, d)
-			fqMul(a.y, alpha, v)
-			a.z.Set(d)
-		}
-	*/
+	fqMul(t0, alpha, alpha)
+	fqMul(t0, t0, v)
+	fqSub(t0, t0, u)
+
+	if (*t0 == fq{}) {
+		fqMul(&a.x, n, d)
+		fqMul(&a.y, alpha, v)
+		a.z.Set(d)
+	} else {
+		// TODO cache Et^2, t^3
+		fqMul(&a.x, n, d)
+		fqMul(&a.y, alpha, v)
+		a.z.Set(d)
+	}
+
+	// TODO to affine?
 
 	return a
 }

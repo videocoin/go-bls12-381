@@ -254,6 +254,50 @@ func (a *twistPoint) ToAffine() *twistPoint {
 	return a
 }
 
+// SWUMap maps a value of the finite field to a point in the twist curve.
+// The point is not guaranteed to be in a particular subgroup.
+// SWUMap implements an optimized version of the SWU map.
+// See https://eprint.iacr.org/2019/403.pdf - Section 4.4.
+func (a *twistPoint) SWUMap(t *fq2) *twistPoint {
+	/*
+		n, t0, t1 := new(fq), new(fq), new(fq)
+		fqMul(t0, t, t)
+		fqMul(t1, t0, t0)
+		fqNeg(t0, t0)
+		fqAdd(t0, t0, t1)
+		fqAdd(n, t0, new(fq).SetUint64(1))
+		fqMul(n, n, fqCurveB)
+
+		d := new(fq).Set(t0) // a = -1 for performance
+		u := new(fq)
+		fqMul(u, n, n)
+		fqMul(u, u, n)
+		fqMul(t0, d, d)
+		fqMul(t1, n, t0)
+		fqNeg(t1, t1)
+		fqAdd(u, u, t1)
+		fqMul(t0, d, t0)
+		fqMul(t1, t0, fqCurveB)
+		fqAdd(u, u, t1)
+
+
+			v := new(fq).Set(t0)
+
+			if t0 == fq{} {
+				fqMul(a.x, n, d)
+				fqMul(x.y, alpha, v)
+				a.z.Set(d)
+			} else {
+				fqMul(a.x, n, d)
+				fqMul(a.y, alpha, v)
+				a.z.Set(d)
+			}
+
+	*/
+
+	return a
+}
+
 func (a *twistPoint) iso3(b *twistPoint) *twistPoint {
 	term := new(fq2)
 	mul := new(fq2)
@@ -277,19 +321,11 @@ func (a *twistPoint) iso3(b *twistPoint) *twistPoint {
 	return a
 }
 
-// TODO
-// SetBytes sets c to the twist point that results from the given slice of bytes
-// and returns c. The point is not guaranteed to be in a particular subgroup.
-// See https://github.com/ethereum/eth2.0-specs/blob/dev/specs/bls_signature.md.
-/*
-func (c *curvePoint) SetBytes(buf []byte, ref0 []byte, ref1 []byte) *curvePoint {
-	h := blake2b.Sum256(buf)
-	sum := blake2b.Sum512(append(h[:], ref0...))
-	t0 := new(big.Int)
-	g10, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), r))
-	sum = blake2b.Sum512(append(h[:], ref1...))
-	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), r))
+// See https://eprint.iacr.org/2019/403.pdf - Section 5, Construction #5.
+func (a *twistPoint) HashToPoint(msg []byte) *twistPoint {
+	t0 := new(twistPoint).SWUMap(hp2(msg))
+	t1 := new(twistPoint).SWUMap(hp2(msg))
+	t0.iso3(t0.Add(t0, t1))
 
-	return c.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
+	return a
 }
-*/

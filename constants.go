@@ -30,12 +30,6 @@ var (
 	// g1Y is the y-coordinate of G1's generator.
 	g1Y = &fq{13451288730302620273, 10097742279870053774, 15949884091978425806, 5885175747529691540, 1016841820992199104, 845620083434234474}
 
-	// g10 is used during the convertion of bytes to a point in g1.
-	g10 = []byte("G1_0")
-
-	// g10 is used during the convertion of bytes to a point in g1.
-	g11 = []byte("G1_1")
-
 	// g2X0 is the c0 x-coordinate of G2's generator.
 	g2X0 = &fq{17722385409647053328, 12967546844987299354, 11648722842835150208, 10994581490347323113, 8027586497049998955, 396758299565931735}
 
