@@ -4,6 +4,14 @@ import (
 	"math/big"
 )
 
+var (
+	// Values taken from the execution of https://eprint.iacr.org/2019/403.pdf - A The isogeny maps.
+	iso3XNum = [11]fq{}
+	iso3XDen = [11]fq{}
+	iso3YNum = [11]fq{}
+	iso3YDen = [11]fq{}
+)
+
 // twistPoint is a curve point in the elliptic curve's twist over an extension
 // field Fq². T = z1². To obtain the full speed of pairings on Weierstrass
 // curves it is useful to represent a point by (X1 : Y1 : Z1 : T1) with T1 = Z²

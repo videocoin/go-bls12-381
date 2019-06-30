@@ -16,6 +16,14 @@ var (
 	fqCurveBPlusOne, _            = new(fq).SetString("5")
 	fqSqrtNegThree, _             = new(fq).SetString("1586958781458431025242759403266842894121773480562120986020912974854563298150952611241517463240701")
 	fqHalfSqrtNegThreeMinusOne, _ = new(fq).SetString("793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350")
+
+	iso11XNum = []*fq{}
+	iso11XDen = []*fq{}
+	iso11YNum = []*fq{}
+	iso11YDen = []*fq{}
+
+	// Values taken from the execution of https://eprint.iacr.org/2019/403.pdf - A The isogeny maps.
+	iso11K = [][]*fq{iso11XNum, iso11XDen, iso11YNum, iso11YDen}
 )
 
 // curvePoint is an elliptic curve point in projective coordinates. The elliptic
@@ -233,6 +241,73 @@ func (c *curvePoint) HashToPoint(buf []byte, ref0 []byte, ref1 []byte) *curvePoi
 	g11, _ := new(fq).SetInt(t0.Mod(t0.SetBytes(sum[:]), r))
 
 	return c.Add(new(curvePoint).SWEncode(g10), new(curvePoint).SWEncode(g11))
+}
+
+// SWUMap maps a value of the finite field to a point in the elliptic curve.
+// The point is not guaranteed to be in a particular subgroup.
+// SWUMap implements an optimized version of the SWU map.
+// See https://eprint.iacr.org/2019/403.pdf - Section 4.4.
+func (a *curvePoint) SWUMap(t *fq) *curvePoint {
+	n, t0, t1 := new(fq), new(fq), new(fq)
+	fqMul(t0, t, t)
+	fqMul(t1, t0, t0)
+	fqNeg(t0, t0)
+	fqAdd(t0, t0, t1)
+	fqAdd(n, t0, new(fq).SetUint64(1))
+	fqMul(n, n, fqCurveB)
+
+	d := new(fq).Set(t0) // a = -1 for performance
+	u := new(fq)
+	fqMul(u, n, n)
+	fqMul(u, u, n)
+	fqMul(t0, d, d)
+	fqMul(t1, n, t0)
+	fqNeg(t1, t1)
+	fqAdd(u, u, t1)
+	fqMul(t0, d, t0)
+	fqMul(t1, t0, fqCurveB)
+	fqAdd(u, u, t1)
+
+	/*
+		v := new(fq).Set(t0)
+
+		if t0 == fq{} {
+			fqMul(a.x, n, d)
+			fqMul(x.y, alpha, v)
+			a.z.Set(d)
+		} else {
+			fqMul(a.x, n, d)
+			fqMul(a.y, alpha, v)
+			a.z.Set(d)
+		}
+	*/
+
+	return a
+}
+
+// iso11 implements the 11-isogeny from E1´(Fp) to E1(Fp).
+// See https://eprint.iacr.org/2019/403.pdf - 4.3 Isogeny maps.
+func (a *curvePoint) iso11(b *curvePoint) *curvePoint {
+	term := new(fq)
+	mul := new(fq)
+	var sum [4]fq
+	for i, ki := range iso11K {
+		sum[i].Set(ki[0])
+		mul.SetUint64(1)
+		for _, kij := range ki[1:] {
+			fqMul(mul, mul, &b.x)
+			fqMul(term, kij, mul)
+			fqAdd(&sum[i], &sum[i], term)
+		}
+	}
+
+	fqInv(&sum[1], &sum[1])
+	fqMul(&a.x, &sum[0], &sum[1])
+	fqInv(&sum[3], &sum[3])
+	fqMul(term, &sum[2], &sum[3])
+	fqMul(&a.y, &b.y, term)
+
+	return a
 }
 
 // SWEncode implements the Shallue and van de Woestijne encoding.
